@@ -1,0 +1,91 @@
+/* Fondo general */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #d0e6f7; /* azul claro #d0e6f7*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Tarjetas */
+.card {
+    background-color: #fefefe;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+}
+
+.card h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* Etiquetas y inputs */
+form label {
+    display: block;
+    margin: 0.8rem 0 0.3rem;
+    text-align: left;
+    font-weight: 600;
+    color: #444;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* Checkbox de mostrar contraseña */
+.password-wrapper {
+    position: relative;
+    text-align: left;
+}
+
+/* Botones */
+.button {
+    margin-top: 1.2rem;
+    padding: 0.7rem;
+    width: 100%;
+    background-color: #2a7de1;
+    border: none;
+    color: white;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.button:hover {
+    background-color: #1f5fb5;
+}
+
+/* Texto de error */
+.error {
+    color: #e74c3c;
+    background-color: #fdecea;
+    border: 1px solid #e0b4b4;
+    padding: 0.5rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+/* Enlaces */
+.link {
+    color: #2a7de1;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
