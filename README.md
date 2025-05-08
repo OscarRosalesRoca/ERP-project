@@ -32,7 +32,7 @@ ERP/
 │   ├── home/
 │   │    └── sections/
 │   ├── login/
-│   ├── register/
+│   └── register/
 ├── sql/
 │    └── db.sql
 ├── index.php
@@ -49,16 +49,16 @@ Using XAMPP, you'll need to click "Start" in the "MySQL" module and then click t
 mysql -u root -p erp < path/db.sql -- In the file path you should write the absolute or relative path of your db.sql file, within ../ERP/sql/db.sql. Also in -p erp you can type whatever name you want.
 ```
 
-Inside the folders in ‘connection.php’ you will have to configure:
+Inside the folder config/ in ‘config_db.php’ you will have to configure:
 
 ```php
 $host = "localhost";
 
+$db = "your database name";
+
 $user = "your user, you can put root";
 
-$password = "your password, MySQL leaves it empty by default when creating a database";
-
-$database = "your database name";
+$pass = "your password, MySQL leaves it empty by default when creating a database";
 ```
 
 After creating the database and configuring the connection, all we have to do is return to XAMPP and click "Admin" in the "Apache" section. This will open a window in our browser with the path [http://localhost/dashboard/](http://localhost/dashboard/). We'll need to change it to [http://localhost/ERP/index.php](http://localhost/ERP/index.php).
@@ -70,3 +70,4 @@ All set.😄
 - Refactor code.
 - Finsih products and invoices.
 - Add search function.
+- Add user img function.
