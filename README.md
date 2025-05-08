@@ -11,6 +11,7 @@ To run ERP you will need to download the entire repository and save the root fol
 
 Inside the repository you will find the following folders:
 
+```text
 ERP/
 │
 ├── assets/
@@ -36,6 +37,7 @@ ERP/
 │    └── db.sql
 ├── index.php
 └── README.md
+```
 
 Only the files to be used are mentioned, the rest have been omitted.
 
