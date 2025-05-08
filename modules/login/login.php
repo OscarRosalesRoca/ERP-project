@@ -6,7 +6,7 @@ if (isset($_SESSION["usuario_id"])) {
     exit;
 }
 
-require_once ("../../includes/connection.php");
+require_once(__DIR__ . "/../../includes/connection.php");
 
 $error = "";
 
@@ -14,45 +14,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario = trim($_POST["usuario"]);
     $contrasenia = trim($_POST["contrasenia"]);
 
+    // Preparar la consulta
     $stmt = $connection->prepare("SELECT id, contrasenia, rol_id, nombre_usuario FROM usuarios WHERE nombre_usuario = ?");
-    $stmt->bind_param("s", $usuario);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
 
-    if ($resultado->num_rows === 1) {
-        $fila = $resultado->fetch_assoc();
-
-        if (password_verify($contrasenia, $fila["contrasenia"])) {
-            // Login correcto
-            $_SESSION["nombre_usuario"] = $fila["nombre_usuario"];
-            $_SESSION["usuario_id"] = $fila["id"];
-            $_SESSION["rol_id"] = $fila["rol_id"];
-            $_SESSION["ultimo_acceso"] = time();
-
-            // Redirección por rol
-            switch ($fila["rol_id"]) {
-                case 1:
-                    header("Location: /ERP/modules/home/admin_home.php");
-                    break;
-                case 2:
-                    header("Location: /ERP/modules/home/empleado_home.php");
-                    break;
-                case 3:
-                    header("Location: /ERP/modules/home/cliente_home.php");
-                    break;
-                default:
-                    $error = "Rol de usuario desconocido.";
-                    break;
-            }
-            exit;
-        } else {
-            $error = "Contraseña incorrecta.";
-        }
+     // Verificar si la preparación fue exitosa
+    if ($stmt === false) {
+        $error = "Error al preparar la consulta. No hay registros en la base de datos. Error: " . $connection->error;
     } else {
-        $error = "Usuario no encontrado.";
-    }
+        $stmt->bind_param("s", $usuario);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
 
-    $stmt->close();
+        if ($resultado->num_rows === 1) {
+            $fila = $resultado->fetch_assoc();
+
+            if (password_verify($contrasenia, $fila["contrasenia"])) {
+                // Login correcto
+                $_SESSION["nombre_usuario"] = $fila["nombre_usuario"];
+                $_SESSION["usuario_id"] = $fila["id"];
+                $_SESSION["rol_id"] = $fila["rol_id"];
+                $_SESSION["ultimo_acceso"] = time();
+
+                // Redirección por rol
+                switch ($fila["rol_id"]) {
+                    case 1:
+                        header("Location: /ERP/modules/home/admin_home.php");
+                        break;
+                    case 2:
+                        header("Location: /ERP/modules/home/empleado_home.php");
+                        break;
+                    case 3:
+                        header("Location: /ERP/modules/home/cliente_home.php");
+                        break;
+                    default:
+                        $error = "Rol de usuario desconocido.";
+                        break;
+                }
+                exit;
+            } else {
+                $error = "Contraseña incorrecta.";
+            }
+        } else {
+            $error = "Usuario no encontrado.";
+        }
+
+        $stmt->close();
+    }
 }
 ?>
 

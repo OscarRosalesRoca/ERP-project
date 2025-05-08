@@ -10,7 +10,7 @@ INSERT INTO roles (nombre_rol) VALUES ("cliente");
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre_usuario VARCHAR(100) UNIQUE NOT NULL,
-    contrasena VARCHAR(255) NOT NULL, 
+    contrasenia VARCHAR(255) NOT NULL, 
     rol_id INT NOT NULL, 
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (rol_id) REFERENCES roles(id) 
@@ -41,20 +41,20 @@ CREATE TABLE IF NOT EXISTS proveedores_clientes (
 CREATE TABLE IF NOT EXISTS producto_servicio (
 	cod_producto INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	nombre VARCHAR (100) NOT NULL,
-	iva INT NOT NULL,
+	iva DECIMAL (20,2) NOT NULL,
 	precio_venta DECIMAL (20,2) NOT NULL,
 	activo BOOLEAN NOT NULL -- Hay que ponerlo TRUE con el código PHP
 );
 
 -- Modificación: Crear una tabla intermedia por si un proveedor da muchos productos
 CREATE TABLE producto_proveedor (
-    cod_producto INT NOT NULL,
-    cod_proveedor INT NOT NULL,
-	nombre_proveedor_snapshot VARCHAR(100), -- Con código guardar la información de proveedor también aquí para guardar historial
+    cod_producto INT,
+    cod_actor INT,
+    nombre_proveedor_snapshot VARCHAR(100), 
     precio_compra DECIMAL(20,2),
-    PRIMARY KEY (cod_producto, cod_proveedor),
+    PRIMARY KEY (cod_producto, cod_actor),
     FOREIGN KEY (cod_producto) REFERENCES producto_servicio(cod_producto) ON DELETE CASCADE,
-    FOREIGN KEY (cod_proveedor) REFERENCES proveedores_clientes(cod_actor) ON DELETE SET NULL
+    FOREIGN KEY (cod_actor) REFERENCES proveedores_clientes(cod_actor) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS almacen (

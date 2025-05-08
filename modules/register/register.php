@@ -1,5 +1,6 @@
 <?php
-require_once ("../../includes/connection.php");
+
+require_once(__DIR__ . "/../../includes/connection.php");
 
 $errores = "";
 $exito = false;
@@ -40,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $errores = "El nombre de usuario ya está en uso.";
         } else {
 
-            require_once("../../includes/functions/empleado/create_empleado.php");
+            require_once(__DIR__ ."/../../includes/functions/empleado/create_empleado.php");
 
             if (createEmpleado($nombre, $mail, $telefono, $dni, $contrasenia)) {
                 header("Location: /ERP/modules/login/login.php?registro=ok");

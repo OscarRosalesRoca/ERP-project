@@ -67,7 +67,7 @@ All set.😄
 
 ## THINGS TO DO
 
-- Refactor code.
-- Finsih products and invoices.
+- Finsih invoices.
+- Fix paths
 - Add search function.
 - Add user img function.

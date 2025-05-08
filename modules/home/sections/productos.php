@@ -4,9 +4,17 @@ require_once("../../includes/auth.php");
 
 // Consulta solo clientes
 $query = "
-    SELECT cod_producto, nombre, iva, precio_compra, precio_venta 
-    FROM producto_servicio
-    ORDER BY cod_producto ASC
+    SELECT 
+        ps.cod_producto, 
+        ps.nombre, 
+        ps.iva, 
+        pp.precio_compra, 
+        ps.precio_venta,
+        pc.nombre AS nombre_proveedor
+    FROM producto_servicio ps
+    JOIN producto_proveedor pp ON ps.cod_producto = pp.cod_producto
+    JOIN proveedores_clientes pc ON pp.cod_actor = pc.cod_actor
+    ORDER BY ps.cod_producto ASC
 ";
 
 $resultado = $connection->query($query);
@@ -28,7 +36,7 @@ if ($resultado === false) {
     <h2>Productos</h2>
 
     <div class="nuevo_general">
-        <a href="crear_general.php">+ Nuevo producto</a>
+        <a href="/ERP/includes/functions/producto/create_producto.php">+ Nuevo producto</a>
     </div>
 
     <?php if ($resultado && $resultado->num_rows > 0): ?>
@@ -40,18 +48,20 @@ if ($resultado === false) {
                     <th>IVA</th>
                     <th>Precio de compra</th>
                     <th>Precio de venta</th>
+                    <th>Proveedor</th>
+                    <th>Editar</th>
                 </tr>
             </thead>
             <tbody>
                 <?php while ($row = $resultado->fetch_assoc()): ?>
                     <tr>
-                    cod_producto, nombre, iva, precio_compra, precio_venta 
                         <td><?= htmlspecialchars($row["cod_producto"]) ?></td>
                         <td><?= htmlspecialchars($row["nombre"]) ?></td>
                         <td><?= htmlspecialchars($row["iva"]) ?></td>
                         <td><?= htmlspecialchars($row["precio_compra"]) ?></td>
                         <td><?= htmlspecialchars($row["precio_venta"]) ?></td>
-                        <td class="editar"><a href="editar_producto.php?cod=<?= urlencode($row["cod_producto"]) ?>">Editar</a></td>
+                        <td><?= htmlspecialchars($row["nombre_proveedor"]) ?></td>
+                        <td class="editar"><a href="/ERP/includes/functions/producto/edit_delete_producto.php?cod=<?= urlencode($row["cod_producto"]) ?>">Editar</a></td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>

@@ -42,11 +42,29 @@ form label {
 
 input[type="text"],
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+input[type="number"] {
     padding: 10px;
     font-size: 14px;
     border-radius: 5px;
     border: 1px solid #ccc;
+}
+
+select {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    appearance: none;  /* Elimina el estilo predeterminado del navegador */
+    -webkit-appearance: none; /* Para navegadores webkit (Safari, Chrome) */
+    -moz-appearance: none; /* Para Firefox */
+}
+
+select:focus {
+    border-color: #66afe9;
+    outline: none;
+    box-shadow: 0 0 5px rgba(102, 175, 233, .6);
 }
 
 .botones {
@@ -98,4 +116,8 @@ button:hover {
     color: red;
     font-size: 14px;
     margin: 5px 0;
+}
+
+.errores {
+    color: red;
 }
