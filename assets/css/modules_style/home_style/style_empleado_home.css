@@ -10,9 +10,9 @@ html, body {
 }
 
 /* Estilo general del contenedor principal */
-.dashboard-container {
+.dashboard_container {
     display: flex;
-    height: 100vh; /* Hace que ocupe toda la altura de la pantalla */
+    height: 100vh; 
 }
 
 /* Estilo de la sidebar */
@@ -32,19 +32,19 @@ html, body {
 }
 
 /* Contenedor de la foto de usuario y nombre */
-.user-info-container {
+.user_info_container {
     text-align: center;
     margin-bottom: 10px; /* Reducimos el espacio entre la foto y el nombre */
 }
 
-.user-photo {
+.user_photo {
     width: 130px;
     height: 130px;
     border-radius: 50%;
     margin-bottom: 5px; /* Reducimos el margen debajo de la foto */
 }
 
-.user-info-container span {
+.user_info_container span {
     display: block;
     color: #fff;
     margin-bottom: 5px;
@@ -86,12 +86,12 @@ html, body {
 }
 
 /* Estilo del botón de logout */
-.logout-container {
+.logout_container {
     margin-top: 20px; /* Espacio después del menú */
     text-align: center;
 }
 
-.logout-button {
+.logout_button {
     display: block;
     color: #fff;
     background-color: #e74c3c;
@@ -101,12 +101,12 @@ html, body {
     border-radius: 5px;
 }
 
-.logout-button:hover {
+.logout_button:hover {
     background-color: #c0392b;
 }
 
-/* Estilo del contenedor principal */
-.main-content {
+/* Estilo del contenedor DINÁMICO */
+.main_content {
     padding: 20px;
     margin-left: 290px; /* El main-content empieza después de la sidebar */
     height: 100vh; /* Hace que el contenido principal ocupe toda la altura */

@@ -5,7 +5,7 @@ body {
     background-color: #ffffff; 
 }
 
-.clientes-container {
+.general_container {
     width: 100%;
     min-height: 100vh;
     padding: 20px;
@@ -18,11 +18,11 @@ h2 {
     margin: 0 0 20px 0;
 }
 
-.nuevo-cliente {
+.nuevo_general {
     margin-bottom: 20px;
 }
 
-.nuevo-cliente a {
+.nuevo_general a {
     background-color: #28a745;
     color: white;
     padding: 10px 16px;
@@ -52,7 +52,7 @@ tbody tr:nth-child(odd) {
     background-color: #ffffff;
 }
 
-.sin-resultados {
+.sin_resultados {
     padding: 20px;
     text-align: center;
     background-color: #f8d7da;
@@ -61,7 +61,7 @@ tbody tr:nth-child(odd) {
     margin-top: 20px;
 }
 
-.sin-resultados p {
+.sin_resultados p {
     margin: 0;
     padding: 0;
 }
@@ -73,27 +73,27 @@ tbody tr:nth-child(odd) {
 
 
 /* Estilo para tabla de clientes con filas alternadas */
-.tabla-clientes tbody tr:nth-child(odd) {
+.tabla_general tbody tr:nth-child(odd) {
     background-color: #ecf0f1; /* Gris claro */
 }
 
-.tabla-clientes tbody tr:nth-child(even) {
+.tabla_general tbody tr:nth-child(even) {
     background-color: #ffffff; /* Blanco */
 }
 
 /* Bordes y espaciado para mayor claridad */
-.tabla-clientes {
+.tabla_general {
     width: 100%;
     border-collapse: collapse;
 }
 
-.tabla-clientes th, .tabla-clientes td {
+.tabla_general th, .tabla-general td {
     padding: 12px;
     border: 1px solid #ccc;
     text-align: left;
 }
 
-.tabla-clientes th {
+.tabla_general th {
     background-color: #2c3e50;
     color: white;
 }

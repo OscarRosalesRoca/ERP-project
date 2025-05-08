@@ -47,12 +47,12 @@ $rol_texto = $roles[$datos["rol_id"]] ?? "Desconocido";
 <head>
     <meta charset="UTF-8">
     <title>Área personal</title>
-    <link rel="stylesheet" href="/ERP/assets/css/style_personal.css">
+    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/sections_style/style_personal.css">
 </head>
 <body>
-<div class="personal-container">
+<div class="personal_container">
     <h2>Área personal</h2>
-    <ul class="personal-info">
+    <ul class="personal_info">
         <li><strong>Nombre de usuario:</strong> <?php echo htmlspecialchars($datos["nombre_usuario"]); ?></li>
         <li><strong>Rol:</strong> <?php echo $rol_texto; ?></li>
         <li><strong>DNI:</strong> <?php echo htmlspecialchars($datos["dni"] ?? "No disponible"); ?></li>
@@ -60,7 +60,7 @@ $rol_texto = $roles[$datos["rol_id"]] ?? "Desconocido";
         <li><strong>Teléfono:</strong> <?php echo htmlspecialchars($datos["telefono"] ?? "No disponible"); ?></li>
         <li><strong>Fecha de creación:</strong> <?php echo htmlspecialchars($datos["fecha_creacion"]); ?></li>
         <li>
-            <a href="/ERP/includes/functions/empleado/edit_delete_empleado.php" class="editar-link">Editar contraseña o perfil</a>
+            <a href="/ERP/includes/functions/empleado/edit_delete_empleado.php" class="editar_link">Editar contraseña o perfil</a>
         </li>
     </ul>
 </div>

@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #e0f0ff; /* azul claro */
+    background-color: #e0f0ff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,7 +10,7 @@ body {
 }
 
 .card {
-    background-color: #fdfdfd; /* blanco suave */
+    background-color: #fdfdfd; 
     padding: 40px 60px;
     border-radius: 20px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
@@ -29,7 +29,7 @@ h3 {
 }
 
 .button {
-    background-color: #2b7ec1; /* azul más oscuro */
+    background-color: #2b7ec1;
     color: white;
     padding: 12px 25px;
     border: none;

@@ -4,7 +4,7 @@ body {
     padding: 0;
     background-color: #ffffff; 
 }
-.historial-container {
+.historial_container {
     width: 100%;
     min-height: 100vh;
     padding: 20px;
@@ -39,7 +39,7 @@ tbody tr:nth-child(odd) {
     background-color: #ffffff;
 }
 
-.sin-resultados {
+.sin_resultados {
     padding: 20px;
     text-align: center;
     background-color: #f8d7da;
@@ -48,12 +48,12 @@ tbody tr:nth-child(odd) {
     margin-top: 20px;
 }
 
-.sin-resultados p {
+.sin_resultados p {
     margin: 0;
     padding: 0;
 }
 
-.ver-mas a {
+.ver_mas a {
     text-decoration: none;
     color: #007bff;
 }

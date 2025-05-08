@@ -30,10 +30,10 @@ if ($resultado === false) {
 <head>
     <meta charset="UTF-8">
     <title>Historial de actividad</title>
-    <link rel="stylesheet" href="/ERP/assets/css/style_historial.css">
+    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/sections_style/style_historial.css">
 </head>
 <body>
-<div class="historial-container">
+<div class="historial_container">
     <h2>Historial de actividad</h2>
     <?php if ($resultado && $resultado->num_rows > 0): ?>
         <table>
@@ -61,13 +61,13 @@ if ($resultado === false) {
                         <td><?= htmlspecialchars($row["nombre_actor"]) ?></td>
                         <td><?= htmlspecialchars($row["total_factura"]) ?> €</td>
                         <td><?= htmlspecialchars($row["fecha"]) ?></td>
-                        <td class="ver-mas"><a href="#">Ver más</a></td>
+                        <td class="ver_mas"><a href="#">Ver más</a></td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
     <?php else: ?>
-        <div class="sin-resultados">
+        <div class="sin_resultados">
             <p>No hay actividad registrada aún.</p>
         </div>
     <?php endif; ?>

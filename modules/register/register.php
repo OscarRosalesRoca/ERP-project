@@ -39,10 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($resultado_empleado->num_rows > 0 || $resultado_usuario->num_rows > 0) {
             $errores = "El nombre de usuario ya está en uso.";
         } else {
-            // Requiere la función para crear empleado/usuario
+
             require_once("../../includes/functions/empleado/create_empleado.php");
 
-            // Llamar a la función, la contraseña será hasheada internamente allí
             if (createEmpleado($nombre, $mail, $telefono, $dni, $contrasenia)) {
                 header("Location: /ERP/modules/login/login.php?registro=ok");
                 exit;
@@ -59,8 +58,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Registro - ERP</title>
-    <link rel="stylesheet" href="/ERP/assets/css/general_styles.css">
-    <link rel="stylesheet" href="/ERP/assets/css/style_register.css">
+    <link rel="stylesheet" href="/ERP/assets/css/modules_style/general_login_register_styles.css">
+    <link rel="stylesheet" href="/ERP/assets/css/modules_style/register_style/style_register.css">
 </head>
 <body>
     <div class="card">
@@ -70,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <input type="email" name="mail" placeholder="Correo electrónico" required>
             <input type="text" name="telefono" placeholder="Teléfono" required>
             <input type="text" name="dni" placeholder="DNI" required>
-            <div class="password-wrapper">
+            <div class="password_wrapper">
                 <input type="password" name="contrasenia" id="contrasenia" required placeholder="Contraseña">
                 <input type="checkbox" id="togglePassword"> Mostrar
             </div>

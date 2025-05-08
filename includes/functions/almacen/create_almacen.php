@@ -34,11 +34,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Nuevo Almacen</title>
-    <link rel="stylesheet" href="/ERP/assets/css/style_edit_empleado.css">
+    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
-    <div class="tarjeta">
+    <div class="card">
         <h2>Registrar nuevo almacen</h2>
 
         <?php if (!empty($errores)): ?>

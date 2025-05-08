@@ -1,6 +1,6 @@
 <?php
-require_once("../../../includes/connection.php");
-require_once("../../../includes/auth.php");
+require_once("../../connection.php");
+require_once("../../auth.php");
 
 $errores = [];
 
@@ -43,11 +43,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Nuevo Cliente</title>
-    <link rel="stylesheet" href="/ERP/assets/css/style_edit_empleado.css">
+    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
-    <div class="tarjeta">
+    <div class="card">
         <h2>Registrar nuevo cliente</h2>
 
         <?php if (!empty($errores)): ?>

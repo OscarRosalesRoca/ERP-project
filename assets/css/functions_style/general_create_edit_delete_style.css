@@ -12,7 +12,7 @@ body, html {
     align-items: center;
 }
 
-.tarjeta {
+.card {
     background-color: #fff;
     padding: 30px 40px;
     border-radius: 10px;
@@ -21,7 +21,7 @@ body, html {
     text-align: center;
 }
 
-.tarjeta h2 {
+.card h2 {
     margin-bottom: 20px;
     color: #2c3e50;
 }
@@ -77,20 +77,20 @@ button:hover {
     background-color: #2980b9;
 }
 
-.eliminar-boton {
+.eliminar_boton {
     background-color: #e74c3c;
 }
 
-.eliminar-boton p {
+.eliminar_boton p {
     color: white;
 }
 
-.eliminar-boton p {
+.eliminar_boton p {
     margin: 0;
     padding: 0;
 }
 
-.eliminar-boton:hover {
+.eliminar_boton:hover {
     background-color: #c0392b;
 }
 

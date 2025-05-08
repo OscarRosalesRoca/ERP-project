@@ -19,7 +19,7 @@ ERP/
 │   ├── img/
 │   └── js/
 ├── config/
-│   └── db.php
+│   └── config_db.php
 ├── includes/
 │   ├── functions/
 │   │     ├── almacen/

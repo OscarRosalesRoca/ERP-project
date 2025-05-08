@@ -46,7 +46,7 @@ form input[type="password"] {
 }
 
 /* Checkbox de mostrar contraseña */
-.password-wrapper {
+.password_wrapper {
     position: relative;
     text-align: left;
 }

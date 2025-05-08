@@ -2,7 +2,7 @@
 session_start();
 
 if (isset($_SESSION["usuario_id"])) {
-    header("Location: /ERP/modules/home/empleado_home.php"); // Redirección por defecto
+    header("Location: /ERP/modules/home/empleado_home.php"); 
     exit;
 }
 
@@ -61,8 +61,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="/ERP/assets/css/general_styles.css">
-    <link rel="stylesheet" href="/ERP/assets/css/style_login.css">
+    <link rel="stylesheet" href="/ERP/assets/css/modules_style/general_login_register_styles.css">
+    <link rel="stylesheet" href="/ERP/assets/css/modules_style/login_style/style_login.css">
 </head>
 <body>
     <div class="card">
@@ -75,14 +75,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="text" name="usuario" id="usuario" required>
 
             <label for="contrasenia">Contraseña:</label>
-            <div class="password-wrapper">
+            <div class="password_wrapper">
                 <input type="password" name="contrasenia" id="contrasenia" required>
                 <input type="checkbox" id="togglePassword"> Mostrar
             </div>
 
             <button class="button" type="submit">Iniciar sesión</button>
         </form>
-        <p class="registro-link">¿No tienes una cuenta? <a class="link" href="/ERP/modules/register/register.php">Regístrate</a></p>
+        <p class="registro_link">¿No tienes una cuenta? <a class="link" href="/ERP/modules/register/register.php">Regístrate</a></p>
     </div>
 
     <script>

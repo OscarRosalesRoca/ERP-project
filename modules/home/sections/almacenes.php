@@ -21,18 +21,18 @@ if ($resultado === false) {
 <head>
     <meta charset="UTF-8">
     <title>Almacenes</title>
-    <link rel="stylesheet" href="/ERP/assets/css/general_style_side_bar_menu.css">
+    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
 </head>
 <body>
-<div class="clientes-container">
+<div class="general_container">
     <h2>Almacenes</h2>
 
-    <div class="nuevo-cliente">
+    <div class="nuevo_general">
         <a href="/ERP/includes/functions/almacen/create_almacen.php">+ Nuevo almacen</a>
     </div>
 
     <?php if ($resultado && $resultado->num_rows > 0): ?>
-        <table class="tabla-clientes">
+        <table class="tabla_general">
             <thead>
                 <tr>
                     <th>Código</th>
@@ -51,7 +51,7 @@ if ($resultado === false) {
             </tbody>
         </table>
     <?php else: ?>
-        <div class="sin-resultados">
+        <div class="sin_resultados">
             <p>No hay almacenes registrados aún.</p>
         </div>
     <?php endif; ?>

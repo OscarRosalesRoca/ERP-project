@@ -22,14 +22,14 @@ $stmt = $connection->prepare($query);
 $stmt->bind_param("s", $nombre_usuario);
 $stmt->execute();
 $result = $stmt->get_result();
-$datos = $result->fetch_assoc();
+$empleado = $result->fetch_assoc();
 
-if (!$datos) {
+if (!$empleado) {
     echo "<p>Error: usuario no encontrado.</p>";
     exit;
 }
 
-$usuario_id = $datos["usuario_id"];
+$usuario_id = $empleado["usuario_id"];
 $errores = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_usuario"])) {
@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Si no hay errores, procesamos actualizaciones
     if (empty($errores)) {
         // Actualizar usuarios si cambió nombre o contraseña
-        if (!empty($nuevo_nombre) && $nuevo_nombre !== $datos["nombre_usuario"]) {
+        if (!empty($nuevo_nombre) && $nuevo_nombre !== $empleado["nombre_usuario"]) {
             // Actualizar en usuarios
             $stmt = $connection->prepare("UPDATE usuarios SET nombre_usuario = ? WHERE id = ?");
             $stmt->bind_param("si", $nuevo_nombre, $usuario_id);
@@ -89,19 +89,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         // Actualizar campos en empleado
-        if (!empty($nuevo_email) && $nuevo_email !== $datos["mail"]) {
+        if (!empty($nuevo_email) && $nuevo_email !== $empleado["mail"]) {
             $stmt = $connection->prepare("UPDATE empleado SET mail = ? WHERE usuario_id = ?");
             $stmt->bind_param("si", $nuevo_email, $usuario_id);
             $stmt->execute();
         }
 
-        if (!empty($nuevo_telefono) && $nuevo_telefono !== $datos["telefono"]) {
+        if (!empty($nuevo_telefono) && $nuevo_telefono !== $empleado["telefono"]) {
             $stmt = $connection->prepare("UPDATE empleado SET telefono = ? WHERE usuario_id = ?");
             $stmt->bind_param("si", $nuevo_telefono, $usuario_id);
             $stmt->execute();
         }
 
-        if (!empty($nuevo_dni) && $nuevo_dni !== $datos["dni"]) {
+        if (!empty($nuevo_dni) && $nuevo_dni !== $empleado["dni"]) {
             $stmt = $connection->prepare("UPDATE empleado SET dni = ? WHERE usuario_id = ?");
             $stmt->bind_param("si", $nuevo_dni, $usuario_id);
             $stmt->execute();
@@ -122,11 +122,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Editar perfil</title>
-    <link rel="stylesheet" href="/ERP/assets/css/style_edit_empleado.css">
+    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
-    <div class="tarjeta">
+    <div class="card">
         <h2>Editar perfil</h2>
 
         <?php if (!empty($errores)): ?>
@@ -139,16 +139,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <form method="POST">
             <label>Nombre de usuario</label>
-            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($datos["nombre_usuario"]) ?>">
+            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($empleado["nombre_usuario"]) ?>">
 
             <label>Correo electrónico</label>
-            <input type="email" name="email" placeholder="<?= htmlspecialchars($datos["mail"]) ?>">
+            <input type="email" name="email" placeholder="<?= htmlspecialchars($empleado["mail"]) ?>">
 
             <label>Teléfono</label>
-            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($datos["telefono"]) ?>">
+            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($empleado["telefono"]) ?>">
 
             <label>DNI</label>
-            <input type="text" name="dni" placeholder="<?= htmlspecialchars($datos["dni"]) ?>">
+            <input type="text" name="dni" placeholder="<?= htmlspecialchars($empleado["dni"]) ?>">
 
             <label>Contraseña</label>
             <input type="password" name="contrasenia" placeholder="Nueva contraseña (opcional)">
@@ -156,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="botones">
                 <button type="submit">Guardar cambios</button>
                 <p>o</p>
-                <button type="submit" name="eliminar_usuario" class="eliminar-boton" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
+                <button type="submit" name="eliminar_usuario" class="eliminar_boton" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
                     <p>Eliminar cuenta</p>
                 </button>
             </div>

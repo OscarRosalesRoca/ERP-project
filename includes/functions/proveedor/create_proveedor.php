@@ -42,13 +42,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Nuevo Cliente</title>
-    <link rel="stylesheet" href="/ERP/assets/css/style_edit_empleado.css">
+    <title>Nuevo Proveedor</title>
+    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
-    <div class="tarjeta">
-        <h2>Registrar nuevo cliente</h2>
+    <div class="card">
+        <h2>Registrar nuevo proveedor</h2>
 
         <?php if (!empty($errores)): ?>
             <div class="errores">

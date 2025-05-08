@@ -102,11 +102,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Editar cliente</title>
-    <link rel="stylesheet" href="/ERP/assets/css/style_edit_empleado.css">
+    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
-    <div class="tarjeta">
+    <div class="card">
         <h2>Editar cliente</h2>
 
         <?php if (!empty($errores)): ?>
@@ -139,7 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="botones">
                 <button type="submit">Guardar cambios</button>
                 <p>o</p>
-                <button type="submit" name="eliminar_cliente" class="eliminar-boton" onclick="return confirm('¿Eliminar cliente? Esta acción no se puede deshacer.')">
+                <button type="submit" name="eliminar_cliente" class="eliminar_boton" onclick="return confirm('¿Eliminar cliente? Esta acción no se puede deshacer.')">
                     <p>Eliminar cliente</p>
                 </button>
             </div>

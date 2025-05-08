@@ -43,13 +43,14 @@ CREATE TABLE IF NOT EXISTS producto_servicio (
 	nombre VARCHAR (100) NOT NULL,
 	iva INT NOT NULL,
 	precio_venta DECIMAL (20,2) NOT NULL,
-	activo BOOLEAN NOT NULL 
+	activo BOOLEAN NOT NULL -- Hay que ponerlo TRUE con el código PHP
 );
 
+-- Modificación: Crear una tabla intermedia por si un proveedor da muchos productos
 CREATE TABLE producto_proveedor (
     cod_producto INT NOT NULL,
     cod_proveedor INT NOT NULL,
-	nombre_proveedor_snapshot VARCHAR(100), 
+	nombre_proveedor_snapshot VARCHAR(100), -- Con código guardar la información de proveedor también aquí para guardar historial
     precio_compra DECIMAL(20,2),
     PRIMARY KEY (cod_producto, cod_proveedor),
     FOREIGN KEY (cod_producto) REFERENCES producto_servicio(cod_producto) ON DELETE CASCADE,

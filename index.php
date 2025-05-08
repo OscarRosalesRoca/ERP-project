@@ -22,9 +22,9 @@ session_start();
 <?php
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["iniciar"])) {
     if (isset($_SESSION["usuario_id"])) {
-        header("Location: dashboard.php");
+        header("Location: /ERP/modules/home/empleado_home.php");
     } else {
-        header("Location: modules/login/login.php");
+        header("Location: /ERP/modules/login/login.php");
     }
     exit;
 }

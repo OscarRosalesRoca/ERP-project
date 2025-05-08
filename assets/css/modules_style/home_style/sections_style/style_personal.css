@@ -7,7 +7,7 @@ body {
 }
 
 /* Contenedor principal */
-.personal-container {
+.personal_container {
     width: 100%;
     min-height: 100vh;
     padding: 20px;
@@ -15,20 +15,20 @@ body {
 }
 
 /* Título principal */
-.personal-container h2 {
+.personal_container h2 {
     font-size: 32px;
     color: #2c3e50;
     margin: 0 0 20px 0;
 }
 
 /* Estilos para las franjas alternadas */
-.personal-info {
+.personal_info {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-.personal-info li {
+.personal_info li {
     font-size: 16px;
     color: #34495e;
     line-height: 1.8;
@@ -36,21 +36,21 @@ body {
 }
 
 /* Franjas de fondo alternadas */
-.personal-info li:nth-child(odd) {
+.personal_info li:nth-child(odd) {
     background-color: #ecf0f1; /* Gris muy claro */
 }
 
-.personal-info li:nth-child(even) {
+.personal_info li:nth-child(even) {
     background-color: #ffffff; /* Blanco */
 }
 
 /* Resaltado de valores */
-.personal-info li strong {
+.personal_info li strong {
     color: #2c3e50;
     font-weight: bold;
 }
 
 /* Contraseña con asteriscos */
-.personal-info li.contrasenia::after {
+.personal_info li.contrasenia::after {
     content: "********"; /* Esto crea la cadena de asteriscos */
 }

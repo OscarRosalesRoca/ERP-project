@@ -16,13 +16,14 @@ $permitidas = ["personal", "historial", "clientes", "proveedores", "almacenes", 
 <head>
     <meta charset="UTF-8">
     <title>Panel del Empleado</title>
-    <link rel="stylesheet" href="/ERP/assets/css/style_empleado_home.css">
+    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/style_empleado_home.css">
 </head>
-<div class="dashboard-container">
+<body>
+<div class="dashboard_container">
         <div class="sidebar">
             <!-- Contenedor de la foto y el nombre del usuario -->
-            <div class="user-info-container">
-                <img src="/ERP/assets/img/default_user.jpg" class="user-photo" alt="Foto de usuario">
+            <div class="user_info_container">
+                <img src="/ERP/assets/img/default_user.jpg" class="user_photo" alt="Foto de usuario">
                 <span><?php echo $_SESSION["nombre_usuario"] ?? 'Usuario'; ?></span>
             </div>
 
@@ -38,13 +39,13 @@ $permitidas = ["personal", "historial", "clientes", "proveedores", "almacenes", 
             </ul>
 
             <!-- Botón de logout -->
-            <div class="logout-container">
-                <a class="logout-button" href="/ERP/modules/login/logout.php">Cerrar sesión</a>
+            <div class="logout_container">
+                <a class="logout_button" href="/ERP/modules/login/logout.php">Cerrar sesión</a>
             </div>
         </div>
 
         <!-- Contenedor de contenido principal -->
-        <div class="main-content">
+        <div class="main_content">
             <?php
             // Verificamos si la página solicitada es permitida
             if (in_array($pagina, $permitidas)) {
