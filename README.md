@@ -1,18 +1,70 @@
-# PRESENTACIÓN
+# PRESENTATION
 
-Proyecto de un ERP creado para la asignatura de "Sistemas de gestión empresarial" en DigiTech por Óscar Rosales Roca.
-Work in progress. Pretendo seguir mejorando funcionalidades del proyecto una vez terminada la entrega.
+ERP project created for the subject ‘Business Management Systems’ at DigiTech by Óscar Rosales Roca.
+Work in progress. I intend to continue improving the functionalities of the project once the delivery is finished.
 
-## INSTRUCCIONES DE USO
+## INSTRUCTIONS FOR USE
 
-Para ejecutar el programa necesitarás descargar el paquete ERP que contiene todo el código, contar con un IDE y con XAMPP, donde utilizaremos las funciones de MySQL para la base de datos y APACHE para ejecutar el servidor en local y gestionar nuestra base de datos.
-...
+First of all you must have an IDE, a web browser and XAMPP installed on your computer.
 
-## COSAS POR HACER
+To run ERP you will need to download the entire repository and save the root folder inside the XAMPP folders, specifically in ‘xampp/htdocs/...’. You can call the root folder whatever you want but from now on we will call it ‘ERP’.
 
-- Reescribir muchas class y palabras comunes entre archivos, usar las mismas nomenclaturas.
-- Compartimentar en carpetas los css y agrupar estilos generales.
-- Cambiar los estilos para que los registros en la aplicación se vean con una línea gris claro y la siguiente blanco.
-- Depurar base de datos.
-- Añadir función de buscador.
-- Mirar de cambiar el flujo de trabajo: Poder crear un producto a la hora de hacer una factura, crear un producto sin proveedor, facturar un producto que aún no está en almacen o comprado. Más flexibilidad.
+Inside the repository you will find the following folders:
+
+ERP/
+│
+├── assets/
+│   ├── css/
+│   ├── img/
+│   └── js/
+├── config/
+│   └── db.php
+├── includes/
+│   ├── functions/
+│   │     ├── almacen/
+│   │     ├── cliente/
+│   │     ├── empleado/
+│   │     ├──producto/
+│   │     └── proveedor/
+│   └── connection.php
+├── modules/
+│   ├── home/
+│   │    └── sections/
+│   ├── login/
+│   ├── register/
+├── sql/
+│    └── db.sql
+├── index.php
+└── README.md
+
+Only the files to be used are mentioned, the rest have been omitted.
+
+Before configuring "connection.php," you'll need to create the database.
+
+Using XAMPP, you'll need to click "Start" in the "MySQL" module and then click the "Shell" button in the right-hand menu. Once in the terminal, start MariaDB with:
+
+```sql
+mysql -u root -p erp < path/db.sql -- In the file path you should write the absolute or relative path of your db.sql file, within ../ERP/sql/db.sql. Also in -p erp you can type whatever name you want.
+```
+
+Inside the folders in ‘connection.php’ you will have to configure:
+
+```php
+$host = "localhost";
+
+$user = "your user, you can put root";
+
+$password = "your password, MySQL leaves it empty by default when creating a database";
+
+$database = "your database name";
+```
+
+After creating the database and configuring the connection, all we have to do is return to XAMPP and click "Admin" in the "Apache" section. This will open a window in our browser with the path [http://localhost/dashboard/](http://localhost/dashboard/). We'll need to change it to [http://localhost/ERP/index.php](http://localhost/ERP/index.php).
+
+All set.😄
+
+## THINGS TO DO
+
+- Refactor code.
+- Finsih products and invoices.
+- Add search function.
