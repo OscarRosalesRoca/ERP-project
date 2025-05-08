@@ -33,7 +33,7 @@ if ($resultado === false) {
     </div>
 
     <?php if ($resultado && $resultado->num_rows > 0): ?>
-        <table>
+        <table class="tabla-clientes">
             <thead>
                 <tr>
                     <th>Código</th>

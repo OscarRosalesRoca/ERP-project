@@ -1,18 +1,18 @@
-# PRESENTATION
+# PRESENTACIÓN
 
-ERP project created for the subject "Business Management Systems" at DigiTech by Óscar Rosales Roca.
-Work in progress. I intend to continue improving the functionalities of the project once the delivery is finished.
+Proyecto de un ERP creado para la asignatura de "Sistemas de gestión empresarial" en DigiTech por Óscar Rosales Roca.
+Work in progress. Pretendo seguir mejorando funcionalidades del proyecto una vez terminada la entrega.
 
-## INSTRUCTIONS FOR USE
+## INSTRUCCIONES DE USO
 
-To run the program you will need to download the ERP package that contains all the code, have an IDE and XAMPP, where we will use the MySQL functions for the database and APACHE to run the server locally and manage our database.
+Para ejecutar el programa necesitarás descargar el paquete ERP que contiene todo el código, contar con un IDE y con XAMPP, donde utilizaremos las funciones de MySQL para la base de datos y APACHE para ejecutar el servidor en local y gestionar nuestra base de datos.
 ...
 
-## THINGS TO DO
+## COSAS POR HACER
 
-- Rewrite many class and common words between files, use the same nomenclatures.
-- Compartmentalize css in folders and group general styles.
-- Change the styles so that the records in the application look with one line light grey and the next white.
-- Debug database.
-- Add search function.
-- Look at changing the workflow: Being able to create a product when making an invoice, create a product without a supplier, invoice a product that is not yet in stock or purchased. More flexibility.
+- Reescribir muchas class y palabras comunes entre archivos, usar las mismas nomenclaturas.
+- Compartimentar en carpetas los css y agrupar estilos generales.
+- Cambiar los estilos para que los registros en la aplicación se vean con una línea gris claro y la siguiente blanco.
+- Depurar base de datos.
+- Añadir función de buscador.
+- Mirar de cambiar el flujo de trabajo: Poder crear un producto a la hora de hacer una factura, crear un producto sin proveedor, facturar un producto que aún no está en almacen o comprado. Más flexibilidad.
