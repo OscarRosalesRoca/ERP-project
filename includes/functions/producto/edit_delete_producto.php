@@ -9,7 +9,7 @@ if (!$cod_producto) {
     exit;
 }
 
-// Obtener datos actuales del producto y proveedor
+// Obtener datos actuales del producto, proveedor y almacén
 $query = "
     SELECT 
         ps.cod_producto, 
@@ -18,10 +18,13 @@ $query = "
         pp.precio_compra, 
         ps.precio_venta,
         pc.nombre AS nombre_proveedor,
-        pc.cod_actor AS cod_proveedor
+        pc.cod_actor AS cod_proveedor,
+        aps.cod_almacen,
+        aps.cantidad
     FROM producto_servicio ps
     JOIN producto_proveedor pp ON ps.cod_producto = pp.cod_producto
     JOIN proveedores_clientes pc ON pp.cod_actor = pc.cod_actor
+    LEFT JOIN almacen_producto_servicio aps ON ps.cod_producto = aps.cod_producto
     WHERE ps.cod_producto = ?
 ";
 $stmt = $connection->prepare($query);
@@ -47,11 +50,19 @@ if ($res && $res->num_rows > 0) {
     }
 }
 
+// Obtener lista de almacenes
+$almacenes = [];
+$res = $connection->query("SELECT cod_almacen, ubicacion FROM almacen");
+if ($res && $res->num_rows > 0) {
+    while ($row = $res->fetch_assoc()) {
+        $almacenes[] = $row;
+    }
+}
+
 $errores = [];
 
-// Verifica si se está intentando eliminar el producto
+// Eliminar producto
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_producto"])) {
-    // Eliminar producto
     $stmt = $connection->prepare("DELETE FROM producto_servicio WHERE cod_producto = ?");
     if (!$stmt) {
         die("Error al preparar la consulta de eliminación: " . $connection->error);
@@ -70,68 +81,74 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
     $precio_compra = isset($_POST["precio_compra"]) && $_POST["precio_compra"] !== "" ? floatval($_POST["precio_compra"]) : null;
     $precio_venta = isset($_POST["precio_venta"]) && $_POST["precio_venta"] !== "" ? floatval($_POST["precio_venta"]) : null;
     $nuevo_cod_proveedor = $_POST["proveedor"];
+    $nuevo_cod_almacen = intval($_POST["almacen"]);
+    $nueva_cantidad = intval($_POST["cantidad"]);
+
+    if ($nueva_cantidad < 0) {
+        $errores[] = "La cantidad no puede ser negativa.";
+    }
 
     if (empty($errores)) {
-        // Actualizar producto_servicio
         if (!empty($nombre) && $nombre !== $producto["nombre"]) {
             $stmt = $connection->prepare("UPDATE producto_servicio SET nombre = ? WHERE cod_producto = ?");
-            if (!$stmt) {
-                die("Error al preparar la consulta de actualización de nombre: " . $connection->error);
-            }
             $stmt->bind_param("si", $nombre, $cod_producto);
             $stmt->execute();
         }
 
         if ($iva !== null && $iva !== floatval($producto["iva"])) {
             $stmt = $connection->prepare("UPDATE producto_servicio SET iva = ? WHERE cod_producto = ?");
-            if (!$stmt) {
-                die("Error al preparar la consulta de actualización de IVA: " . $connection->error);
-            }
             $stmt->bind_param("di", $iva, $cod_producto);
             $stmt->execute();
         }
 
         if ($precio_venta !== null && $precio_venta !== floatval($producto["precio_venta"])) {
             $stmt = $connection->prepare("UPDATE producto_servicio SET precio_venta = ? WHERE cod_producto = ?");
-            if (!$stmt) {
-                die("Error al preparar la consulta de actualización de precio de venta: " . $connection->error);
-            }
             $stmt->bind_param("di", $precio_venta, $cod_producto);
             $stmt->execute();
         }
 
-
         if ($precio_compra !== null && $precio_compra !== floatval($producto["precio_compra"])) {
             $stmt = $connection->prepare("UPDATE producto_proveedor SET precio_compra = ? WHERE cod_producto = ? AND cod_actor = ?");
-            if (!$stmt) {
-                die("Error al preparar la consulta de actualización de precio_compra: " . $connection->error);
-            }
             $stmt->bind_param("dii", $precio_compra, $cod_producto, $producto["cod_proveedor"]);
             $stmt->execute();
         }
 
-        // Si se ha seleccionado un nuevo proveedor, actualizamos el proveedor y el nombre_proveedor_snapshot
-        if ($nuevo_cod_proveedor !== $producto["cod_proveedor"]) {
-            // Obtener el nombre del nuevo proveedor
+        // Si se cambió el proveedor
+        if ($nuevo_cod_proveedor != $producto["cod_proveedor"]) {
             $stmt = $connection->prepare("SELECT nombre FROM proveedores_clientes WHERE cod_actor = ?");
-            if (!$stmt) {
-                die("Error al preparar la consulta para obtener el nombre del proveedor: " . $connection->error);
-            }
             $stmt->bind_param("i", $nuevo_cod_proveedor);
             $stmt->execute();
             $res = $stmt->get_result();
             $nuevo_proveedor = $res->fetch_assoc();
 
             if ($nuevo_proveedor) {
-                // Actualizamos cod_actor y nombre_proveedor_snapshot
                 $stmt = $connection->prepare("UPDATE producto_proveedor SET cod_actor = ?, nombre_proveedor_snapshot = ? WHERE cod_producto = ?");
-                if (!$stmt) {
-                    die("Error al preparar la consulta para actualizar proveedor y nombre_proveedor_snapshot: " . $connection->error);
-                }
                 $stmt->bind_param("isi", $nuevo_cod_proveedor, $nuevo_proveedor["nombre"], $cod_producto);
                 $stmt->execute();
             }
         }
+
+$existe_registro = false;
+        $stmt = $connection->prepare("SELECT 1 FROM almacen_producto_servicio WHERE cod_producto = ?");
+        $stmt->bind_param("i", $cod_producto);
+        $stmt->execute();
+        $stmt->store_result();
+        $existe_registro = $stmt->num_rows > 0;
+
+        if ($existe_registro) {
+            $stmt = $connection->prepare("UPDATE almacen_producto_servicio SET cod_almacen = ?, cantidad = ? WHERE cod_producto = ?");
+            $stmt->bind_param("iii", $nuevo_cod_almacen, $nueva_cantidad, $cod_producto);
+        } else {
+            $stmt = $connection->prepare("INSERT INTO almacen_producto_servicio (cod_producto, cod_almacen, cantidad) VALUES (?, ?, ?)");
+            $stmt->bind_param("iii", $cod_producto, $nuevo_cod_almacen, $nueva_cantidad);
+        }
+        $stmt->execute();
+
+        // Cambiar estado activo si corresponde
+        $activo = ($nueva_cantidad > 0) ? 1 : 0;
+        $stmt = $connection->prepare("UPDATE producto_servicio SET activo = ? WHERE cod_producto = ?");
+        $stmt->bind_param("ii", $activo, $cod_producto);
+        $stmt->execute();
 
         header("Location: /ERP/modules/home/empleado_home.php?pagina=productos");
         exit;
@@ -184,6 +201,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
             <?php else: ?>
                 <p style="color: red;">No hay proveedores registrados en el sistema.</p>
             <?php endif; ?>
+
+            <label>Almacén</label>
+            <?php if (count($almacenes) > 0): ?>
+                <select name="almacen" required>
+                    <?php foreach ($almacenes as $alm): ?>
+                        <option value="<?= $alm['cod_almacen'] ?>" <?= $alm['cod_almacen'] == $producto["cod_almacen"] ? "selected" : "" ?>>
+                            <?= htmlspecialchars($alm['ubicacion']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            <?php else: ?>
+                <p style="color: red;">No hay almacenes registrados.</p>
+            <?php endif; ?>
+
+            <label>Cantidad en stock</label>
+            <input type="number" name="cantidad" min="0" value="<?= htmlspecialchars($producto["cantidad"] ?? 0) ?>">
 
             <div class="botones">
                 <button type="submit">Guardar cambios</button>

@@ -49,11 +49,34 @@ if ($resultado === false) {
                     <th>Precio de compra</th>
                     <th>Precio de venta</th>
                     <th>Proveedor</th>
+                    <th>Almacen</th> <!-- Añadido -->
+                    <th>Stock</th> <!-- Añadido -->
                     <th>Editar</th>
                 </tr>
             </thead>
             <tbody>
                 <?php while ($row = $resultado->fetch_assoc()): ?>
+                    <?php
+                    // Consulta para ubicaciones y cantidades
+                    $cod_producto_actual = $row["cod_producto"];
+                    $almacen_query = "
+                        SELECT a.ubicacion, aps.cantidad
+                        FROM almacen_producto_servicio aps
+                        JOIN almacen a ON aps.cod_almacen = a.cod_almacen
+                        WHERE aps.cod_producto = $cod_producto_actual
+                    ";
+                    $almacen_result = $connection->query($almacen_query);
+
+                    $ubicaciones = [];
+                    $cantidades = [];
+
+                    if ($almacen_result && $almacen_result->num_rows > 0) {
+                        while ($almacen = $almacen_result->fetch_assoc()) {
+                            $ubicaciones[] = $almacen["ubicacion"];
+                            $cantidades[] = $almacen["cantidad"];
+                        }
+                    }
+                    ?>
                     <tr>
                         <td><?= htmlspecialchars($row["cod_producto"]) ?></td>
                         <td><?= htmlspecialchars($row["nombre"]) ?></td>
@@ -61,6 +84,8 @@ if ($resultado === false) {
                         <td><?= htmlspecialchars($row["precio_compra"]) ?></td>
                         <td><?= htmlspecialchars($row["precio_venta"]) ?></td>
                         <td><?= htmlspecialchars($row["nombre_proveedor"]) ?></td>
+                        <td><?= htmlspecialchars(implode(", ", $ubicaciones)) ?></td>
+                        <td><?= htmlspecialchars(implode(", ", $cantidades)) ?></td>
                         <td class="editar"><a href="/ERP/includes/functions/producto/edit_delete_producto.php?cod=<?= urlencode($row["cod_producto"]) ?>">Editar</a></td>
                     </tr>
                 <?php endwhile; ?>

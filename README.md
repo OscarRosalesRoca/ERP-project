@@ -69,5 +69,6 @@ All set.😄
 
 - Finsih invoices.
 - Fix paths
+- Testing
 - Add search function.
 - Add user img function.
