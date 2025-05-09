@@ -50,6 +50,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errores[] = "Todos los campos son obligatorios y deben tener valores válidos.";
     }
 
+    if ($precio_venta < $precio_compra) {
+        $errores[] = "No puedes vender: $nombre por debajo del precio de compra";
+    }
+
     if (empty($errores)) {
         // Consultar si el proveedor existe
         $stmt = $connection->prepare("SELECT cod_actor FROM proveedores_clientes WHERE nombre = ? AND tipo = 'proveedor'");

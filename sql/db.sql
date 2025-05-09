@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS facturas (
 	cod_actor INT,
 	tipo ENUM("compra", "venta") NOT NULL,
 	total_factura DECIMAL (20,2) NOT NULL,
-	fecha DATE NOT NULL,
+	fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	empleado_nombre_snapshot VARCHAR(100),
     actor_nombre_snapshot VARCHAR(100),
 	actor_tipo_snapshot ENUM("proveedor", "cliente"),

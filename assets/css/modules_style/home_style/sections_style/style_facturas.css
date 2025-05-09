@@ -1,0 +1,62 @@
+/* Reset básico */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #d0e6f7;
+}
+
+.factura_header {
+    display: flex;
+    background-color: #2c3e50;
+}
+
+.factura_tab {
+    flex: 1;
+    padding: 20px 0 20px 20px;
+    border: none;
+    cursor: pointer;
+    font-weight: normal;
+    color: #ffffff;
+    background-color: #2c3e50;
+    border-right: 1px solid #ffffff;
+    transition: all 0.3s ease;
+    font-size: 30px;
+}
+
+.factura_tab:last-child {
+    border-right: none;
+}
+
+.factura_tab:hover {
+    background-color: #44617e;
+}
+
+.factura_tab.activo {
+    background-color: #ffffff;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.factura_body {
+    padding: 30px;
+    background-color: #f8f9fa;
+    min-height: 300px;
+    border-top: 1px solid #2c3e50;
+}
+
+.formulario {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f9fa;
+}
+
+/* Estilos para los formularios (puedes añadir más estilo aquí) */
+input[type="text"],
+input[type="number"] {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 200px;
+}

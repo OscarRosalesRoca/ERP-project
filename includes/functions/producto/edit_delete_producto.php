@@ -88,6 +88,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
         $errores[] = "La cantidad no puede ser negativa.";
     }
 
+    if ($precio_venta < $precio_compra) {
+        $errores[] = "No puedes vender: $nombre por debajo del precio de compra";
+    }
+
     if (empty($errores)) {
         if (!empty($nombre) && $nombre !== $producto["nombre"]) {
             $stmt = $connection->prepare("UPDATE producto_servicio SET nombre = ? WHERE cod_producto = ?");
@@ -128,7 +132,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
             }
         }
 
-$existe_registro = false;
+        $existe_registro = false;
         $stmt = $connection->prepare("SELECT 1 FROM almacen_producto_servicio WHERE cod_producto = ?");
         $stmt->bind_param("i", $cod_producto);
         $stmt->execute();
