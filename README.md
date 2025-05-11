@@ -67,8 +67,6 @@ All set.😄
 
 ## THINGS TO DO
 
-- Finsih invoices.
-- Fix paths
+- Better paths
 - Testing
-- Add search function.
 - Add user img function.

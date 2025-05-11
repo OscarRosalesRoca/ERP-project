@@ -80,6 +80,10 @@ select:focus {
     color: #888;
 }
 
+.botones a {
+    margin-bottom: 20px;
+}
+
 button {
     padding: 10px 20px;
     border: none;

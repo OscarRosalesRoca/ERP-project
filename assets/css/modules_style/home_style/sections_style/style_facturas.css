@@ -1,62 +1,263 @@
-/* Reset básico */
+/* Reset básico y estilos generales del cuerpo si los necesitas aquí */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #d0e6f7;
+    /* background-color: #d0e6f7; /* Lo tenías antes, puedes mantenerlo o quitarlo si general_sections_style.css lo maneja */
 }
 
+/* --- ESTILOS PARA LAS PESTAÑAS DE FACTURA (COMPRAS/VENTAS) --- */
 .factura_header {
     display: flex;
-    background-color: #2c3e50;
+    background-color: #2c3e50; /* Color de fondo oscuro para la cabecera de pestañas */
+    border-top-left-radius: 8px; /* Si tu .card tiene bordes redondeados */
+    border-top-right-radius: 8px; /* Si tu .card tiene bordes redondeados */
+    overflow: hidden; /* Para que los bordes redondeados se apliquen bien a los hijos */
 }
 
 .factura_tab {
-    flex: 1;
-    padding: 20px 0 20px 20px;
+    flex: 1; /* Cada pestaña ocupa el mismo espacio */
+    padding: 18px 20px; /* Ajusta el padding para la altura deseada */
     border: none;
     cursor: pointer;
     font-weight: normal;
+    color: #000000; /* Texto blanco para pestañas inactivas */
+    background-color: #ffffff; /* Fondo oscuro para pestañas inactivas, igual al header */
+    text-align: center; /* Centrar texto en la pestaña */
+    font-size: 1.8rem; /* Tamaño de fuente para las pestañas, ajusta según necesites */
+    transition: background-color 0.3s ease, color 0.3s ease, font-weight 0.3s ease, border-color 0.3s ease; /* Animación suave */
+    border-bottom: 3px solid #2c3e50;
+}
+
+/* Efecto hover para pestañas inactivas */
+.factura_tab:not(.activo):hover {
+    background-color: #3b526a; /* Un poco más claro al pasar el ratón sobre inactivas */
     color: #ffffff;
-    background-color: #2c3e50;
-    border-right: 1px solid #ffffff;
-    transition: all 0.3s ease;
-    font-size: 30px;
 }
 
-.factura_tab:last-child {
-    border-right: none;
-}
-
-.factura_tab:hover {
-    background-color: #44617e;
-}
-
+/* Estilo para la pestaña activa */
 .factura_tab.activo {
-    background-color: #ffffff;
-    color: #2c3e50;
-    font-weight: bold;
+    background-color: #2c3e50; /* Fondo blanco para la pestaña activa (color del cuerpo del formulario) */
+    color: #ffffff; /* Texto azul para la pestaña activa, para que destaque */
+    font-weight: bold; /* Texto en negrita */
+    border-bottom: 3px solid #2c3e50; /* Borde inferior azul para destacar y conectar con el cuerpo */
 }
 
+/* --- ESTILOS PARA EL CUERPO Y FORMULARIOS DE FACTURA --- */
 .factura_body {
-    padding: 30px;
-    background-color: #f8f9fa;
-    min-height: 300px;
-    border-top: 1px solid #2c3e50;
+    padding: 25px;
+    background-color: #ffffff; /* Fondo blanco para el contenido del formulario */
+    /* Marco azul para el cuerpo, conectando con la pestaña activa */
+    border-left: 3px solid #2c3e50;
+    border-right: 3px solid #2c3e50;
+    border-bottom: 3px solid #2c3e50;
+    border-top: none; /* La "parte superior" del marco es el border-bottom de la pestaña activa */
+    border-bottom-left-radius: 8px; /* Si tu .card tiene bordes redondeados */
+    border-bottom-right-radius: 8px; /* Si tu .card tiene bordes redondeados */
+    min-height: 300px; /* Altura mínima */
 }
 
-.formulario {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f8f9fa;
+.formulario_factura { /* Clase común para formCompra y formVenta */
+    padding: 15px; 
+    /* background-color: #f8f9fa; /* Puedes usar un fondo ligeramente diferente para el form si quieres */
 }
 
-/* Estilos para los formularios (puedes añadir más estilo aquí) */
-input[type="text"],
-input[type="number"] {
-    padding: 8px;
-    margin: 5px 0;
+.formulario_factura h2, .formulario_factura h3 {
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 20px; 
+}
+.formulario_factura h3 {
+    margin-top: 30px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+    font-size: 1.2rem;
+}
+
+.factura_seccion_superior {
+    display: flex;
+    gap: 25px; 
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.factura_seccion_superior .form_grupo {
+    flex: 1; 
+    min-width: 280px;
+}
+
+.form_grupo {
+    margin-bottom: 18px; 
+}
+
+.form_grupo label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600; 
+    color: #343a40;
+    font-size: 0.9rem;
+}
+
+.form_grupo input[type="text"],
+.form_grupo input[type="number"],
+.form_grupo select {
+    width: 100%; 
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box; 
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.form_grupo input[type="text"]:focus,
+.form_grupo input[type="number"]:focus,
+.form_grupo select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+
+.form_grupo input[readonly] {
+    background-color: #e9ecef; 
+    cursor: not-allowed;
+}
+
+.total_grande { 
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #28a745; 
+    text-align: right;
+    padding: 12px !important; 
+}
+
+hr.separador_secciones_factura {
+    border: 0;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 35px 0;
+}
+
+#contenedorLineasFactura {
+    display: flex;
+    flex-direction: column;
+    gap: 18px; 
+    margin-bottom: 25px;
+}
+
+.linea_factura {
+    display: flex;
+    align-items: flex-end; 
+    gap: 12px; 
+    padding: 18px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background-color: #f8f9fa; 
+    flex-wrap: wrap; 
+}
+
+.linea_factura .numero_linea {
+    font-weight: bold;
+    color: #007bff;
+    margin-right: 8px;
+    min-width: 25px; 
+    align-self: center; 
+    font-size: 1rem;
+}
+
+.linea_factura .form_grupo {
+    margin-bottom: 0; 
+    flex: 1; 
+    min-width: 130px; 
+}
+.linea_factura .select_producto_linea { min-width: 220px; } 
+.linea_factura .input_cantidad_linea { max-width: 100px; text-align: center; }
+.linea_factura .input_precio_unitario_linea,
+.linea_factura .input_precio_total_linea {
+    text-align: right;
+}
+
+
+.boton_eliminar_linea {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 9px 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    height: fit-content; 
+    margin-left: auto; 
+    transition: background-color 0.2s ease;
+}
+.boton_eliminar_linea:hover {
+    background-color: #c82333;
+}
+
+.boton_accion { 
+    background-color: #007bff;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 10px; 
+    transition: background-color 0.2s ease;
+}
+.boton_accion:hover {
+    background-color: #0056b3;
+}
+
+.botones_guardar_factura {
+    text-align: right; 
+    margin-top: 25px;
+}
+
+.boton_primario { 
+    background-color: #28a745;
+    color: white;
+    padding: 12px 28px;
+    border: none;
     border-radius: 5px;
-    border: 1px solid #ccc;
-    width: 200px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+.boton_primario:hover {
+    background-color: #218838;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .factura_tab {
+        font-size: 0.95rem; 
+        padding: 15px 10px;
+    }
+    .linea_factura {
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+    .linea_factura .form_grupo {
+        min-width: 100%; 
+        margin-bottom: 12px; 
+    }
+    .linea_factura .input_cantidad_linea { max-width: 100%; }
+
+    .boton_eliminar_linea {
+        margin-left: 0; 
+        margin-top: 10px; 
+        align-self: flex-end; 
+    }
+    .factura_seccion_superior {
+        flex-direction: column; 
+        gap: 15px;
+    }
+    .botones_guardar_factura {
+        text-align: center; 
+    }
+    .boton_primario {
+        width: 100%; 
+    }
 }

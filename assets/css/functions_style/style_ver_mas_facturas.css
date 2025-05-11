@@ -1,0 +1,160 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+.factura-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+.factura-header-top { /* Modificado: Contenedor solo para "FACTURA" y su info */
+    text-align: right; /* Alinea el bloque de info de factura a la derecha */
+    border-bottom: 2px solid #333;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+.factura-header-top .factura-info-main h1 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 2.5em; /* Más grande */
+    text-align: right;
+}
+.factura-header-top .factura-info-main p { 
+    margin: 5px 0; 
+    text-align: right;
+    font-size: 0.9em;
+}
+
+/* Clase común para los bloques de información del actor y empleado */
+.info-block { 
+    margin-bottom: 20px; /* Reducido el margen inferior */
+    padding: 15px;
+    border: 1px solid #eee;
+    background-color: #f9f9f9;
+    border-radius: 4px; /* Añadido borde redondeado */
+}
+.info-block h3 { 
+    margin-top: 0; 
+    margin-bottom: 10px; /* Reducido margen */
+    color: #555; 
+    font-size: 1.1em; /* Ligeramente más pequeño */
+    border-bottom: 1px solid #e0e0e0; /* Línea sutil debajo del título del bloque */
+    padding-bottom: 5px;
+}
+.info-block p {
+    margin: 4px 0;
+    font-size: 0.9em;
+}
+
+.detalle-productos-titulo { /* Nuevo título para la sección de líneas */
+    font-size: 1.3em;
+    color: #333;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+}
+
+.tabla-lineas-factura {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+.tabla-lineas-factura th,
+.tabla-lineas-factura td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    font-size: 0.9em; /* Tamaño de fuente consistente */
+}
+.tabla-lineas-factura th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+.tabla-lineas-factura td.numero { text-align: right; }
+
+.factura-totales {
+    margin-top: 20px;
+    float: right;
+    width: 300px; /* Ajustado ancho */
+}
+.factura-totales table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.factura-totales td {
+    padding: 9px; /* Ajustado padding */
+    border: 1px solid #eee;
+}
+.factura-totales .label { font-weight: bold; font-size: 0.9em; }
+.factura-totales .valor { text-align: right; font-size: 0.9em; }
+.factura-totales .gran-total .label { font-size: 1em; }
+.factura-totales .gran-total .valor { font-size: 1.2em; font-weight: bold; color: #333; }
+
+.botones-accion-factura {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px dashed #ccc;
+    clear: both; 
+}
+.botones-accion-factura button, .botones-accion-factura a {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 25px;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 0 10px;
+}
+.botones-accion-factura button:hover, .botones-accion-factura a:hover {
+    background-color: #0056b3;
+}
+.error-message {
+    color: red;
+    padding: 20px;
+    background-color: #ffe0e0;
+    border: 1px solid red;
+    text-align: center;
+}
+
+/* Estilos específicos para la impresión */
+@media print {
+    body {
+        background-color: #fff; /* Fondo blanco para impresión */
+        padding: 0;
+        margin: 0;
+    }
+    .factura-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+    }
+    .info-block {
+        background-color: #fff; /* Quitar fondo gris para impresión si se desea */
+        border: 1px solid #ccc; /* Borde más visible en impresión si es necesario */
+    }
+    .tabla-lineas-factura th {
+        background-color: #fff; /* Quitar fondo de cabecera de tabla para impresión */
+        color: #000;
+    }
+    .botones-accion-factura.no-print { /* Ocultar el contenedor de botones si tiene la clase no-print */
+        display: none !important;
+    }
+    /* Si quieres ocultar elementos individuales en lugar del contenedor: */
+    /*
+    .no-print-item {
+        display: none !important;
+    }
+    */
+}
