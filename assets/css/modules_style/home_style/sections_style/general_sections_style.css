@@ -14,49 +14,137 @@ body {
 
 h2 {
     font-size: 32px;
-    color: #2c3e50;
+    color: #2c3e50; /* Azul oscuro/gris */
     margin: 0 0 20px 0;
 }
 
-.nuevo_general {
+/* Contenedor para alinear búsqueda y botón "Nuevo" */
+.cabecera_acciones {
+    display: flex; /* Activa Flexbox */
+    justify-content: space-between; /* Espacio entre los elementos */
+    align-items: center; /* Alinea verticalmente los elementos al centro */
     margin-bottom: 20px;
+    flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea si no caben */
+    gap: 15px; /* Espacio entre el formulario de búsqueda y el botón nuevo */
+}
+
+/* Estilos para el contenedor del formulario de búsqueda */
+.contenedor_busqueda {
+    flex-grow: 1; /* Permite que el contenedor de búsqueda ocupe el espacio disponible */
+    min-width: 300px; /* Ancho mínimo para el formulario */
+}
+
+.formulario_busqueda {
+    display: flex; /* Alinea los elementos del formulario en línea */
+    gap: 10px; /* Espacio entre los elementos del formulario */
+    align-items: center; /* Alinea verticalmente los elementos del formulario */
+    padding: 10px;
+    background-color: #f8f9fa; /* Un fondo ligeramente diferente para el formulario */
+    border-radius: 5px;
+    border: 1px solid #dee2e6; /* Borde sutil */
+}
+
+.formulario_busqueda label {
+    font-weight: bold;
+    color: #495057; /* Color de texto para la etiqueta */
+}
+
+.formulario_busqueda select,
+.formulario_busqueda input[type="text"] {
+    padding: 8px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.formulario_busqueda input[type="text"] {
+    flex-grow: 1; /* Permite que el campo de texto crezca */
+}
+
+.formulario_busqueda input[type="submit"],
+.formulario_busqueda .boton_limpiar {
+    background-color: #007bff; /* Azul primario */
+    color: white;
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.formulario_busqueda input[type="submit"]:hover {
+    background-color: #0056b3; /* Azul más oscuro al pasar el ratón */
+}
+
+.formulario_busqueda .boton_limpiar {
+    background-color: #6c757d; /* Gris */
+}
+
+.formulario_busqueda .boton_limpiar:hover {
+    background-color: #545b62; /* Gris más oscuro */
+}
+
+
+.nuevo_general {
+    /* margin-bottom: 20px; Ajustado por .cabecera_acciones */
+    /* No es necesario flex-grow aquí si queremos que el botón mantenga su tamaño */
 }
 
 .nuevo_general a {
-    background-color: #28a745;
+    background-color: #28a745; /* Verde */
     color: white;
     padding: 10px 16px;
     text-decoration: none;
     border-radius: 5px;
+    font-size: 14px;
+    display: inline-block; /* Para que el padding y el radio se apliquen correctamente */
+    transition: background-color 0.2s ease-in-out;
 }
 
-table {
+.nuevo_general a:hover {
+    background-color: #1e7e34; /* Verde más oscuro al pasar el ratón */
+}
+
+/* Estilos de la tabla (tus estilos originales con pequeñas adaptaciones si fueran necesarias) */
+table.tabla_general { /* Especificidad aumentada para asegurar que se apliquen */
     width: 100%;
     border-collapse: collapse;
+    margin-top: 20px; /* Añadido para separar de la cabecera de acciones */
 }
 
-thead {
-    background-color: #f2f2f2;
+.tabla_general thead { /* No es necesario .tabla_general aquí, pero por consistencia */
+    background-color: #f2f2f2; /* Este se sobrescribe por el de th más abajo */
 }
 
-th, td {
+.tabla_general th, .tabla_general td {
     padding: 12px;
+    border: 1px solid #ccc;
     text-align: left;
 }
 
-tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+.tabla_general th {
+    background-color: #2c3e50; /* Azul oscuro/gris para cabeceras */
+    color: white;
+    font-weight: bold; /* Asegurar que el texto de cabecera sea negrita */
 }
 
-tbody tr:nth-child(odd) {
-    background-color: #ffffff;
+/* Filas alternadas */
+.tabla_general tbody tr:nth-child(odd) {
+    background-color: #ecf0f1; /* Gris claro */
+}
+
+.tabla_general tbody tr:nth-child(even) {
+    background-color: #ffffff; /* Blanco */
 }
 
 .sin_resultados {
     padding: 20px;
     text-align: center;
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #f8d7da; /* Rosa claro para mensajes de error/advertencia */
+    color: #721c24; /* Texto oscuro para contraste */
+    border: 1px solid #f5c6cb; /* Borde para el mensaje */
     border-radius: 5px;
     margin-top: 20px;
 }
@@ -66,34 +154,17 @@ tbody tr:nth-child(odd) {
     padding: 0;
 }
 
+.sin_resultados a { /* Estilo para el enlace dentro de .sin_resultados */
+    color: #0056b3; /* Azul para que destaque como enlace */
+    text-decoration: underline;
+}
+
 .editar a {
     text-decoration: none;
-    color: #007bff;
+    color: #007bff; /* Azul para el enlace de editar */
+    font-weight: bold;
 }
 
-
-/* Estilo para tabla de clientes con filas alternadas */
-.tabla_general tbody tr:nth-child(odd) {
-    background-color: #ecf0f1; /* Gris claro */
-}
-
-.tabla_general tbody tr:nth-child(even) {
-    background-color: #ffffff; /* Blanco */
-}
-
-/* Bordes y espaciado para mayor claridad */
-.tabla_general {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.tabla_general th, .tabla-general td {
-    padding: 12px;
-    border: 1px solid #ccc;
-    text-align: left;
-}
-
-.tabla_general th {
-    background-color: #2c3e50;
-    color: white;
+.editar a:hover {
+    text-decoration: underline;
 }
