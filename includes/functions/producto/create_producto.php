@@ -41,11 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $precio_venta = floatval($_POST["precio_venta"]);
     $nombre_proveedor = trim($_POST["nombre_proveedor"]);
     $cod_almacen = intval($_POST["cod_almacen"]);
-    $cantidad = intval($_POST["cantidad"]);
 
     if (
         empty($nombre) || $iva < 0 || $precio_compra < 0 || $precio_venta < 0 ||
-        empty($nombre_proveedor) || $cod_almacen <= 0 || $cantidad < 0
+        empty($nombre_proveedor) || $cod_almacen <= 0
     ) {
         $errores[] = "Todos los campos son obligatorios y deben tener valores válidos.";
     }
@@ -67,14 +66,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $row = $resultado->fetch_assoc();
             $cod_proveedor = $row["cod_actor"];
 
-            $activo = $cantidad > 0 ? 1 : 0;
-
             // Insertar el producto
-            $stmt = $connection->prepare("INSERT INTO producto_servicio (nombre, iva, precio_venta, activo) VALUES (?, ?, ?, ?)");
+            $stmt = $connection->prepare("INSERT INTO producto_servicio (nombre, iva, precio_venta, activo) VALUES (?, ?, ?, 0)");
             if (!$stmt) {
                 die("Error al preparar la inserción en producto_servicio: " . $connection->error);
             }
-            $stmt->bind_param("sddi", $nombre, $iva, $precio_venta, $activo);
+            $stmt->bind_param("sdd", $nombre, $iva, $precio_venta);
             if ($stmt->execute()) {
 
                 $cod_producto = $connection->insert_id;
@@ -90,13 +87,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if ($stmt->execute()) {
 
                     // Insertar en la tabla almacen_producto_servicio
-                    $stmt = $connection->prepare("INSERT INTO almacen_producto_servicio (cod_almacen, cod_producto, cantidad) VALUES (?, ?, ?)");
+                    $stmt = $connection->prepare("INSERT INTO almacen_producto_servicio (cod_almacen, cod_producto, cantidad) VALUES (?, ?, 0)");
 
                     if (!$stmt) {
                         die("Error al preparar la inserción en almacen_producto_servicio: " . $connection->error);
                     }
 
-                    $stmt->bind_param("iii", $cod_almacen, $cod_producto, $cantidad);
+                    $stmt->bind_param("ii", $cod_almacen, $cod_producto);
 
                     if ($stmt->execute()) {
                         header("Location: /ERP/modules/home/empleado_home.php?pagina=productos&mensaje=producto_creado");
@@ -171,9 +168,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <?php endforeach; ?>
                 </select>
             <?php endif; ?>
-
-            <label>Cantidad</label>
-            <input type="number" name="cantidad" min="0" required>
 
             <div class="botones">
                 <button type="submit" <?php echo (empty($proveedores) || empty($almacenes)) ? 'disabled' : ''; ?>>Crear producto</button>

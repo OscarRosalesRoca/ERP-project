@@ -19,8 +19,7 @@ $query = "
         ps.precio_venta,
         pc.nombre AS nombre_proveedor,
         pc.cod_actor AS cod_proveedor,
-        aps.cod_almacen,
-        aps.cantidad
+        aps.cod_almacen
     FROM producto_servicio ps
     JOIN producto_proveedor pp ON ps.cod_producto = pp.cod_producto
     JOIN proveedores_clientes pc ON pp.cod_actor = pc.cod_actor
@@ -82,11 +81,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
     $precio_venta = isset($_POST["precio_venta"]) && $_POST["precio_venta"] !== "" ? floatval($_POST["precio_venta"]) : null;
     $nuevo_cod_proveedor = $_POST["proveedor"];
     $nuevo_cod_almacen = intval($_POST["almacen"]);
-    $nueva_cantidad = intval($_POST["cantidad"]);
-
-    if ($nueva_cantidad < 0) {
-        $errores[] = "La cantidad no puede ser negativa.";
-    }
 
     if ($precio_venta < $precio_compra) {
         $errores[] = "No puedes vender: $nombre por debajo del precio de compra";
@@ -140,18 +134,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
         $existe_registro = $stmt->num_rows > 0;
 
         if ($existe_registro) {
-            $stmt = $connection->prepare("UPDATE almacen_producto_servicio SET cod_almacen = ?, cantidad = ? WHERE cod_producto = ?");
-            $stmt->bind_param("iii", $nuevo_cod_almacen, $nueva_cantidad, $cod_producto);
+            $stmt = $connection->prepare("UPDATE almacen_producto_servicio SET cod_almacen = ? WHERE cod_producto = ?");
+            $stmt->bind_param("ii", $nuevo_cod_almacen, $cod_producto);
         } else {
-            $stmt = $connection->prepare("INSERT INTO almacen_producto_servicio (cod_producto, cod_almacen, cantidad) VALUES (?, ?, ?)");
-            $stmt->bind_param("iii", $cod_producto, $nuevo_cod_almacen, $nueva_cantidad);
+            $stmt = $connection->prepare("INSERT INTO almacen_producto_servicio (cod_producto, cod_almacen) VALUES (?, ?)");
+            $stmt->bind_param("ii", $cod_producto, $nuevo_cod_almacen);
         }
-        $stmt->execute();
-
-        // Cambiar estado activo si corresponde
-        $activo = ($nueva_cantidad > 0) ? 1 : 0;
-        $stmt = $connection->prepare("UPDATE producto_servicio SET activo = ? WHERE cod_producto = ?");
-        $stmt->bind_param("ii", $activo, $cod_producto);
         $stmt->execute();
 
         header("Location: /ERP/modules/home/empleado_home.php?pagina=productos");
@@ -218,9 +206,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
             <?php else: ?>
                 <p style="color: red;">No hay almacenes registrados.</p>
             <?php endif; ?>
-
-            <label>Cantidad en stock</label>
-            <input type="number" name="cantidad" min="0" value="<?= htmlspecialchars($producto["cantidad"] ?? 0) ?>">
 
             <div class="botones">
                 <button type="submit">Guardar cambios</button>
