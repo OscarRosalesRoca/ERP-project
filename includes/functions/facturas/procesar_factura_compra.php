@@ -1,7 +1,6 @@
 <?php
-// Ruta: /ERP/includes/functions/facturas/procesar_factura_compra.php
-require_once("../../connection.php"); // Ajusta si es necesario, debe apuntar a /ERP/includes/connection.php
-require_once("../../auth.php");       // Ajusta si es necesario, debe apuntar a /ERP/includes/auth.php
+require_once("../../connection.php");
+require_once("../../auth.php");
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -11,7 +10,7 @@ $errores_factura = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compra'])) {
 
-    // 1. Recoger datos generales de la factura
+    //Recoger datos generales de la factura
     $cod_empleado_actual = isset($_POST['cod_empleado_actual']) ? intval($_POST['cod_empleado_actual']) : 0;
     $nombre_empleado_snapshot = isset($_POST['nombre_empleado_snapshot']) ? trim($_POST['nombre_empleado_snapshot']) : 'Empleado Desconocido';
     $proveedor_cod_actor = isset($_POST['proveedor_cod_actor']) ? intval($_POST['proveedor_cod_actor']) : 0;
@@ -19,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
     
     $lineas_factura = isset($_POST['lineas']) && is_array($_POST['lineas']) ? $_POST['lineas'] : [];
 
-    // 2. Validaciones básicas
+    //Validaciones básicas
     if ($cod_empleado_actual <= 0) {
         $errores_factura[] = "No se pudo identificar al empleado.";
     }
@@ -29,13 +28,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
     if (empty($lineas_factura)) {
         $errores_factura[] = "La factura debe tener al menos una línea de producto.";
     }
-    if ($total_factura_compra <= 0 && !empty($lineas_factura)) { // Permitir total 0 si no hay líneas (aunque ya validamos arriba)
-        // Esta validación podría ser más compleja, asegurando que el total coincida con la suma de líneas.
-        // Por ahora, solo verificamos que no sea negativo si hay líneas.
+    if ($total_factura_compra <= 0 && !empty($lineas_factura)) { //Permitir total 0 si no hay líneas
         $errores_factura[] = "El total de la factura parece incorrecto.";
     }
 
-    // Validar cada línea
+    //Validar cada línea
     foreach ($lineas_factura as $num_linea_form => $linea) {
         if (empty($linea['cod_producto']) || intval($linea['cod_producto']) <= 0) {
             $errores_factura[] = "Línea " . htmlspecialchars($num_linea_form) . ": Debe seleccionar un producto.";
@@ -55,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
     if (empty($errores_factura)) {
         $connection->begin_transaction();
         try {
-            // 3. Obtener nombre del proveedor para snapshot
+            //Obtener nombre del proveedor para snapshot
             $nombre_proveedor_snapshot = 'Proveedor Desconocido';
             $stmt_prov_snap = $connection->prepare("SELECT nombre FROM proveedores_clientes WHERE cod_actor = ? AND tipo = 'proveedor'");
             if ($stmt_prov_snap) {
@@ -70,13 +67,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
                 throw new Exception("Error al obtener datos del proveedor.");
             }
 
-            // 4. Insertar en la tabla 'facturas'
+            //Insertar en la tabla 'facturas'
             $tipo_factura = 'compra';
             $actor_tipo_snapshot = 'proveedor';
 
             $stmt_insert_factura = $connection->prepare(
                 "INSERT INTO facturas (cod_empleado, cod_actor, tipo, total_factura, empleado_nombre_snapshot, actor_nombre_snapshot, actor_tipo_snapshot, fecha_creacion) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)"
+                VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)"
             );
             if (!$stmt_insert_factura) {
                 throw new Exception("Error al preparar la inserción de factura: " . $connection->error);
@@ -96,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
             $num_factura_generado = $connection->insert_id;
             $stmt_insert_factura->close();
 
-            // 5. Iterar e insertar líneas, actualizar stock y producto.activo
+            //Iterar e insertar líneas, actualizar stock y producto.activo
             $linea_num_bd = 0;
             foreach ($lineas_factura as $num_linea_form => $linea_data) {
                 $linea_num_bd++;
@@ -104,9 +101,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
                 $cantidad = intval($linea_data['cantidad']);
                 $cod_almacen = intval($linea_data['cod_almacen']);
                 $precio_unitario = floatval($linea_data['precio_unitario']);
-                $precio_total_linea = $cantidad * $precio_unitario; // Recalcular por seguridad
+                $precio_total_linea = $cantidad * $precio_unitario; //Recalcular por seguridad
 
-                // Obtener snapshots para la línea
+                //Obtener snapshots para la línea
                 $producto_nombre_snapshot = 'Producto Desconocido';
                 $stmt_prod_snap = $connection->prepare("SELECT nombre FROM producto_servicio WHERE cod_producto = ?");
                 if($stmt_prod_snap){
@@ -128,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
                 // Insertar en 'lineas'
                 $stmt_insert_linea = $connection->prepare(
                     "INSERT INTO lineas (num_linea, num_factura, cod_producto, cod_almacen, cantidad, precio_negociado_unitario, precio_total, producto_nombre_snapshot, almacen_ubicacion_snapshot)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 );
                 if(!$stmt_insert_linea) throw new Exception("Error preparando inserción de línea: " . $connection->error);
                 $stmt_insert_linea->bind_param("iiiiiddss", 
@@ -138,19 +135,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
                 if(!$stmt_insert_linea->execute()) throw new Exception("Error guardando línea " . $linea_num_bd . ": " . $stmt_insert_linea->error);
                 $stmt_insert_linea->close();
 
-                // Actualizar/Insertar stock en 'almacen_producto_servicio'
+                //Actualizar e insertar stock en 'almacen_producto_servicio'
                 $stmt_check_stock = $connection->prepare("SELECT cantidad FROM almacen_producto_servicio WHERE cod_almacen = ? AND cod_producto = ?");
                 if(!$stmt_check_stock) throw new Exception("Error preparando consulta de stock: " . $connection->error);
                 $stmt_check_stock->bind_param("ii", $cod_almacen, $cod_producto);
                 $stmt_check_stock->execute();
                 $res_stock = $stmt_check_stock->get_result();
-                if ($row_stock = $res_stock->fetch_assoc()) { // Existe, actualizar
+                if ($row_stock = $res_stock->fetch_assoc()) { //Si existe se actualiza
                     $stmt_update_stock = $connection->prepare("UPDATE almacen_producto_servicio SET cantidad = cantidad + ? WHERE cod_almacen = ? AND cod_producto = ?");
                     if(!$stmt_update_stock) throw new Exception("Error preparando update de stock: " . $connection->error);
                     $stmt_update_stock->bind_param("iii", $cantidad, $cod_almacen, $cod_producto);
                     if(!$stmt_update_stock->execute()) throw new Exception("Error actualizando stock: " . $stmt_update_stock->error);
                     $stmt_update_stock->close();
-                } else { // No existe, insertar
+                } else { //Si no existe, crear
                     $stmt_insert_stock = $connection->prepare("INSERT INTO almacen_producto_servicio (cod_almacen, cod_producto, cantidad) VALUES (?, ?, ?)");
                     if(!$stmt_insert_stock) throw new Exception("Error preparando insert de stock: " . $connection->error);
                     $stmt_insert_stock->bind_param("iii", $cod_almacen, $cod_producto, $cantidad);
@@ -159,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
                 }
                 $stmt_check_stock->close();
 
-                // Activar producto en 'producto_servicio'
+                //Activar producto activo = TRUE
                 $stmt_activar_prod = $connection->prepare("UPDATE producto_servicio SET activo = TRUE WHERE cod_producto = ?");
                 if(!$stmt_activar_prod) throw new Exception("Error preparando activación de producto: " . $connection->error);
                 $stmt_activar_prod->bind_param("i", $cod_producto);
@@ -174,25 +171,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
 
         } catch (Exception $e) {
             $connection->rollback();
-            // Guardar el error en sesión para mostrarlo en facturas.php
+            //Guardar el error en sesión para mostrarlo en facturas.php
             $_SESSION['errores_factura'] = [$e->getMessage()];
-            // También puedes añadir los errores de validación si los hubo antes de la transacción
-            // header("Location: /ERP/modules/home/empleado_home.php?pagina=facturas&error_compra=1"); // Redirigir de vuelta al formulario
-            // Es mejor pasar los datos del formulario de vuelta para no perderlos, usando sesión.
-            $_SESSION['form_data_compra'] = $_POST; // Guardar datos para rellenar el formulario
-            header("Location: " . $_SERVER['HTTP_REFERER'] . "&error_guardado=1"); // Volver a la página anterior (facturas)
+            $_SESSION['form_data_compra'] = $_POST; //Guardar datos para rellenar el formulario
+            header("Location: " . $_SERVER['HTTP_REFERER'] . "&error_guardado=1"); //Volver a la página anterior (facturas)
             exit;
         }
     } else {
-        // Si hubo errores de validación inicial, guardarlos en sesión y redirigir
+        //Si hubo errores en validación inicial, guardarlos en sesión y redirigir
         $_SESSION['errores_factura'] = $errores_factura;
-        $_SESSION['form_data_compra'] = $_POST; // Guardar datos para rellenar el formulario
-        header("Location: " . $_SERVER['HTTP_REFERER'] . "&validation_error=1"); // Volver a la página anterior (facturas)
+        $_SESSION['form_data_compra'] = $_POST; //Guardar datos para rellenar el formulario
+        header("Location: " . $_SERVER['HTTP_REFERER'] . "&validation_error=1"); //Volver a la página anterior (facturas)
         exit;
     }
 
 } else {
-    // Si no es POST o no se presionó el botón correcto, redirigir a la página principal de facturas o al home.
+    //Si no es POST o no se presionó el botón correcto, redirigir a la página principal de facturas
     header("Location: /ERP/modules/home/empleado_home.php?pagina=facturas");
     exit;
 }

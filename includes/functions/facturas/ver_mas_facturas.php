@@ -1,7 +1,4 @@
 <?php
-// Ruta: /ERP/modules/home/sections/ver_detalle_factura.php
-// o /ERP/includes/functions/facturas/ver_mas_facturas.php según donde lo hayas guardado finalmente.
-// Asegúrate que los require_once apunten correctamente a /ERP/includes/
 require_once("../../connection.php"); 
 require_once("../../auth.php"); 
 
@@ -17,7 +14,7 @@ $error_message = '';
 if ($num_factura_get <= 0) {
     $error_message = "Número de factura no válido.";
 } else {
-    // 1. Obtener datos de la factura principal
+    //Obtener datos de la factura principal
     $query_factura = "
         SELECT 
             f.num_factura,
@@ -43,7 +40,7 @@ if ($num_factura_get <= 0) {
         if (!$factura) {
             $error_message = "Factura no encontrada.";
         } else {
-            // 2. Obtener líneas de la factura
+            //Obtener líneas de la factura
             $query_lineas = "
                 SELECT 
                     l.num_linea,

@@ -145,9 +145,9 @@ if ($stmt_historial) {
                         <?php endforeach; ?>
                     </select>
                 <?php else: ?>
-                    <input type="<?php echo htmlspecialchars($current_field_config['type']); ?>" name="termino" id="termino_busqueda_historial"
-                           value="<?php echo htmlspecialchars($termino_busqueda_historial); ?>" 
-                           placeholder="Introduce término...">
+                    <input type="<?php echo htmlspecialchars($current_field_config['type']); ?>" name="termino" id="termino_busqueda_historial" class="formulario_busqueda"
+                            value="<?php echo htmlspecialchars($termino_busqueda_historial); ?>" 
+                            placeholder="Introduce término...">
                 <?php endif; ?>
                 
                 <input type="submit" name="buscar" value="Buscar">

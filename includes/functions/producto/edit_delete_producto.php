@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_producto"]))
 
         // Luego eliminar de almacen_producto_servicio (si la FK no es CASCADE)
         $stmt_del_aps = $connection->prepare("DELETE FROM almacen_producto_servicio WHERE cod_producto = ?");
-         if(!$stmt_del_aps) throw new Exception("Error preparando delete almacen_producto_servicio: " . $connection->error);
+        if(!$stmt_del_aps) throw new Exception("Error preparando delete almacen_producto_servicio: " . $connection->error);
         $stmt_del_aps->bind_param("i", $cod_producto);
         if(!$stmt_del_aps->execute()) throw new Exception("Error eliminando de almacen_producto_servicio: " . $stmt_del_aps->error);
         $stmt_del_aps->close();

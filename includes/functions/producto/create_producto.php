@@ -75,8 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         try {
             // Insertar el producto en producto_servicio
-            // activo se establece en 0 (FALSE) por defecto, ya que no hay stock inicial.
-            // No se asigna almacén ni stock aquí.
+            // activo se establece en 0 (FALSE) por defecto, ya que no hay stock inicial
+            // No se asigna almacén ni stock aquí
             $stmt_insert_producto = $connection->prepare("INSERT INTO producto_servicio (nombre, iva, precio_venta, activo) VALUES (?, ?, ?, FALSE)");
             if (!$stmt_insert_producto) {
                 throw new Exception("Error al preparar la inserción en producto_servicio: " . $connection->error);
@@ -99,10 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
             $stmt_insert_prod_prov->close();
 
-            // NO se inserta en almacen_producto_servicio aquí.
-            // Esto se hará en la factura de compra.
-
-            $connection->commit(); // Confirmar transacción
+            $connection->commit();
             header("Location: /ERP/modules/home/empleado_home.php?pagina=productos&mensaje=producto_creado_exitosamente");
             exit;
 
