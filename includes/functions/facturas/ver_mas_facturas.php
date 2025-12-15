@@ -1,6 +1,8 @@
 <?php
-require_once("../../connection.php"); 
-require_once("../../auth.php"); 
+
+require_once("../../../config/config_path.php");
+require_once("../../../includes/connection.php"); 
+require_once("../../../includes/auth.php"); 
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -81,7 +83,7 @@ if ($num_factura_get <= 0) {
 <head>
     <meta charset="UTF-8">
     <title>Detalle de Factura - <?php echo htmlspecialchars($factura['num_factura'] ?? 'Error'); ?></title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/style_ver_mas_facturas.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/style_ver_mas_facturas.css">
 </head>
 <body>
 
@@ -138,8 +140,8 @@ if ($num_factura_get <= 0) {
                     if ($factura['tipo'] === 'venta') {
                         if ($precio_unitario_mostrado > 0 && $linea['cantidad'] > 0) {
                             $subtotal_linea_sin_iva_calc = $precio_unitario_mostrado * $linea['cantidad'];
-                            $valor_iva_linea_calc = $total_linea_mostrado - $subtotal_linea_sin_iva_calc;
-                            if ($subtotal_linea_sin_iva_calc > 0) { // Evitar división por cero
+                            $valor_iva_linea_calc = $total_linea_mostrado - $subtotal_linea_sin_iva_calc; 
+                            if ($subtotal_linea_sin_iva_calc > 0) { 
                                 $iva_linea_porcentaje = round(($valor_iva_linea_calc / $subtotal_linea_sin_iva_calc) * 100, 2);
                             }
                             $subtotal_general_sin_iva += $subtotal_linea_sin_iva_calc;
@@ -147,7 +149,7 @@ if ($num_factura_get <= 0) {
                         } else { 
                             $subtotal_general_sin_iva += $total_linea_mostrado; 
                         }
-                    } else { // Compra
+                    } else { 
                         $subtotal_general_sin_iva += $total_linea_mostrado;
                     }
                 ?>
@@ -188,7 +190,7 @@ if ($num_factura_get <= 0) {
 
         <div class="botones-accion-factura no-print">
             <button onclick="window.print();">Imprimir Factura</button>
-            <a href="/ERP/modules/home/empleado_home.php?pagina=historial">Volver al Historial</a>
+            <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=historial">Volver al Historial</a>
         </div>
 
     <?php else: ?>

@@ -1,4 +1,6 @@
 <?php
+require_once("../../config/config_path.php");
+
 require_once("../../includes/connection.php");
 require_once("../../includes/auth.php");
 
@@ -11,11 +13,11 @@ if (session_status() == PHP_SESSION_NONE) {
 // El valor es un array con 'display' (lo que ve el usuario) y 'column' (columna real en BD)
 $campos_busqueda_config_proveedor = [
     "cod_actor" => ["display" => "Código", "column" => "cod_actor"],
-    "nombre" => ["display" => "Nombre", "column" => "nombre"],
-    "nif_dni" => ["display" => "NIF", "column" => "nif_dni"], // Mostrar NIF para proveedores
+    "nombre"    => ["display" => "Nombre", "column" => "nombre"],
+    "nif_dni"   => ["display" => "NIF", "column" => "nif_dni"], // Mostrar NIF para proveedores
     "poblacion" => ["display" => "Población", "column" => "poblacion"],
-    "telefono" => ["display" => "Teléfono", "column" => "telefono"],
-    "mail" => ["display" => "Email", "column" => "mail"]
+    "telefono"  => ["display" => "Teléfono", "column" => "telefono"],
+    "mail"      => ["display" => "Email", "column" => "mail"]
 ];
 
 // Valores iniciales para la búsqueda
@@ -106,7 +108,7 @@ if ($stmt_proveedor) {
 <head>
     <meta charset="UTF-8">
     <title>Proveedores</title>
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
 </head>
 <body>
 <div class="general_container">
@@ -114,7 +116,7 @@ if ($stmt_proveedor) {
 
     <div class="cabecera_acciones">
         <div class="contenedor_busqueda">
-            <form action="/ERP/modules/home/empleado_home.php" method="GET" class="formulario_busqueda">
+            <form action="<?php echo BASE_URL; ?>/modules/home/empleado_home.php" method="GET" class="formulario_busqueda">
                 <input type="hidden" name="pagina" value="proveedores"> <label for="campo_busqueda_proveedor">Buscar por:</label>
                 <select name="campo" id="campo_busqueda_proveedor">
                     <?php foreach ($campos_busqueda_config_proveedor as $key => $config): ?>
@@ -125,12 +127,12 @@ if ($stmt_proveedor) {
                 </select>
                 <input type="text" name="termino" value="<?php echo htmlspecialchars($termino_busqueda_proveedor); ?>" placeholder="Introduce término...">
                 <input type="submit" name="buscar" value="Buscar">
-                <a href="/ERP/modules/home/empleado_home.php?pagina=proveedores" class="boton_limpiar">Limpiar</a>
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=proveedores" class="boton_limpiar">Limpiar</a>
             </form>
         </div>
 
         <div class="nuevo_general">
-            <a href="/ERP/includes/functions/proveedor/create_proveedor.php">+ Nuevo proveedor</a>
+            <a href="<?php echo BASE_URL; ?>/includes/functions/proveedor/create_proveedor.php">+ Nuevo proveedor</a>
         </div>
     </div>
 
@@ -158,7 +160,7 @@ if ($stmt_proveedor) {
                         <td><?php echo htmlspecialchars($proveedor["telefono"]); ?></td>
                         <td><?php echo htmlspecialchars($proveedor["mail"]); ?></td>
                         <td class="editar">
-                            <a href="/ERP/includes/functions/proveedor/edit_delete_proveedor.php?cod=<?php echo urlencode($proveedor["cod_actor"]); ?>">Editar</a>
+                            <a href="<?php echo BASE_URL; ?>/includes/functions/proveedor/edit_delete_proveedor.php?cod=<?php echo urlencode($proveedor["cod_actor"]); ?>">Editar</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -169,7 +171,7 @@ if ($stmt_proveedor) {
             <?php if ($busqueda_activa_proveedor): // Si se realizó una búsqueda y no hay resultados ?>
                 <p style="color: red;">No hay proveedores que coincidan con la búsqueda "<?php echo htmlspecialchars($termino_busqueda_proveedor); ?>" en el campo "<?php echo htmlspecialchars($campos_busqueda_config_proveedor[$campo_seleccionado_key_proveedor]["display"]); ?>".</p>
             <?php else: // Si no hay búsqueda activa y no hay proveedores (base de datos vacía para proveedores) ?>
-                <p>No hay proveedores registrados aún. Puedes <a href="/ERP/includes/functions/proveedor/create_proveedor.php">crear uno nuevo</a>.</p>
+                <p>No hay proveedores registrados aún. Puedes <a href="<?php echo BASE_URL; ?>/includes/functions/proveedor/create_proveedor.php">crear uno nuevo</a>.</p>
             <?php endif; ?>
         </div>
     <?php endif; ?>

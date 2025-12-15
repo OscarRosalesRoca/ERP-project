@@ -1,4 +1,6 @@
 <?php
+
+require_once("../../config/config_path.php");
 require_once("../../includes/connection.php");
 require_once("../../includes/auth.php");
 
@@ -84,67 +86,69 @@ if ($stmt_almacen) {
 
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Almacenes</title>
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
-</head>
-<body>
-<div class="general_container">
-    <h2>Almacenes</h2>
+    <head>
+        <meta charset="UTF-8">
+        <title>Almacenes</title>
+        <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
+    </head>
+    <body>
+        <div class="general_container">
+            <h2>Almacenes</h2>
 
-    <div class="cabecera_acciones">
-        <div class="contenedor_busqueda">
-            <form action="/ERP/modules/home/empleado_home.php" method="GET" class="formulario_busqueda">
-                <input type="hidden" name="pagina" value="almacenes">
-                
-                <label for="campo_busqueda_almacen">Buscar por:</label>
-                <select name="campo" id="campo_busqueda_almacen">
-                    <?php foreach ($campos_busqueda_config_almacen as $key => $config): ?>
-                        <option value="<?php echo htmlspecialchars($key); ?>" <?php if ($campo_seleccionado_key_almacen == $key) echo 'selected'; ?>>
-                            <?php echo htmlspecialchars($config['display']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <input type="text" name="termino" value="<?php echo htmlspecialchars($termino_busqueda_almacen); ?>" placeholder="Introduce término...">
-                <input type="submit" name="buscar" value="Buscar">
-                <a href="/ERP/modules/home/empleado_home.php?pagina=almacenes" class="boton_limpiar">Limpiar</a>
-            </form>
-        </div>
+            <div class="cabecera_acciones">
+                <div class="contenedor_busqueda">
+                    <form action="<?php echo BASE_URL; ?>/modules/home/empleado_home.php" method="GET" class="formulario_busqueda">
+                        <input type="hidden" name="pagina" value="almacenes">
+                        
+                        <label for="campo_busqueda_almacen">Buscar por:</label>
+                        <select name="campo" id="campo_busqueda_almacen">
+                            <?php foreach ($campos_busqueda_config_almacen as $key => $config): ?>
+                                <option value="<?php echo htmlspecialchars($key); ?>" <?php if ($campo_seleccionado_key_almacen == $key) echo 'selected'; ?>>
+                                    <?php echo htmlspecialchars($config['display']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <input type="text" name="termino" value="<?php echo htmlspecialchars($termino_busqueda_almacen); ?>" placeholder="Introduce término...">
+                        <input type="submit" name="buscar" value="Buscar">
+                        <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=almacenes" class="boton_limpiar">Limpiar</a>
+                    </form>
+                </div>
 
-        <div class="nuevo_general">
-            <a href="/ERP/includes/functions/almacen/create_almacen.php">+ Nuevo almacén</a>
-        </div>
-    </div>
+                <div class="nuevo_general">
+                    <a href="<?php echo BASE_URL; ?>/includes/functions/almacen/create_almacen.php">+ Nuevo almacén</a>
+                </div>
+            </div>
 
-    <?php if (!empty($almacenes)): ?>
-        <table class="tabla_general">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Ubicación</th>
-                    <th>Editar</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($almacenes as $almacen_row): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($almacen_row["cod_almacen"]); ?></td>
-                        <td><?php echo htmlspecialchars($almacen_row["ubicacion"]); ?></td>
-                        <td class="editar"><a href="/ERP/includes/functions/almacen/edit_delete_almacen.php?cod=<?php echo urlencode($almacen_row["cod_almacen"]); ?>">Editar</a></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php else: ?>
-        <div class="sin_resultados">
-            <?php if ($busqueda_activa_almacen): ?>
-                <p style="color: red;">No hay almacenes que coincidan con la búsqueda "<?php echo htmlspecialchars($termino_busqueda_almacen); ?>" en el campo "<?php echo htmlspecialchars($campos_busqueda_config_almacen[$campo_seleccionado_key_almacen]['display']); ?>".</p>
+            <?php if (!empty($almacenes)): ?>
+                <table class="tabla_general">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Ubicación</th>
+                            <th>Editar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($almacenes as $almacen_row): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($almacen_row["cod_almacen"]); ?></td>
+                                <td><?php echo htmlspecialchars($almacen_row["ubicacion"]); ?></td>
+                                <td class="editar">
+                                    <a href="<?php echo BASE_URL; ?>/includes/functions/almacen/edit_delete_almacen.php?cod=<?php echo urlencode($almacen_row["cod_almacen"]); ?>">Editar</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             <?php else: ?>
-                <p>No hay almacenes registrados aún. Puedes <a href="/ERP/includes/functions/almacen/create_almacen.php">crear uno nuevo</a>.</p>
+                <div class="sin_resultados">
+                    <?php if ($busqueda_activa_almacen): ?>
+                        <p style="color: red;">No hay almacenes que coincidan con la búsqueda "<?php echo htmlspecialchars($termino_busqueda_almacen); ?>" en el campo "<?php echo htmlspecialchars($campos_busqueda_config_almacen[$campo_seleccionado_key_almacen]['display']); ?>".</p>
+                    <?php else: ?>
+                        <p>No hay almacenes registrados aún. Puedes <a href="<?php echo BASE_URL; ?>/includes/functions/almacen/create_almacen.php">crear uno nuevo</a>.</p>
+                    <?php endif; ?>
+                </div>
             <?php endif; ?>
         </div>
-    <?php endif; ?>
-</div>
-</body>
+    </body>
 </html>

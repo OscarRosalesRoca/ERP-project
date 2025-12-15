@@ -1,5 +1,10 @@
 <?php
 session_start();
+
+require_once(__DIR__ . "/config/config_path.php"); 
+
+$base_url = BASE_URL;
+
 ?>
 
 <!DOCTYPE html>
@@ -7,7 +12,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <title>Inicio | ERP</title>
-    <link rel="stylesheet" href="/ERP/assets/css/style_index.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/style_index.css">
 </head>
 <body>
 
@@ -22,9 +27,9 @@ session_start();
 <?php
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["iniciar"])) {
     if (isset($_SESSION["usuario_id"])) {
-        header("Location: /ERP/modules/home/empleado_home.php");
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php");
     } else {
-        header("Location: /ERP/modules/login/login.php");
+        header("Location: " . BASE_URL . "/modules/login/login.php");
     }
     exit;
 }

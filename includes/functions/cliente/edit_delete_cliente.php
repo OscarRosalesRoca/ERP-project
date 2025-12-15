@@ -1,4 +1,6 @@
 <?php
+require_once("../../../config/config_path.php");
+
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
@@ -30,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_cliente"])) 
     $stmt->bind_param("i", $cod_actor);
     $stmt->execute();
 
-    header("Location: /ERP/modules/home/empleado_home.php?pagina=clientes");
+    header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=clientes");
     exit;
 }
 
@@ -91,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt->execute();
         }
     
-        header("Location: /ERP/modules/home/empleado_home.php?pagina=clientes");
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=clientes");
         exit;
     }
 }
@@ -102,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Editar cliente</title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
@@ -119,22 +121,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <form method="POST">
             <label>Nombre</label>
-            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($cliente["nombre"]) ?>">
+            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($cliente["nombre"]) ?>" value="<?= htmlspecialchars($_POST["nombre"] ?? $cliente["nombre"]) ?>">
 
             <label>DNI</label>
-            <input type="text" name="nif_dni" placeholder="<?= htmlspecialchars($cliente["nif_dni"]) ?>">
+            <input type="text" name="nif_dni" placeholder="<?= htmlspecialchars($cliente["nif_dni"]) ?>" value="<?= htmlspecialchars($_POST["nif_dni"] ?? $cliente["nif_dni"]) ?>">
 
             <label>Población</label>
-            <input type="text" name="poblacion" placeholder="<?= htmlspecialchars($cliente["poblacion"]) ?>">
+            <input type="text" name="poblacion" placeholder="<?= htmlspecialchars($cliente["poblacion"]) ?>" value="<?= htmlspecialchars($_POST["poblacion"] ?? $cliente["poblacion"]) ?>">
 
             <label>Dirección</label>
-            <input type="text" name="direccion" placeholder="<?= htmlspecialchars($cliente["direccion"]) ?>">
+            <input type="text" name="direccion" placeholder="<?= htmlspecialchars($cliente["direccion"]) ?>" value="<?= htmlspecialchars($_POST["direccion"] ?? $cliente["direccion"]) ?>">
 
             <label>Correo electrónico</label>
-            <input type="email" name="mail" placeholder="<?= htmlspecialchars($cliente["mail"]) ?>">
+            <input type="email" name="mail" placeholder="<?= htmlspecialchars($cliente["mail"]) ?>" value="<?= htmlspecialchars($_POST["mail"] ?? $cliente["mail"]) ?>">
 
             <label>Teléfono</label>
-            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($cliente["telefono"]) ?>">
+            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($cliente["telefono"]) ?>" value="<?= htmlspecialchars($_POST["telefono"] ?? $cliente["telefono"]) ?>">
 
             <div class="botones">
                 <button type="submit">Guardar cambios</button>
@@ -142,6 +144,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <button type="submit" name="eliminar_cliente" class="eliminar_boton" onclick="return confirm('¿Eliminar cliente? Esta acción no se puede deshacer.')">
                     <p>Eliminar cliente</p>
                 </button>
+            </div>
+            <div style="margin-top: 10px;">
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=clientes" class="back_button">Cancelar</a>
             </div>
         </form>
     </div>

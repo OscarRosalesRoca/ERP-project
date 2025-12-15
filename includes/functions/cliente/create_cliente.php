@@ -1,6 +1,8 @@
 <?php
-require_once("../../connection.php");
-require_once("../../auth.php");
+require_once("../../../config/config_path.php");
+
+require_once("../../../includes/connection.php");
+require_once("../../../includes/auth.php");
 
 $errores = [];
 
@@ -29,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->bind_param("ssssss", $nombre, $nif_dni, $poblacion, $direccion, $mail, $telefono);
 
         if ($stmt->execute()) {
-            header("Location: /ERP/modules/home/empleado_home.php?pagina=clientes&mensaje=cliente_creado");
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=clientes&mensaje=cliente_creado");
             exit;
         } else {
             $errores[] = "Error al insertar el cliente: " . $connection->error;
@@ -43,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Nuevo Cliente</title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
@@ -79,6 +81,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div class="botones">
                 <button type="submit">Crear cliente</button>
+            </div>
+            <div style="margin-top: 10px;">
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=clientes" class="back_button">Cancelar</a>
             </div>
         </form>
     </div>

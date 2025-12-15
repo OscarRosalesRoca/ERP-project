@@ -1,4 +1,6 @@
 <?php
+require_once("../../config/config_path.php");
+
 require_once("../../includes/connection.php");
 require_once("../../includes/auth.php");
 
@@ -9,9 +11,9 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // Configuración de campos de búsqueda para productos
 $campos_busqueda_config_producto = [
-    'cod_producto' => ['display' => 'Código', 'column' => 'ps.cod_producto', 'table_alias' => 'ps'],
-    'nombre_producto' => ['display' => 'Nombre Producto', 'column' => 'ps.nombre', 'table_alias' => 'ps'],
-    'nombre_proveedor' => ['display' => 'Proveedor', 'column' => 'pc.nombre', 'table_alias' => 'pc'],
+    'cod_producto'      => ['display' => 'Código', 'column' => 'ps.cod_producto', 'table_alias' => 'ps'],
+    'nombre_producto'   => ['display' => 'Nombre Producto', 'column' => 'ps.nombre', 'table_alias' => 'ps'],
+    'nombre_proveedor'  => ['display' => 'Proveedor', 'column' => 'pc.nombre', 'table_alias' => 'pc'],
     'ubicacion_almacen' => ['display' => 'Almacén', 'column' => 'a.ubicacion', 'table_alias' => 'a']
 ];
 
@@ -23,7 +25,7 @@ $busqueda_activa_producto = false;
 
 // Construcción de la consulta SQL base
 // Se usa DISTINCT para evitar filas duplicadas si un producto está en múltiples almacenes
-// y la búsqueda es por almacén, o si tiene múltiples proveedores (aunque la PK de producto_proveedor debería evitarlo para el mismo proveedor).
+// y la búsqueda es por almacén, o si tiene múltiples proveedores.
 $sql_base_producto = "
     SELECT DISTINCT
         ps.cod_producto, 
@@ -38,6 +40,7 @@ $sql_base_producto = "
     LEFT JOIN almacen_producto_servicio aps ON ps.cod_producto = aps.cod_producto
     LEFT JOIN almacen a ON aps.cod_almacen = a.cod_almacen
 ";
+
 // La cláusula WHERE se construirá dinámicamente
 $sql_conditions_producto = [];
 $sql_final_producto = ""; // Se inicializará después
@@ -81,7 +84,6 @@ if (!empty($sql_conditions_producto)) {
 }
 $sql_final_producto .= $orderByClause;
 
-
 // Preparar y ejecutar la consulta principal de productos
 if (!isset($connection) || $connection === null) {
     die("<p>Error crítico: La conexión a la base de datos no está disponible en productos.php.</p>");
@@ -114,7 +116,7 @@ if ($stmt_producto) {
 <head>
     <meta charset="UTF-8">
     <title>Productos</title>
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
 </head>
 <body>
 <div class="general_container">
@@ -122,7 +124,7 @@ if ($stmt_producto) {
 
     <div class="cabecera_acciones">
         <div class="contenedor_busqueda">
-            <form action="/ERP/modules/home/empleado_home.php" method="GET" class="formulario_busqueda">
+            <form action="<?php echo BASE_URL; ?>/modules/home/empleado_home.php" method="GET" class="formulario_busqueda">
                 <input type="hidden" name="pagina" value="productos">
                 
                 <label for="campo_busqueda_producto">Buscar por:</label>
@@ -135,12 +137,12 @@ if ($stmt_producto) {
                 </select>
                 <input type="text" name="termino" value="<?php echo htmlspecialchars($termino_busqueda_producto); ?>" placeholder="Introduce término...">
                 <input type="submit" name="buscar" value="Buscar">
-                <a href="/ERP/modules/home/empleado_home.php?pagina=productos" class="boton_limpiar">Limpiar</a>
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=productos" class="boton_limpiar">Limpiar</a>
             </form>
         </div>
 
         <div class="nuevo_general">
-            <a href="/ERP/includes/functions/producto/create_producto.php">+ Nuevo producto</a>
+            <a href="<?php echo BASE_URL; ?>/includes/functions/producto/create_producto.php">+ Nuevo producto</a>
         </div>
     </div>
 
@@ -160,18 +162,16 @@ if ($stmt_producto) {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($productos as $producto_row): // Renombrado para evitar conflicto con $producto en subconsulta ?>
+                <?php foreach ($productos as $producto_row): ?>
                     <?php
                     // Consulta para ubicaciones y cantidades del producto actual
-                    // Esta subconsulta se ejecuta por cada producto, lo cual no es óptimo para muchos registros
-                    // pero se mantiene según la estructura original del usuario.
                     $cod_producto_actual = $producto_row["cod_producto"];
                     $almacen_query_detalle = "
                         SELECT a.ubicacion, aps.cantidad
                         FROM almacen_producto_servicio aps
                         JOIN almacen a ON aps.cod_almacen = a.cod_almacen
                         WHERE aps.cod_producto = ? 
-                    "; // Usar sentencia preparada también aquí por consistencia y seguridad
+                    "; 
                     
                     $stmt_almacen_detalle = $connection->prepare($almacen_query_detalle);
                     $ubicaciones_detalle = [];
@@ -187,12 +187,8 @@ if ($stmt_producto) {
                                     $cantidades_detalle[] = $almacen_detalle_row["cantidad"];
                                 }
                             }
-                        } else {
-                             // Manejar error de ejecución de subconsulta si es necesario
                         }
                         $stmt_almacen_detalle->close();
-                    } else {
-                        // Manejar error de preparación de subconsulta si es necesario
                     }
                     ?>
                     <tr>
@@ -204,7 +200,7 @@ if ($stmt_producto) {
                         <td><?php echo htmlspecialchars($producto_row["nombre_proveedor"]); ?></td>
                         <td><?php echo htmlspecialchars(implode(", ", $ubicaciones_detalle)); ?></td>
                         <td><?php echo htmlspecialchars(implode(", ", $cantidades_detalle)); ?></td>
-                        <td class="editar"><a href="/ERP/includes/functions/producto/edit_delete_producto.php?cod=<?php echo urlencode($producto_row["cod_producto"]); ?>">Editar</a></td>
+                        <td class="editar"><a href="<?php echo BASE_URL; ?>/includes/functions/producto/edit_delete_producto.php?cod=<?php echo urlencode($producto_row["cod_producto"]); ?>">Editar</a></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -214,7 +210,7 @@ if ($stmt_producto) {
             <?php if ($busqueda_activa_producto): ?>
                 <p style="color: red;">No hay productos que coincidan con la búsqueda "<?php echo htmlspecialchars($termino_busqueda_producto); ?>" en el campo "<?php echo htmlspecialchars($campos_busqueda_config_producto[$campo_seleccionado_key_producto]['display']); ?>".</p>
             <?php else: ?>
-                <p>No hay productos registrados aún. Puedes <a href="/ERP/includes/functions/producto/create_producto.php">crear uno nuevo</a>.</p>
+                <p>No hay productos registrados aún. Puedes <a href="<?php echo BASE_URL; ?>/includes/functions/producto/create_producto.php">crear uno nuevo</a>.</p>
             <?php endif; ?>
         </div>
     <?php endif; ?>

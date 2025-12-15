@@ -1,9 +1,12 @@
 <?php
 session_start();
 
+require_once(__DIR__ . "/../../config/config_path.php"); 
+
+
 // Comprobamos si hay sesión activa
 if (!isset($_SESSION["usuario_id"])) {
-    header("Location: /ERP/modules/login/login.php");
+    header("Location: " . BASE_URL . "/modules/login/login.php");
     exit;
 }
 
@@ -16,35 +19,31 @@ $permitidas = ["personal", "historial", "clientes", "proveedores", "almacenes", 
 <head>
     <meta charset="UTF-8">
     <title>Panel del Empleado</title>
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/style_empleado_home.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/style_empleado_home.css">
 </head>
 <body>
 <div class="dashboard_container">
         <div class="sidebar">
-            <!-- Contenedor de la foto y el nombre del usuario -->
             <div class="user_info_container">
-                <img src="/ERP/assets/img/default_user.jpg" class="user_photo" alt="Foto de usuario">
+                <img src="<?php echo BASE_URL; ?>/assets/img/default_user.jpg" class="user_photo" alt="Foto de usuario">
                 <span><?php echo $_SESSION["nombre_usuario"] ?? 'Usuario'; ?></span>
             </div>
 
-            <!-- Menú lateral -->
             <ul class="menu">
-                <li><a href="/ERP/modules/home/empleado_home.php?pagina=personal" class="<?= $pagina == 'personal' ? 'active' : '' ?>">Área personal</a></li>
-                <li><a href="/ERP/modules/home/empleado_home.php?pagina=historial" class="<?= $pagina == 'historial' ? 'active' : '' ?>">Historial de actividad</a></li>
-                <li><a href="/ERP/modules/home/empleado_home.php?pagina=clientes" class="<?= $pagina == 'clientes' ? 'active' : '' ?>">Clientes</a></li>
-                <li><a href="/ERP/modules/home/empleado_home.php?pagina=proveedores" class="<?= $pagina == 'proveedores' ? 'active' : '' ?>">Proveedores</a></li>
-                <li><a href="/ERP/modules/home/empleado_home.php?pagina=almacenes" class="<?= $pagina == 'almacenes' ? 'active' : '' ?>">Almacenes</a></li>
-                <li><a href="/ERP/modules/home/empleado_home.php?pagina=productos" class="<?= $pagina == 'productos' ? 'active' : '' ?>">Productos</a></li>
-                <li><a href="/ERP/modules/home/empleado_home.php?pagina=facturas" class="<?= $pagina == 'facturas' ? 'active' : '' ?>">Facturas</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=personal" class="<?= $pagina == 'personal' ? 'active' : '' ?>">Área personal</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=historial" class="<?= $pagina == 'historial' ? 'active' : '' ?>">Historial de actividad</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=clientes" class="<?= $pagina == 'clientes' ? 'active' : '' ?>">Clientes</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=proveedores" class="<?= $pagina == 'proveedores' ? 'active' : '' ?>">Proveedores</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=almacenes" class="<?= $pagina == 'almacenes' ? 'active' : '' ?>">Almacenes</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=productos" class="<?= $pagina == 'productos' ? 'active' : '' ?>">Productos</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=facturas" class="<?= $pagina == 'facturas' ? 'active' : '' ?>">Facturas</a></li>
             </ul>
 
-            <!-- Botón de logout -->
             <div class="logout_container">
-                <a class="logout_button" href="/ERP/modules/login/logout.php">Cerrar sesión</a>
+                <a class="logout_button" href="<?php echo BASE_URL; ?>/modules/login/logout.php">Cerrar sesión</a>
             </div>
         </div>
 
-        <!-- Contenedor de contenido principal -->
         <div class="main_content">
             <?php
             // Verificamos si la página solicitada es permitida

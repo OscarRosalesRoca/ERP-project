@@ -1,4 +1,6 @@
 <?php
+require_once("../../../config/config_path.php");
+
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
@@ -20,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->bind_param("s", $ubicacion);
 
         if ($stmt->execute()) {
-            header("Location: /ERP/modules/home/empleado_home.php?pagina=almacenes&mensaje=almacen_creado");
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=almacenes&mensaje=almacen_creado");
             exit;
         } else {
             $errores[] = "Error al insertar el almacen: " . $connection->error;
@@ -34,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Nuevo Almacen</title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
@@ -57,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <button type="submit">Crear Almacen</button>
             </div>
         </form>
-    </div>
+        </div>
 </div>
 </body>
 </html>

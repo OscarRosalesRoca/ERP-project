@@ -1,8 +1,11 @@
 <?php
 session_start();
 
+require_once(__DIR__ . "/../../config/config_path.php");
+
 if (isset($_SESSION["usuario_id"])) {
-    header("Location: /ERP/modules/home/empleado_home.php"); 
+    // CORRECCIÓN: Usar BASE_URL para la redirección
+    header("Location: " . BASE_URL . "/modules/home/empleado_home.php");
     exit;
 }
 
@@ -17,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Preparar la consulta
     $stmt = $connection->prepare("SELECT id, contrasenia, rol_id, nombre_usuario FROM usuarios WHERE nombre_usuario = ?");
 
-     // Verificar si la preparación fue exitosa
+    // Verificar si la preparación fue exitosa
     if ($stmt === false) {
         $error = "Error al preparar la consulta. No hay registros en la base de datos. Error: " . $connection->error;
     } else {
@@ -38,13 +41,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Redirección por rol
                 switch ($fila["rol_id"]) {
                     case 1:
-                        header("Location: /ERP/modules/home/admin_home.php");
+                        header("Location: " . BASE_URL . "/modules/home/admin_home.php");
                         break;
                     case 2:
-                        header("Location: /ERP/modules/home/empleado_home.php");
+                        header("Location: " . BASE_URL . "/modules/home/empleado_home.php");
                         break;
                     case 3:
-                        header("Location: /ERP/modules/home/cliente_home.php");
+                        header("Location: " . BASE_URL . "/modules/home/cliente_home.php");
                         break;
                     default:
                         $error = "Rol de usuario desconocido.";
@@ -65,39 +68,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/general_login_register_styles.css">
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/login_style/style_login.css">
-</head>
-<body>
-    <div class="card">
-        <h2>Iniciar Sesión</h2>
-        <?php if ($error): ?>
-            <p class="error"><?php echo $error; ?></p>
-        <?php endif; ?>
-        <form method="post">
-            <label for="usuario">Usuario:</label>
-            <input type="text" name="usuario" id="usuario" required>
+    <head>
+        <meta charset="UTF-8">
+        <title>Iniciar Sesión</title>
+        <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/general_login_register_styles.css">
+        <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/login_style/style_login.css">
+    </head>
+    <body>
+        <div class="card">
+            <h2>Iniciar Sesión</h2>
+            <?php if ($error): ?>
+                <p class="error"><?php echo $error; ?></p>
+            <?php endif; ?>
+            <form method="post">
+                <label for="usuario">Usuario:</label>
+                <input type="text" name="usuario" id="usuario" required>
 
-            <label for="contrasenia">Contraseña:</label>
-            <div class="password_wrapper">
-                <input type="password" name="contrasenia" id="contrasenia" required>
-                <input type="checkbox" id="togglePassword"> Mostrar
-            </div>
+                <label for="contrasenia">Contraseña:</label>
+                <div class="password_wrapper">
+                    <input type="password" name="contrasenia" id="contrasenia" required>
+                    <input type="checkbox" id="togglePassword"> Mostrar
+                </div>
 
-            <button class="button" type="submit">Iniciar sesión</button>
-        </form>
-        <p class="registro_link">¿No tienes una cuenta? <a class="link" href="/ERP/modules/register/register.php">Regístrate</a></p>
-    </div>
+                <button class="button" type="submit">Iniciar sesión</button>
+            </form>
+            <p class="registro_link">¿No tienes una cuenta? <a class="link" href="<?php echo BASE_URL; ?>/modules/register/register.php">Regístrate</a></p>
+        </div>
 
-    <script>
-        const toggle = document.getElementById("togglePassword");
-        const password = document.getElementById("contrasenia");
-        toggle.addEventListener("change", () => {
-            password.type = toggle.checked ? "text" : "password";
-        });
-    </script>
-</body>
+        <script>
+            const toggle = document.getElementById("togglePassword");
+            const password = document.getElementById("contrasenia");
+            toggle.addEventListener("change", () => {
+                password.type = toggle.checked ? "text" : "password";
+            });
+        </script>
+    </body>
 </html>

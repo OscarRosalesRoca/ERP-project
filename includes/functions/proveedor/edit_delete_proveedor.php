@@ -1,4 +1,6 @@
 <?php
+
+require_once("../../../config/config_path.php");
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
@@ -9,7 +11,7 @@ if (!$cod_actor) {
     exit;
 }
 
-// Obtener datos actuales del cliente
+// Obtener datos actuales del proveedor
 $query = "SELECT * FROM proveedores_clientes WHERE cod_actor = ?";
 $stmt = $connection->prepare($query);
 $stmt->bind_param("i", $cod_actor);
@@ -30,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_proveedor"])
     $stmt->bind_param("i", $cod_actor);
     $stmt->execute();
 
-    header("Location: /ERP/modules/home/empleado_home.php?pagina=proveedores");
+    header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=proveedores");
     exit;
 }
 
@@ -91,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt->execute();
         }
     
-        header("Location: /ERP/modules/home/empleado_home.php?pagina=proveedores");
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=proveedores");
         exit;
     }
 }
@@ -102,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Editar proveedores</title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
@@ -119,22 +121,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <form method="POST">
             <label>Nombre</label>
-            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($proveedor["nombre"]) ?>">
+            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($proveedor["nombre"]) ?>" value="<?= htmlspecialchars($_POST["nombre"] ?? $proveedor["nombre"]) ?>">
 
             <label>DNI</label>
-            <input type="text" name="nif_dni" placeholder="<?= htmlspecialchars($proveedor["nif_dni"]) ?>">
+            <input type="text" name="nif_dni" placeholder="<?= htmlspecialchars($proveedor["nif_dni"]) ?>" value="<?= htmlspecialchars($_POST["nif_dni"] ?? $proveedor["nif_dni"]) ?>">
 
             <label>Población</label>
-            <input type="text" name="poblacion" placeholder="<?= htmlspecialchars($proveedor["poblacion"]) ?>">
+            <input type="text" name="poblacion" placeholder="<?= htmlspecialchars($proveedor["poblacion"]) ?>" value="<?= htmlspecialchars($_POST["poblacion"] ?? $proveedor["poblacion"]) ?>">
 
             <label>Dirección</label>
-            <input type="text" name="direccion" placeholder="<?= htmlspecialchars($proveedor["direccion"]) ?>">
+            <input type="text" name="direccion" placeholder="<?= htmlspecialchars($proveedor["direccion"]) ?>" value="<?= htmlspecialchars($_POST["direccion"] ?? $proveedor["direccion"]) ?>">
 
             <label>Correo electrónico</label>
-            <input type="email" name="mail" placeholder="<?= htmlspecialchars($proveedor["mail"]) ?>">
+            <input type="email" name="mail" placeholder="<?= htmlspecialchars($proveedor["mail"]) ?>" value="<?= htmlspecialchars($_POST["mail"] ?? $proveedor["mail"]) ?>">
 
             <label>Teléfono</label>
-            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($proveedor["telefono"]) ?>">
+            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($proveedor["telefono"]) ?>" value="<?= htmlspecialchars($_POST["telefono"] ?? $proveedor["telefono"]) ?>">
 
             <div class="botones">
                 <button type="submit">Guardar cambios</button>
@@ -142,6 +144,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <button type="submit" name="eliminar_proveedor" class="eliminar_boton" onclick="return confirm('¿Eliminar proveedor? Esta acción no se puede deshacer.')">
                     <p>Eliminar proveedor</p>
                 </button>
+            </div>
+            <div style="margin-top: 10px;">
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=proveedores" class="back_button">Cancelar</a>
             </div>
         </form>
     </div>

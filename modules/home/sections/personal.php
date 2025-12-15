@@ -1,6 +1,16 @@
 <?php
-require_once ("../../includes/connection.php");
-require_once ("../../includes/auth.php");
+require_once("../../config/config_path.php");
+
+require_once("../../includes/connection.php");
+require_once("../../includes/auth.php");
+
+// Asegurar que la sesión está iniciada
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Recuperar el ID del usuario de la sesión para evitar errores en bind_param
+$usuario_id = $_SESSION['usuario_id'] ?? 0;
 
 // Consulta con JOIN entre usuarios y empleado
 $query = "
@@ -47,7 +57,7 @@ $rol_texto = $roles[$datos["rol_id"]] ?? "Desconocido";
 <head>
     <meta charset="UTF-8">
     <title>Área personal</title>
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/sections_style/style_personal.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/style_personal.css">
 </head>
 <body>
 <div class="personal_container">
@@ -60,8 +70,9 @@ $rol_texto = $roles[$datos["rol_id"]] ?? "Desconocido";
         <li><strong>Teléfono:</strong> <?php echo htmlspecialchars($datos["telefono"] ?? "No disponible"); ?></li>
         <li><strong>Fecha de creación:</strong> <?php echo htmlspecialchars($datos["fecha_creacion"]); ?></li>
         <li>
-            <a href="/ERP/includes/functions/empleado/edit_delete_empleado.php" class="editar_link">Editar contraseña o perfil</a>
+            <a href="<?php echo BASE_URL; ?>/includes/functions/empleado/edit_delete_empleado.php" class="editar_link">Editar contraseña o perfil</a>
         </li>
     </ul>
 </div>
 </body>
+</html>

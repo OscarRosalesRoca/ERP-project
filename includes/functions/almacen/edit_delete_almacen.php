@@ -1,4 +1,6 @@
 <?php
+require_once("../../../config/config_path.php");
+
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
@@ -30,24 +32,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_almacen"])) 
     $stmt->bind_param("i", $cod_almacen);
     $stmt->execute();
 
-    header("Location: /ERP/modules/home/empleado_home.php?pagina=almacenes");
+    header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=almacenes");
     exit;
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $ubicacion = trim($_POST["ubicacion"]);
+    // Si se presiona guardar cambios
+    if (isset($_POST["ubicacion"])) {
+        $ubicacion = trim($_POST["ubicacion"]);
 
-    // Si no hay errores, procesamos actualizaciones
-    if (empty($errores)) {
-        // Nombre: solo actualizar si se ha cambiado
-        if (!empty($ubicacion) && $ubicacion !== $almacen["ubicacion"]) {
-            $stmt = $connection->prepare("UPDATE almacen SET ubicacion = ? WHERE cod_almacen = ?");
-            $stmt->bind_param("si", $ubicacion, $cod_almacen);
-            $stmt->execute();
+        // Si no hay errores, procesamos actualizaciones
+        if (empty($errores)) {
+            // Nombre: solo actualizar si se ha cambiado y no está vacío
+            if (!empty($ubicacion) && $ubicacion !== $almacen["ubicacion"]) {
+                $stmt = $connection->prepare("UPDATE almacen SET ubicacion = ? WHERE cod_almacen = ?");
+                $stmt->bind_param("si", $ubicacion, $cod_almacen);
+                $stmt->execute();
+            }
+        
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=almacenes");
+            exit;
         }
-    
-        header("Location: /ERP/modules/home/empleado_home.php?pagina=almacenes");
-        exit;
     }
 }
 ?>
@@ -57,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Editar almacen</title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
@@ -74,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <form method="POST">
             <label>Ubicación</label>
-            <input type="text" name="ubicacion" placeholder="<?= htmlspecialchars($almacen["ubicacion"]) ?>">
+            <input type="text" name="ubicacion" value="<?= htmlspecialchars($almacen["ubicacion"]) ?>" placeholder="<?= htmlspecialchars($almacen["ubicacion"]) ?>">
 
             <div class="botones">
                 <button type="submit">Guardar cambios</button>
@@ -82,6 +87,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <button type="submit" name="eliminar_almacen" class="eliminar_boton" onclick="return confirm('¿Eliminar almacen? Esta acción no se puede deshacer.')">
                     <p>Eliminar almacen</p>
                 </button>
+            </div>
+            <div style="margin-top: 10px;">
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=almacenes" class="back_button">Cancelar</a>
             </div>
         </form>
     </div>

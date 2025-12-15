@@ -1,4 +1,6 @@
 <?php
+
+require_once("../../../config/config_path.php");
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
@@ -46,7 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_usuario"])) 
     // Cerrar sesión y redirigir a login
     session_unset();
     session_destroy();
-    header("Location: /ERP/modules/login/login.php?mensaje=cuenta_eliminada");
+
+    header("Location: " . BASE_URL . "/modules/login/login.php?mensaje=cuenta_eliminada");
     exit;
 }
 
@@ -110,7 +113,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Cerrar sesión tras actualización
         session_unset();
         session_destroy();
-        header("Location: /ERP/modules/login/login.php?mensaje=actualizado");
+
+        header("Location: " . BASE_URL . "/modules/login/login.php?mensaje=actualizado");
         exit;
     }
 }
@@ -122,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Editar perfil</title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
@@ -139,16 +143,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <form method="POST">
             <label>Nombre de usuario</label>
-            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($empleado["nombre_usuario"]) ?>">
+            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($empleado["nombre_usuario"]) ?>" value="<?= htmlspecialchars($_POST["nombre"] ?? $empleado["nombre_usuario"]) ?>">
 
             <label>Correo electrónico</label>
-            <input type="email" name="email" placeholder="<?= htmlspecialchars($empleado["mail"]) ?>">
+            <input type="email" name="email" placeholder="<?= htmlspecialchars($empleado["mail"]) ?>" value="<?= htmlspecialchars($_POST["email"] ?? $empleado["mail"]) ?>">
 
             <label>Teléfono</label>
-            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($empleado["telefono"]) ?>">
+            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($empleado["telefono"]) ?>" value="<?= htmlspecialchars($_POST["telefono"] ?? $empleado["telefono"]) ?>">
 
             <label>DNI</label>
-            <input type="text" name="dni" placeholder="<?= htmlspecialchars($empleado["dni"]) ?>">
+            <input type="text" name="dni" placeholder="<?= htmlspecialchars($empleado["dni"]) ?>" value="<?= htmlspecialchars($_POST["dni"] ?? $empleado["dni"]) ?>">
 
             <label>Contraseña</label>
             <input type="password" name="contrasenia" placeholder="Nueva contraseña (opcional)">
@@ -159,6 +163,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <button type="submit" name="eliminar_usuario" class="eliminar_boton" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
                     <p>Eliminar cuenta</p>
                 </button>
+            </div>
+            <div style="margin-top: 10px;">
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=personal" class="back_button">Cancelar</a>
             </div>
         </form>
     </div>

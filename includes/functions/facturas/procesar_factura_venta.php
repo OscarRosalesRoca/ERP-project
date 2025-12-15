@@ -1,6 +1,8 @@
 <?php
-require_once("../../connection.php"); 
-require_once("../../auth.php");       
+
+require_once("../../../config/config_path.php");
+require_once("../../../includes/connection.php"); 
+require_once("../../../includes/auth.php");       
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -42,9 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
             $errores_factura[] = "Línea " . htmlspecialchars($num_linea_form) . ": La cantidad debe ser mayor a 0.";
         }
 
-        // Depuración para cod_almacen_origen
-        // Esto escribirá en el log de errores del servidor web
-        // Te mostrará qué valor está llegando realmente para 'cod_almacen_origen'
+        // Depuración para cod_almacen_origen 
         $valor_cod_almacen_origen = isset($linea['cod_almacen_origen']) ? $linea['cod_almacen_origen'] : 'NO ESTABLECIDO';
         error_log("Procesando Factura Venta - Línea " . $num_linea_form . ": valor de 'cod_almacen_origen' recibido = '" . $valor_cod_almacen_origen . "', intval = " . intval($valor_cod_almacen_origen));
 
@@ -181,14 +181,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
 
             $connection->commit();
             $_SESSION['mensaje_exito_factura_venta'] = "Factura de venta Nº " . $num_factura_generado . " creada exitosamente.";
-            header("Location: /ERP/modules/home/empleado_home.php?pagina=historial&mensaje_venta_creada=1");
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=historial&mensaje_venta_creada=1");
             exit;
 
         } catch (Exception $e) {
             $connection->rollback();
             $_SESSION['errores_factura_venta'] = [$e->getMessage()];
             $_SESSION['form_data_factura_venta'] = $_POST;
-            header("Location: " . $_SERVER['HTTP_REFERER'] . "&error_guardado_venta=1");
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=facturas&error_guardado_venta=1");
             exit;
         }
     } else {
@@ -207,12 +207,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
         }
         $_SESSION['errores_factura_venta'] = $errores_factura;
         $_SESSION['form_data_factura_venta'] = $_POST;
-        header("Location: " . $_SERVER['HTTP_REFERER'] . "&validation_error_venta=1");
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=facturas&validation_error_venta=1");
         exit;
     }
 
 } else {
-    header("Location: /ERP/modules/home/empleado_home.php?pagina=facturas");
+    header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=facturas");
     exit;
 }
 ?>

@@ -1,4 +1,7 @@
 <?php
+
+require_once("../../config/config_path.php");
+
 require_once("../../includes/connection.php");
 require_once("../../includes/auth.php");
 
@@ -8,13 +11,13 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // Configuración de campos de búsqueda para el historial
 $campos_busqueda_config_historial = [
-    'num_factura' => ['display' => 'Nº Factura', 'column' => 'f.num_factura', 'type' => 'number'],
-    'cod_empleado' => ['display' => 'Cód. Empleado', 'column' => 'f.cod_empleado', 'type' => 'number'],
-    'nombre_empleado' => ['display' => 'Nombre Empleado', 'column' => 'e.nombre', 'type' => 'text'], // Necesita JOIN con empleado
-    'cod_actor' => ['display' => 'Cód. Actor', 'column' => 'f.cod_actor', 'type' => 'number'],
+    'num_factura'       => ['display' => 'Nº Factura', 'column' => 'f.num_factura', 'type' => 'number'],
+    'cod_empleado'      => ['display' => 'Cód. Empleado', 'column' => 'f.cod_empleado', 'type' => 'number'],
+    'nombre_empleado'   => ['display' => 'Nombre Empleado', 'column' => 'e.nombre', 'type' => 'text'], // Necesita JOIN con empleado
+    'cod_actor'         => ['display' => 'Cód. Actor', 'column' => 'f.cod_actor', 'type' => 'number'],
     'actor_nombre_snapshot' => ['display' => 'Nombre Actor (Factura)', 'column' => 'f.actor_nombre_snapshot', 'type' => 'text'],
-    'fecha_creacion' => ['display' => 'Fecha (YYYY-MM-DD)', 'column' => 'DATE(f.fecha_creacion)', 'type' => 'date'],
-    'tipo' => ['display' => 'Tipo Factura', 'column' => 'f.tipo', 'type' => 'select', 'options' => ['compra' => 'Compra', 'venta' => 'Venta']]
+    'fecha_creacion'    => ['display' => 'Fecha (YYYY-MM-DD)', 'column' => 'DATE(f.fecha_creacion)', 'type' => 'date'],
+    'tipo'              => ['display' => 'Tipo Factura', 'column' => 'f.tipo', 'type' => 'select', 'options' => ['compra' => 'Compra', 'venta' => 'Venta']]
 ];
 
 // Valores iniciales
@@ -111,8 +114,8 @@ if ($stmt_historial) {
 <head>
     <meta charset="UTF-8">
     <title>Historial de Actividad</title>
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/home_style/sections_style/style_historial.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/style_historial.css">
 </head>
 <body>
 <div class="general_container historial_container"> 
@@ -120,7 +123,7 @@ if ($stmt_historial) {
 
     <div class="cabecera_acciones"> 
         <div class="contenedor_busqueda">
-            <form action="/ERP/modules/home/empleado_home.php" method="GET" class="formulario_busqueda">
+            <form action="<?php echo BASE_URL; ?>/modules/home/empleado_home.php" method="GET" class="formulario_busqueda">
                 <input type="hidden" name="pagina" value="historial">
                 
                 <label for="campo_busqueda_historial">Buscar por:</label>
@@ -151,7 +154,7 @@ if ($stmt_historial) {
                 <?php endif; ?>
                 
                 <input type="submit" name="buscar" value="Buscar">
-                <a href="/ERP/modules/home/empleado_home.php?pagina=historial" class="boton_limpiar">Limpiar</a>
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=historial" class="boton_limpiar">Limpiar</a>
             </form>
         </div>
     </div>
@@ -183,7 +186,7 @@ if ($stmt_historial) {
                         <td><?php echo htmlspecialchars(number_format($factura["total_factura"], 2, ',', '.')); ?> €</td>
                         <td><?php echo htmlspecialchars(date("d/m/Y H:i", strtotime($factura["fecha_creacion"]))); ?></td>
                         <td class="ver_mas">
-                            <a href="/ERP/includes/functions/facturas/ver_mas_facturas.php?num_factura=<?php echo urlencode($factura["num_factura"]); ?>">Ver más</a>
+                            <a href="<?php echo BASE_URL; ?>/includes/functions/facturas/ver_mas_facturas.php?num_factura=<?php echo urlencode($factura["num_factura"]); ?>">Ver más</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -230,10 +233,8 @@ if ($stmt_historial) {
                 if (oldTerminoInput) {
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = nuevoInputHtml;
+                    
                     // Reemplazar el input/select de término actual
-                    // Es importante que el nuevo elemento se inserte en el DOM correctamente
-                    // oldTerminoInput.replaceWith(tempDiv.firstChild) es una forma moderna.
-                    // Para mayor compatibilidad o si hay problemas, se puede hacer:
                     oldTerminoInput.parentNode.replaceChild(tempDiv.firstChild, oldTerminoInput);
                 }
             });

@@ -1,6 +1,8 @@
 <?php
-require_once("../../connection.php");
-require_once("../../auth.php");
+
+require_once("../../../config/config_path.php");
+require_once("../../../includes/connection.php");
+require_once("../../../includes/auth.php");
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -165,8 +167,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
             }
 
             $connection->commit();
-            $_SESSION['mensaje_exito_factura'] = "Factura de compra Nº " . $num_factura_generado . " creada exitosamente.";
-            header("Location: /ERP/modules/home/empleado_home.php?pagina=historial&mensaje=factura_compra_creada");
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=historial&mensaje=factura_compra_creada");
             exit;
 
         } catch (Exception $e) {
@@ -174,20 +175,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_compr
             //Guardar el error en sesión para mostrarlo en facturas.php
             $_SESSION['errores_factura'] = [$e->getMessage()];
             $_SESSION['form_data_compra'] = $_POST; //Guardar datos para rellenar el formulario
-            header("Location: " . $_SERVER['HTTP_REFERER'] . "&error_guardado=1"); //Volver a la página anterior (facturas)
+            // La redirección aquí usa HTTP_REFERER (página anterior), pero si queremos
+            // garantizar que aterriza en la página de facturas, usamos la ruta BASE_URL:
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=facturas&validation_error_compra=1"); 
             exit;
         }
     } else {
         //Si hubo errores en validación inicial, guardarlos en sesión y redirigir
-        $_SESSION['errores_factura'] = $errores_factura;
-        $_SESSION['form_data_compra'] = $_POST; //Guardar datos para rellenar el formulario
-        header("Location: " . $_SERVER['HTTP_REFERER'] . "&validation_error=1"); //Volver a la página anterior (facturas)
+        $_SESSION['errores_factura_compra'] = $errores_factura; // Corregido el nombre de la variable de sesión
+        $_SESSION['form_data_factura_compra'] = $_POST; // Corregido el nombre de la variable de sesión
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=facturas&validation_error_compra=1");
         exit;
     }
 
 } else {
     //Si no es POST o no se presionó el botón correcto, redirigir a la página principal de facturas
-    header("Location: /ERP/modules/home/empleado_home.php?pagina=facturas");
+    header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=facturas");
     exit;
 }
 ?>

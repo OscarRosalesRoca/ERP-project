@@ -1,4 +1,6 @@
 <?php
+require_once("../../../config/config_path.php");
+
 require_once(__DIR__ . "/../../connection.php");
 
 function createEmpleado($nombre, $mail, $telefono, $dni, $contrasenia) {

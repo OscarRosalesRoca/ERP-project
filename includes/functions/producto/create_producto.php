@@ -1,6 +1,8 @@
 <?php
-require_once("../../connection.php");
-require_once("../../auth.php");
+
+require_once("../../../config/config_path.php");
+require_once("../../../includes/connection.php");
+require_once("../../../includes/auth.php");
 
 $errores = [];
 $proveedores = [];
@@ -100,7 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt_insert_prod_prov->close();
 
             $connection->commit();
-            header("Location: /ERP/modules/home/empleado_home.php?pagina=productos&mensaje=producto_creado_exitosamente");
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=productos&mensaje=producto_creado_exitosamente");
             exit;
 
         } catch (Exception $e) {
@@ -116,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Nuevo Producto</title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
@@ -160,7 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             
             <div class="botones">
                 <button type="submit" <?php echo (empty($proveedores)) ? 'disabled' : ''; ?>>Crear Producto</button>
-                <a href="/ERP/modules/home/empleado_home.php?pagina=productos" class="boton_cancelar">Cancelar</a>
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=productos" class="boton_cancelar">Cancelar</a>
             </div>
         </form>
     </div>

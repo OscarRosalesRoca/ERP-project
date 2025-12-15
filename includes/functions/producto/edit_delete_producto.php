@@ -1,4 +1,6 @@
 <?php
+
+require_once("../../../config/config_path.php");
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
@@ -6,8 +8,7 @@ $cod_producto = $_GET["cod"] ?? null;
 $mensaje = $_GET["mensaje"] ?? null; // Para mensajes de éxito/error
 
 if (!$cod_producto) {
-    // Redirigir si no hay código de producto, o mostrar error.
-    header("Location: /ERP/modules/home/empleado_home.php?pagina=productos&error=noproducto");
+    header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=productos&error=noproducto");
     exit;
 }
 
@@ -41,7 +42,7 @@ $producto_actual = $resultado_producto->fetch_assoc();
 $stmt_producto->close();
 
 if (!$producto_actual) {
-    header("Location: /ERP/modules/home/empleado_home.php?pagina=productos&error=productonofound");
+    header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=productos&error=productonofound");
     exit;
 }
 
@@ -61,27 +62,18 @@ if ($stmt_lista_prov) {
     $errores[] = "Error al cargar la lista de proveedores.";
 }
 
-// --- Lógica de Eliminación ---
+// Lógica de eliminación 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_producto"])) {
     $connection->begin_transaction();
     try {
-        // El trigger 'desactivar_producto_sin_stock' se encargará del campo 'activo'
-        // si se eliminan todas las entradas de 'almacen_producto_servicio'.
-        // Como ahora el stock se maneja en facturas, la eliminación directa aquí
-        // podría dejar el producto sin stock y el trigger lo desactivaría.
-        // Las FK con ON DELETE CASCADE en producto_proveedor y almacen_producto_servicio (si existiera)
-        // se encargarían de las tablas relacionadas.
-
-        // Primero eliminar de producto_proveedor (si la FK no es CASCADE desde producto_servicio)
-        // Asumiendo que la FK de producto_proveedor.cod_producto a producto_servicio.cod_producto es ON DELETE CASCADE,
-        // este paso no sería estrictamente necesario, pero es más explícito.
+        // Primero eliminar de producto_proveedor
         $stmt_del_pp = $connection->prepare("DELETE FROM producto_proveedor WHERE cod_producto = ?");
         if(!$stmt_del_pp) throw new Exception("Error preparando delete producto_proveedor: " . $connection->error);
         $stmt_del_pp->bind_param("i", $cod_producto);
         if(!$stmt_del_pp->execute()) throw new Exception("Error eliminando de producto_proveedor: " . $stmt_del_pp->error);
         $stmt_del_pp->close();
 
-        // Luego eliminar de almacen_producto_servicio (si la FK no es CASCADE)
+        // Luego eliminar de almacen_producto_servicio
         $stmt_del_aps = $connection->prepare("DELETE FROM almacen_producto_servicio WHERE cod_producto = ?");
         if(!$stmt_del_aps) throw new Exception("Error preparando delete almacen_producto_servicio: " . $connection->error);
         $stmt_del_aps->bind_param("i", $cod_producto);
@@ -97,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_producto"]))
         $stmt_del_ps->close();
         
         $connection->commit();
-        header("Location: /ERP/modules/home/empleado_home.php?pagina=productos&mensaje=producto_eliminado");
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=productos&mensaje=producto_eliminado");
         exit;
     } catch (Exception $e) {
         $connection->rollback();
@@ -105,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_producto"]))
     }
 }
 
-// --- Lógica de Guardar Cambios ---
+// Lógica de guardar cambios 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])) {
     $nombre_nuevo = trim($_POST["nombre"]);
     $iva_nuevo = isset($_POST["iva"]) && $_POST["iva"] !== "" ? floatval($_POST["iva"]) : $producto_actual["iva"];
@@ -165,10 +157,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
             // Actualizar producto_proveedor
             // Si el proveedor ha cambiado o el precio de compra ha cambiado
             if ($cod_proveedor_nuevo != $producto_actual["cod_proveedor_actual"] || $precio_compra_nuevo != $producto_actual["precio_compra"]) {
-                // Podría ser un UPDATE o un DELETE + INSERT si el producto puede cambiar de proveedor principal.
-                // Por simplicidad, asumimos que un producto tiene un proveedor principal y se actualiza.
-                // Si un producto pudiera tener múltiples proveedores, la lógica sería más compleja aquí.
-                // Para este ERP, parece que un producto está ligado a un proveedor para su precio de compra.
+                
+                // Actualizamos el proveedor y el precio de compra
                 $stmt_update_pp = $connection->prepare("UPDATE producto_proveedor SET cod_actor = ?, nombre_proveedor_snapshot = ?, precio_compra = ? WHERE cod_producto = ?");
                 if(!$stmt_update_pp) throw new Exception("Error preparando update producto_proveedor: " . $connection->error);
                 $stmt_update_pp->bind_param("isdi", $cod_proveedor_nuevo, $nombre_proveedor_snapshot_nuevo, $precio_compra_nuevo, $cod_producto);
@@ -180,7 +170,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
             // se realiza a través de las facturas de compra/venta. No se toca aquí.
 
             $connection->commit();
-            // Actualizar $producto_actual para reflejar los cambios en el formulario si no hay redirección inmediata
+            
+            // Actualizar $producto_actual para reflejar los cambios en el formulario
             $producto_actual['nombre'] = $nombre_nuevo;
             $producto_actual['iva'] = $iva_nuevo;
             $producto_actual['precio_venta'] = $precio_venta_nuevo;
@@ -202,7 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
 <head>
     <meta charset="UTF-8">
     <title>Editar Producto</title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
@@ -252,7 +243,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
 
             <div class="botones">
                 <button type="submit" name="guardar_cambios">Guardar Cambios</button>
-                <a href="/ERP/modules/home/empleado_home.php?pagina=productos" class="boton_cancelar">Volver a Productos</a>
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=productos" class="boton_cancelar">Volver a Productos</a>
             </div>
         </form>
 

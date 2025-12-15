@@ -1,4 +1,6 @@
 <?php
+
+require_once("../../../config/config_path.php");
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
@@ -29,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->bind_param("ssssss", $nombre, $nif_dni, $poblacion, $direccion, $mail, $telefono);
 
         if ($stmt->execute()) {
-            header("Location: /ERP/modules/home/empleado_home.php?pagina=proveedores&mensaje=proveedor_creado");
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=proveedores&mensaje=proveedor_creado");
             exit;
         } else {
             $errores[] = "Error al insertar el proveedor: " . $connection->error;
@@ -43,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Nuevo Proveedor</title>
-    <link rel="stylesheet" href="/ERP/assets/css/functions_style/general_create_edit_delete_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
@@ -60,25 +62,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <form method="POST">
             <label>Nombre</label>
-            <input type="text" name="nombre" required>
+            <input type="text" name="nombre" value="<?= htmlspecialchars($_POST['nombre'] ?? '') ?>" required>
 
             <label>NIF</label>
-            <input type="text" name="nif_dni" required>
+            <input type="text" name="nif_dni" value="<?= htmlspecialchars($_POST['nif_dni'] ?? '') ?>" required>
 
             <label>Población</label>
-            <input type="text" name="poblacion">
+            <input type="text" name="poblacion" value="<?= htmlspecialchars($_POST['poblacion'] ?? '') ?>">
 
             <label>Dirección</label>
-            <input type="text" name="direccion" required>
+            <input type="text" name="direccion" value="<?= htmlspecialchars($_POST['direccion'] ?? '') ?>" required>
 
-            <label>Correo electrónico</label required>
-            <input type="email" name="mail">
+            <label>Correo electrónico</label>
+            <input type="email" name="mail" value="<?= htmlspecialchars($_POST['mail'] ?? '') ?>" required>
 
             <label>Teléfono</label>
-            <input type="text" name="telefono" required>
+            <input type="text" name="telefono" value="<?= htmlspecialchars($_POST['telefono'] ?? '') ?>" required>
 
             <div class="botones">
                 <button type="submit">Crear proveedor</button>
+            </div>
+            <div style="margin-top: 10px;">
+                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=proveedores" class="back_button">Cancelar</a>
             </div>
         </form>
     </div>

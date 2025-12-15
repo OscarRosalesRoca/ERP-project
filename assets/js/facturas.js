@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
+    
+    // Verificar si la variable global BASE_URL_JS fue inyectada por PHP
+    const baseUrl = (typeof BASE_URL_JS !== 'undefined') ? BASE_URL_JS : '';
+    const apiPathCompra = `${baseUrl}/includes/functions/facturas/obtener_productos_proveedor.php`;
+    const apiPathVenta = `${baseUrl}/includes/functions/facturas/obtener_productos_venta.php`;
+
+
     // --- Variables Comunes ---
     const tabCompra = document.getElementById('tabCompra');
     const tabVenta = document.getElementById('tabVenta');
@@ -55,7 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return new Promise(async (resolve, reject) => { 
             selectProductoElement.innerHTML = '<option value="">Cargando productos...</option>';
             try {
-                const response = await fetch(`../../includes/functions/facturas/obtener_productos_proveedor.php?cod_proveedor=${codProveedor}`);
+                // RUTA MODIFICADA con apiPathCompra
+                const response = await fetch(`${apiPathCompra}?cod_proveedor=${codProveedor}`);
                 if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
                 const productos = await response.json();
                 selectProductoElement.innerHTML = '<option value="">-- Seleccione un Producto --</option>';
@@ -121,7 +129,8 @@ document.addEventListener('DOMContentLoaded', function () {
     async function precargarProductosVenta() {
         try {
             console.log("JS: Intentando precargar productos para venta...");
-            const response = await fetch(`../../includes/functions/facturas/obtener_productos_venta.php`);
+            // RUTA MODIFICADA con apiPathVenta
+            const response = await fetch(apiPathVenta);
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error(`JS: Error HTTP al precargar productos de venta: ${response.status}, ${errorText}`);
@@ -208,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             selectAlmacenElement.innerHTML = '<option value="">No hay stock para este producto</option>';
         }
-         // Limpiar validación custom al repoblar
+          // Limpiar validación custom al repoblar
         selectAlmacenElement.setCustomValidity('');
     }
 
@@ -291,6 +300,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!selectedOption || !selectedOption.value) { 
                     if (tipoLinea === 'compra') {
                         linea.querySelector('.input_precio_unitario_linea').value = '';
+                        linea.querySelector('.input_precio_total_linea').value = '';
                         calcularTotalLineaCompra(linea);
                     } else if (tipoLinea === 'venta') {
                         linea.querySelector('.input_precio_unitario_linea').value = '';

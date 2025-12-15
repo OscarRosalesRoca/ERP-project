@@ -1,5 +1,6 @@
 <?php
 
+require_once(__DIR__ . "/../../config/config_path.php"); 
 require_once(__DIR__ . "/../../includes/connection.php");
 
 $errores = "";
@@ -44,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             require_once(__DIR__ ."/../../includes/functions/empleado/create_empleado.php");
 
             if (createEmpleado($nombre, $mail, $telefono, $dni, $contrasenia)) {
-                header("Location: /ERP/modules/login/login.php?registro=ok");
+                header("Location: " . BASE_URL . "/modules/login/login.php?registro=ok");
                 exit;
             } else {
                 $errores = "Hubo un problema al registrar. Inténtalo de nuevo.";
@@ -59,8 +60,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Registro - ERP</title>
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/general_login_register_styles.css">
-    <link rel="stylesheet" href="/ERP/assets/css/modules_style/register_style/style_register.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/general_login_register_styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/register_style/style_register.css">
 </head>
 <body>
     <div class="card">
