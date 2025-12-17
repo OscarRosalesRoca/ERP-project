@@ -3,9 +3,14 @@ session_start();
 
 require_once(__DIR__ . "/../../config/config_path.php");
 
+// MODIFICACIÓN: Redirección inteligente si ya hay sesión iniciada
 if (isset($_SESSION["usuario_id"])) {
-    // CORRECCIÓN: Usar BASE_URL para la redirección
-    header("Location: " . BASE_URL . "/modules/home/empleado_home.php");
+    // Si es Admin (1), va al home de admin. Si no, al de empleado.
+    if (isset($_SESSION["rol_id"]) && $_SESSION["rol_id"] == 1) {
+        header("Location: " . BASE_URL . "/modules/home/admin_home.php");
+    } else {
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php");
+    }
     exit;
 }
 

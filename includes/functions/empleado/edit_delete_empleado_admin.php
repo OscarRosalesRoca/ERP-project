@@ -1,40 +1,46 @@
 <?php
 
-require_once("../../../config/config_path.php");
-require_once("../../../includes/connection.php");
-require_once("../../../includes/auth.php");
+require_once(__DIR__ . "/../../../config/config_path.php");
+require_once(__DIR__ . "/../../connection.php");
+require_once(__DIR__ . "/../../auth.php");
 
-$nombre_usuario = $_SESSION["nombre_usuario"] ?? null;
+// Verificamos que sea Admin
+if (!isset($_SESSION["rol_id"]) || $_SESSION["rol_id"] !== 1) {
+    die("Acceso denegado.");
+}
 
-if (!$nombre_usuario) {
-    echo "<p>Error: sesión no válida.</p>";
+// RECIBIR EL ID DEL EMPLEADO A EDITAR
+$cod_empleado_target = $_GET['cod'] ?? null;
+
+if (!$cod_empleado_target) {
+    echo "<p>Error: No se ha especificado un empleado.</p>";
     exit;
 }
 
-// Obtener datos actuales
+// Obtener datos del empleado OBJETIVO (no del usuario logueado)
 $query = "
-    SELECT u.id AS usuario_id, u.nombre_usuario, u.contrasenia AS contrasenia_usuario,
-    e.cod_empleado, e.mail, e.telefono, e.dni, e.contrasenia AS contrasenia_empleado
-    FROM usuarios u
-    LEFT JOIN empleado e ON u.id = e.usuario_id
-    WHERE u.nombre_usuario = ?
+    SELECT u.id AS usuario_id, u.nombre_usuario,
+    e.cod_empleado, e.mail, e.telefono, e.dni
+    FROM empleado e
+    JOIN usuarios u ON e.usuario_id = u.id
+    WHERE e.cod_empleado = ?
 ";
 
 $stmt = $connection->prepare($query);
-$stmt->bind_param("s", $nombre_usuario);
+$stmt->bind_param("i", $cod_empleado_target);
 $stmt->execute();
 $result = $stmt->get_result();
 $empleado = $result->fetch_assoc();
 
 if (!$empleado) {
-    echo "<p>Error: usuario no encontrado.</p>";
+    echo "<p>Error: Empleado no encontrado.</p>";
     exit;
 }
 
-$usuario_id = $empleado["usuario_id"];
+$usuario_id_target = $empleado["usuario_id"];
 $errores = [];
 
-// Procesar Formulario de Edición
+// --- PROCESAR FORMULARIO ---
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nuevo_nombre = trim($_POST["nombre"]);
     $nuevo_email = trim($_POST["email"]);
@@ -47,85 +53,68 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errores[] = "El correo electrónico no es válido.";
     }
 
-    // Si no hay errores, procesamos actualizaciones
     if (empty($errores)) {
-        // Usamos transacciones para evitar inconsistencias
         $connection->begin_transaction();
-
         try {
             // 1. Actualizar Nombre (Usuarios y Empleado)
             if (!empty($nuevo_nombre) && $nuevo_nombre !== $empleado["nombre_usuario"]) {
-                // Verificar que el nombre no esté ocupado por OTRO usuario
+                // Verificar duplicados
                 $check = $connection->prepare("SELECT id FROM usuarios WHERE nombre_usuario = ? AND id != ?");
-                $check->bind_param("si", $nuevo_nombre, $usuario_id);
+                $check->bind_param("si", $nuevo_nombre, $usuario_id_target);
                 $check->execute();
                 if($check->get_result()->num_rows > 0){
-                    throw new Exception("El nombre de usuario ya está en uso.");
+                     throw new Exception("El nombre de usuario ya está en uso.");
                 }
-                $check->close();
 
-                // Actualizar tabla usuarios
                 $stmt = $connection->prepare("UPDATE usuarios SET nombre_usuario = ? WHERE id = ?");
-                $stmt->bind_param("si", $nuevo_nombre, $usuario_id);
+                $stmt->bind_param("si", $nuevo_nombre, $usuario_id_target);
                 $stmt->execute();
-                $stmt->close();
         
-                // Actualizar tabla empleado
                 $stmt = $connection->prepare("UPDATE empleado SET nombre = ? WHERE usuario_id = ?");
-                $stmt->bind_param("si", $nuevo_nombre, $usuario_id);
+                $stmt->bind_param("si", $nuevo_nombre, $usuario_id_target);
                 $stmt->execute();
-                $stmt->close();
-                
-                // Actualizar el nombre en la sesión actual para no perder acceso
-                $_SESSION["nombre_usuario"] = $nuevo_nombre;
             }
 
-            // 2. Actualizar Contraseña (si se proporciona)
+            // 2. Actualizar Contraseña (si se escribe algo)
             if (!empty($nueva_contrasenia)) {
                 $hash = password_hash($nueva_contrasenia, PASSWORD_DEFAULT);
-                
                 $stmt = $connection->prepare("UPDATE usuarios SET contrasenia = ? WHERE id = ?");
-                $stmt->bind_param("si", $hash, $usuario_id);
+                $stmt->bind_param("si", $hash, $usuario_id_target);
                 $stmt->execute();
-                $stmt->close();
 
                 $stmt = $connection->prepare("UPDATE empleado SET contrasenia = ? WHERE usuario_id = ?");
-                $stmt->bind_param("si", $hash, $usuario_id);
+                $stmt->bind_param("si", $hash, $usuario_id_target);
                 $stmt->execute();
-                $stmt->close();
             }
 
-            // 3. Actualizar Datos contacto Empleado
+            // 3. Actualizar Datos Empleado
             if (!empty($nuevo_email) && $nuevo_email !== $empleado["mail"]) {
                 $stmt = $connection->prepare("UPDATE empleado SET mail = ? WHERE usuario_id = ?");
-                $stmt->bind_param("si", $nuevo_email, $usuario_id);
+                $stmt->bind_param("si", $nuevo_email, $usuario_id_target);
                 $stmt->execute();
-                $stmt->close();
             }
 
             if (!empty($nuevo_telefono) && $nuevo_telefono !== $empleado["telefono"]) {
                 $stmt = $connection->prepare("UPDATE empleado SET telefono = ? WHERE usuario_id = ?");
-                $stmt->bind_param("si", $nuevo_telefono, $usuario_id);
+                $stmt->bind_param("si", $nuevo_telefono, $usuario_id_target);
                 $stmt->execute();
-                $stmt->close();
             }
 
             if (!empty($nuevo_dni) && $nuevo_dni !== $empleado["dni"]) {
                 $stmt = $connection->prepare("UPDATE empleado SET dni = ? WHERE usuario_id = ?");
-                $stmt->bind_param("si", $nuevo_dni, $usuario_id);
+                $stmt->bind_param("si", $nuevo_dni, $usuario_id_target);
                 $stmt->execute();
-                $stmt->close();
             }
 
             $connection->commit();
             
-            // Redirigir al área personal con mensaje de éxito (SIN cerrar sesión)
-            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=personal&mensaje=actualizado");
+            // REDIRECCIÓN: Volver al listado de admin
+            header("Location: " . BASE_URL . "/modules/home/admin_home.php?pagina=personal_list&mensaje=editado");
             exit;
 
         } catch (Exception $e) {
             $connection->rollback();
-            $errores[] = "Error al actualizar: " . $e->getMessage();
+            $errores[] = "Error: " . $e->getMessage();
         }
     }
 }
@@ -135,13 +124,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Editar perfil</title>
+    <title>Editar Empleado (Admin)</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
     <div class="card">
-        <h2>Editar perfil</h2>
+        <h2>Editar Empleado: <?= htmlspecialchars($empleado["nombre_usuario"]) ?></h2>
 
         <?php if (!empty($errores)): ?>
             <div class="errores">
@@ -153,26 +142,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <form method="POST">
             <label>Nombre de usuario</label>
-            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($empleado["nombre_usuario"]) ?>" value="<?= htmlspecialchars($_POST["nombre"] ?? $empleado["nombre_usuario"]) ?>">
+            <input type="text" name="nombre" value="<?= htmlspecialchars($_POST["nombre"] ?? $empleado["nombre_usuario"]) ?>">
 
             <label>Correo electrónico</label>
-            <input type="email" name="email" placeholder="<?= htmlspecialchars($empleado["mail"]) ?>" value="<?= htmlspecialchars($_POST["email"] ?? $empleado["mail"]) ?>">
+            <input type="email" name="email" value="<?= htmlspecialchars($_POST["email"] ?? $empleado["mail"]) ?>">
 
             <label>Teléfono</label>
-            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($empleado["telefono"]) ?>" value="<?= htmlspecialchars($_POST["telefono"] ?? $empleado["telefono"]) ?>">
+            <input type="text" name="telefono" value="<?= htmlspecialchars($_POST["telefono"] ?? $empleado["telefono"]) ?>">
 
             <label>DNI</label>
-            <input type="text" name="dni" placeholder="<?= htmlspecialchars($empleado["dni"]) ?>" value="<?= htmlspecialchars($_POST["dni"] ?? $empleado["dni"]) ?>">
+            <input type="text" name="dni" value="<?= htmlspecialchars($_POST["dni"] ?? $empleado["dni"]) ?>">
 
-            <label>Contraseña</label>
-            <input type="password" name="contrasenia" placeholder="Nueva contraseña (opcional)">
+            <label>Nueva Contraseña (Dejar vacío para no cambiar)</label>
+            <input type="password" name="contrasenia" placeholder="Escribe para cambiar...">
 
             <div class="botones">
                 <button type="submit">Guardar cambios</button>
             </div>
             
             <div style="margin-top: 10px;">
-                <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=personal" class="back_button">Cancelar</a>
+                <a href="<?php echo BASE_URL; ?>/modules/home/admin_home.php?pagina=personal_list" class="back_button">Cancelar</a>
             </div>
         </form>
     </div>

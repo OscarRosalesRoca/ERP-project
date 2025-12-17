@@ -1,4 +1,8 @@
 <?php
+// MODIFICACIÓN: Iniciamos sesión para saber si es el Admin quien registra
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 require_once(__DIR__ . "/../../config/config_path.php"); 
 require_once(__DIR__ . "/../../includes/connection.php");
@@ -45,8 +49,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             require_once(__DIR__ ."/../../includes/functions/empleado/create_empleado.php");
 
             if (createEmpleado($nombre, $mail, $telefono, $dni, $contrasenia)) {
-                header("Location: " . BASE_URL . "/modules/login/login.php?registro=ok");
+                
+                // MODIFICACIÓN: Lógica de redirección inteligente
+                // Si existe una sesión y el rol es 1 (Admin), volvemos al panel de admin
+                if (isset($_SESSION['rol_id']) && $_SESSION['rol_id'] == 1) {
+                    header("Location: " . BASE_URL . "/modules/home/admin_home.php?pagina=personal_list&mensaje=empleado_creado");
+                } else {
+                    // Si es un registro normal, vamos al login
+                    header("Location: " . BASE_URL . "/modules/login/login.php?registro=ok");
+                }
                 exit;
+
             } else {
                 $errores = "Hubo un problema al registrar. Inténtalo de nuevo.";
             }
@@ -73,7 +86,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <input type="text" name="dni" placeholder="DNI" required>
             <div class="password_wrapper">
                 <input type="password" name="contrasenia" id="contrasenia" required placeholder="Contraseña">
-                <input type="checkbox" id="togglePassword"> Mostrar
+                <label style="font-size: 0.9em; cursor: pointer;">
+                    <input type="checkbox" id="togglePassword"> Mostrar
+                </label>
             </div>
             <button class="button" type="submit">Registrar</button>
         </form>
@@ -83,10 +98,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
 
     <script>
-        function togglePassword() {
-            const passInput = document.getElementById("contrasena");
-            passInput.type = passInput.type === "password" ? "text" : "password";
-        }
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#contrasenia');
+
+        togglePassword.addEventListener('change', function (e) {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+        });
     </script>
 </body>
 </html>
