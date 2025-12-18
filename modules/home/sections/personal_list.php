@@ -1,40 +1,27 @@
 <?php
-
 require_once(__DIR__ . "/../../../config/config_path.php");
 require_once(__DIR__ . "/../../../includes/connection.php");
 
-// Iniciar sesión si no está iniciada
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+if (session_status() == PHP_SESSION_NONE) { session_start(); }
 
-// ---------------------------------------------------------
-// 1. LÓGICA DE BORRADO (POST)
-// ---------------------------------------------------------
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['eliminar_empleado_id'])) {
     $id_emp_borrar = intval($_POST['eliminar_empleado_id']);
     $id_usu_borrar = intval($_POST['usuario_asociado_id']);
 
-    // Protección: No borrar tu propia cuenta
     if ($id_usu_borrar == $_SESSION['usuario_id']) {
         echo "<script>alert('No puedes eliminar tu propia cuenta desde aquí.');</script>";
     } else {
         $connection->begin_transaction();
         try {
-            // Borrar de empleado
             $stmt = $connection->prepare("DELETE FROM empleado WHERE cod_empleado = ?");
             $stmt->bind_param("i", $id_emp_borrar);
             $stmt->execute();
             $stmt->close();
-
-            // Borrar de usuarios
             $stmt = $connection->prepare("DELETE FROM usuarios WHERE id = ?");
             $stmt->bind_param("i", $id_usu_borrar);
             $stmt->execute();
             $stmt->close();
-
             $connection->commit();
-            // Recargar para ver cambios
             echo "<script>window.location.href = window.location.href;</script>";
             exit;
         } catch (Exception $e) {
@@ -44,90 +31,55 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['eliminar_empleado_id'
     }
 }
 
-// ---------------------------------------------------------
-// 2. CONFIGURACIÓN DE BÚSQUEDA
-// ---------------------------------------------------------
 $campos_busqueda_config_personal = [
-    'nombre'         => ['display' => 'Nombre', 'column' => 'e.nombre'],
-    'dni'            => ['display' => 'DNI', 'column' => 'e.dni'],
+    'nombre' => ['display' => 'Nombre', 'column' => 'e.nombre'],
+    'dni' => ['display' => 'DNI', 'column' => 'e.dni'],
     'nombre_usuario' => ['display' => 'Usuario', 'column' => 'u.nombre_usuario'],
-    'mail'           => ['display' => 'Email', 'column' => 'e.mail']
+    'mail' => ['display' => 'Email', 'column' => 'e.mail']
 ];
 
-// Valores iniciales
 $campo_seleccionado_key_personal = 'nombre';
 $termino_busqueda_personal = '';
 $empleados = [];
 $busqueda_activa_personal = false;
 
-// ---------------------------------------------------------
-// 3. CONSTRUCCIÓN DE LA CONSULTA SQL
-// ---------------------------------------------------------
 $sql_base_personal = "
-    SELECT 
-        e.cod_empleado,
-        e.nombre,
-        e.dni,
-        e.mail,
-        e.telefono,
-        u.id AS usuario_id,
-        u.nombre_usuario,
-        r.nombre_rol
+    SELECT e.cod_empleado, e.nombre, e.dni, e.mail, e.telefono, u.id AS usuario_id, u.nombre_usuario, u.foto_perfil, r.nombre_rol
     FROM empleado e
     JOIN usuarios u ON e.usuario_id = u.id
     JOIN roles r ON u.rol_id = r.id
 ";
 
 $sql_conditions_personal = [];
-$sql_final_personal = "";
 $params_personal = [];
 $types_personal = "";
 
-// Verificar búsqueda
 if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) !== '') {
     $busqueda_activa_personal = true;
-    
-    // Validar campo seleccionado
     if (isset($_GET['campo']) && array_key_exists($_GET['campo'], $campos_busqueda_config_personal)) {
         $campo_seleccionado_key_personal = $_GET['campo'];
     }
-    
     $termino_busqueda_personal = trim($_GET['termino']);
     $columna_a_buscar = $campos_busqueda_config_personal[$campo_seleccionado_key_personal]['column'];
-
-    // Búsqueda parcial (LIKE) para todos los campos de texto
     $sql_conditions_personal[] = $columna_a_buscar . " LIKE ?";
     $params_personal[] = "%" . $termino_busqueda_personal . "%";
     $types_personal .= "s";
 }
 
-// Construir SQL Final
 $sql_final_personal = $sql_base_personal;
 if (!empty($sql_conditions_personal)) {
     $sql_final_personal .= " WHERE " . implode(" AND ", $sql_conditions_personal);
 }
-// Ordenar por nombre
 $sql_final_personal .= " ORDER BY e.nombre ASC";
 
-// ---------------------------------------------------------
-// 4. EJECUCIÓN DE LA CONSULTA
-// ---------------------------------------------------------
-if (!isset($connection) || $connection === null) {
-    die("<p>Error crítico: La conexión a la base de datos no está disponible.</p>");
-}
+if (!isset($connection) || $connection === null) { die("Error DB"); }
 
 $stmt_personal = $connection->prepare($sql_final_personal);
-
 if ($stmt_personal) {
-    if (!empty($params_personal)) {
-        $stmt_personal->bind_param($types_personal, ...$params_personal);
-    }
-    
+    if (!empty($params_personal)) { $stmt_personal->bind_param($types_personal, ...$params_personal); }
     if ($stmt_personal->execute()) {
         $resultado = $stmt_personal->get_result();
-        if ($resultado) {
-            $empleados = $resultado->fetch_all(MYSQLI_ASSOC);
-        }
+        if ($resultado) { $empleados = $resultado->fetch_all(MYSQLI_ASSOC); }
     }
     $stmt_personal->close();
 }
@@ -135,12 +87,10 @@ if ($stmt_personal) {
 
 <div class="general_container">
     <h2>Listado de Personal</h2>
-
     <div class="cabecera_acciones">
         <div class="contenedor_busqueda">
             <form action="<?php echo BASE_URL; ?>/modules/home/admin_home.php" method="GET" class="formulario_busqueda">
                 <input type="hidden" name="pagina" value="personal_list">
-                
                 <label for="campo_busqueda_personal">Buscar por:</label>
                 <select name="campo" id="campo_busqueda_personal">
                     <?php foreach ($campos_busqueda_config_personal as $key => $config): ?>
@@ -154,7 +104,6 @@ if ($stmt_personal) {
                 <a href="<?php echo BASE_URL; ?>/modules/home/admin_home.php?pagina=personal_list" class="boton_limpiar">Limpiar</a>
             </form>
         </div>
-
         <div class="nuevo_general">
             <a href="<?php echo BASE_URL; ?>/modules/register/register.php">+ Nuevo Empleado</a>
         </div>
@@ -175,8 +124,18 @@ if ($stmt_personal) {
             </thead>
             <tbody>
                 <?php foreach ($empleados as $emp): ?>
+                    <?php 
+                        // MODIFICACIÓN: Ruta cambiada a "fotos_perfil"
+                        $ruta_foto_row = BASE_URL . "/assets/img/default_user.jpg";
+                        if (!empty($emp['foto_perfil']) && $emp['foto_perfil'] !== 'default_user.jpg') {
+                            $ruta_foto_row = BASE_URL . "/uploads/fotos_perfil/" . $emp['foto_perfil'];
+                        }
+                    ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($emp['nombre']); ?></td>
+                        <td style="display: flex; align-items: center;">
+                            <img src="<?php echo $ruta_foto_row; ?>" alt="Foto" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; margin-right: 10px; border: 1px solid #ddd;">
+                            <?php echo htmlspecialchars($emp['nombre']); ?>
+                        </td>
                         <td><?php echo htmlspecialchars($emp['nombre_usuario']); ?></td>
                         <td>
                             <?php if ($emp['nombre_rol'] === 'admin'): ?>
@@ -191,7 +150,6 @@ if ($stmt_personal) {
                         
                         <td class="acciones_celda">
                             <a href="<?php echo BASE_URL; ?>/includes/functions/empleado/edit_delete_empleado_admin.php?cod=<?php echo $emp['cod_empleado']; ?>" style="color: blue; font-weight: bold; margin-right: 10px;">Editar</a>
-                            
                             <?php if ($emp['usuario_id'] != $_SESSION['usuario_id']): ?>
                                 <form method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar permanentemente a <?php echo htmlspecialchars($emp['nombre']); ?>?');">
                                     <input type="hidden" name="eliminar_empleado_id" value="<?php echo $emp['cod_empleado']; ?>">
@@ -208,11 +166,7 @@ if ($stmt_personal) {
         </table>
     <?php else: ?>
         <div class="sin_resultados">
-            <?php if ($busqueda_activa_personal): ?>
-                <p style="color: red;">No hay empleados que coincidan con la búsqueda "<?php echo htmlspecialchars($termino_busqueda_personal); ?>".</p>
-            <?php else: ?>
-                <p>No hay empleados registrados aún.</p>
-            <?php endif; ?>
+            <p>No hay empleados registrados aún.</p>
         </div>
     <?php endif; ?>
 </div>

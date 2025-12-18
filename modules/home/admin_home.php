@@ -9,8 +9,6 @@ if (!isset($_SESSION["usuario_id"])) {
     exit;
 }
 
-// Si el usuario logueado NO es admin (rol_id 1), lo expulsamos al home de empleado.
-// Esto evita que alguien escriba la URL a mano y entre.
 if (!isset($_SESSION["rol_id"]) || $_SESSION["rol_id"] !== 1) {
     header("Location: " . BASE_URL . "/modules/home/empleado_home.php");
     exit;
@@ -18,6 +16,17 @@ if (!isset($_SESSION["rol_id"]) || $_SESSION["rol_id"] !== 1) {
 
 $pagina = $_GET["pagina"] ?? "personal"; 
 $permitidas = ["personal", "personal_list", "historial", "clientes", "proveedores", "almacenes", "productos", "facturas"];
+
+// MODIFICACIÓN: Ruta corregida a "fotos_perfil"
+$foto_perfil_src = BASE_URL . "/assets/img/default_user.jpg"; 
+if (isset($_SESSION['foto_perfil']) && !empty($_SESSION['foto_perfil'])) {
+    if ($_SESSION['foto_perfil'] == 'default_user.jpg') {
+        $foto_perfil_src = BASE_URL . "/assets/img/default_user.jpg";
+    } else {
+        // AQUÍ EL CAMBIO:
+        $foto_perfil_src = BASE_URL . "/uploads/fotos_perfil/" . $_SESSION['foto_perfil'];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -33,7 +42,7 @@ $permitidas = ["personal", "personal_list", "historial", "clientes", "proveedore
 <div class="dashboard_container">
         <div class="sidebar">
             <div class="user_info_container">
-                <img src="<?php echo BASE_URL; ?>/assets/img/default_user.jpg" class="user_photo" alt="Foto de usuario">
+                <img src="<?php echo $foto_perfil_src; ?>" class="user_photo" alt="Foto de usuario" style="object-fit: cover;">
                 <span><?php echo $_SESSION["nombre_usuario"] ?? 'Admin'; ?></span>
                 <br><small style="color: #ccc; font-size: 0.85em;">Administrador</small>
             </div>
@@ -59,7 +68,6 @@ $permitidas = ["personal", "personal_list", "historial", "clientes", "proveedore
         <div class="main_content">
             <?php
             if (in_array($pagina, $permitidas)) {
-                // Buscamos el archivo en la carpeta sections
                 if (file_exists("sections/$pagina.php")) {
                     include "sections/$pagina.php";
                 } else {

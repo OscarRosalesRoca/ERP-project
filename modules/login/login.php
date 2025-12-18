@@ -22,8 +22,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario = trim($_POST["usuario"]);
     $contrasenia = trim($_POST["contrasenia"]);
 
-    // Preparar la consulta
-    $stmt = $connection->prepare("SELECT id, contrasenia, rol_id, nombre_usuario FROM usuarios WHERE nombre_usuario = ?");
+    // MODIFICACIÓN: Añadimos 'foto_perfil' al SELECT
+    $stmt = $connection->prepare("SELECT id, contrasenia, rol_id, nombre_usuario, foto_perfil FROM usuarios WHERE nombre_usuario = ?");
 
     // Verificar si la preparación fue exitosa
     if ($stmt === false) {
@@ -41,6 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["nombre_usuario"] = $fila["nombre_usuario"];
                 $_SESSION["usuario_id"] = $fila["id"];
                 $_SESSION["rol_id"] = $fila["rol_id"];
+                
+                // MODIFICACIÓN: Guardamos la foto en la sesión
+                $_SESSION["foto_perfil"] = $fila["foto_perfil"];
+                
                 $_SESSION["ultimo_acceso"] = time();
 
                 // Redirección por rol

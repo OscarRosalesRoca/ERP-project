@@ -18,8 +18,9 @@ if (!$cod_empleado_target) {
 }
 
 // Obtener datos del empleado OBJETIVO (no del usuario logueado)
+// MODIFICACIÓN: Añadimos u.foto_perfil al SELECT
 $query = "
-    SELECT u.id AS usuario_id, u.nombre_usuario,
+    SELECT u.id AS usuario_id, u.nombre_usuario, u.foto_perfil,
     e.cod_empleado, e.mail, e.telefono, e.dni
     FROM empleado e
     JOIN usuarios u ON e.usuario_id = u.id
@@ -118,6 +119,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 }
+
+// MODIFICACIÓN: Lógica para determinar la ruta de la foto a mostrar
+$ruta_foto = BASE_URL . "/assets/img/default_user.jpg"; 
+if (!empty($empleado['foto_perfil']) && file_exists(__DIR__ . "/../../../uploads/fotos_perfil/" . $empleado['foto_perfil'])) {
+    $ruta_foto = BASE_URL . "/uploads/fotos_perfil/" . $empleado['foto_perfil'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -126,6 +133,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <title>Editar Empleado (Admin)</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
+    <style>
+        /* Estilos para la visualización de la foto */
+        .perfil-img-container { text-align: center; margin-bottom: 20px; }
+        .perfil-img { 
+            width: 120px; height: 120px; 
+            border-radius: 50%; object-fit: cover; 
+            border: 3px solid #ddd; 
+        }
+        .admin-note {
+            display: block; font-size: 0.8em; color: #666; margin-top: 5px; font-style: italic;
+        }
+    </style>
 </head>
 <body>
 <div class="fondo">
@@ -141,6 +160,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?php endif; ?>
 
         <form method="POST">
+            <div class="perfil-img-container">
+                <img src="<?= $ruta_foto ?>" alt="Foto Perfil" class="perfil-img">
+                <span class="admin-note">(La foto solo puede cambiarla el usuario)</span>
+            </div>
+
             <label>Nombre de usuario</label>
             <input type="text" name="nombre" value="<?= htmlspecialchars($_POST["nombre"] ?? $empleado["nombre_usuario"]) ?>">
 
