@@ -28,6 +28,8 @@ To run the ERP locally, you will need a web server environment (such as XAMPP or
 * IDE (Visual Studio Code, PhpStorm, etc.)
 * Web Browser.
 * **XAMPP** (or similar) installed.
+* **PHP GD Library:** Required for image processing (uploading and resizing profile pictures).
+    * *How to enable:* Open your `php.ini` file, find the line `;extension=gd`, remove the semicolon (`;`) so it reads `extension=gd`, and **restart Apache**.
 
 ### Step 1: Initial Setup and Cloning
 
