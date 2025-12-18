@@ -107,5 +107,5 @@ All set! You can now register a new user and start using the system. 😄
 | **Dynamic Paths (`BASE_URL`)** | 😄 Done |
 | **README Improvement** | 😄 Done |
 | **Employee Management (Admin)** | 😄 Pending |
-| **Implement User Image Functionality** | 😱 Pending |
+| **Implement User Image Functionality** | 😄 Pending |
 | **Testing (Unit Tests)** | 😱 Pending |
