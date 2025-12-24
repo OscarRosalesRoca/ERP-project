@@ -9,7 +9,7 @@ if (!isset($_SESSION["rol_id"]) || $_SESSION["rol_id"] !== 1) {
     die("Acceso denegado.");
 }
 
-// RECIBIR EL ID DEL EMPLEADO A EDITAR
+// Recibimos la id del empleado a editar
 $cod_empleado_target = $_GET['cod'] ?? null;
 
 if (!$cod_empleado_target) {
@@ -17,8 +17,6 @@ if (!$cod_empleado_target) {
     exit;
 }
 
-// Obtener datos del empleado OBJETIVO (no del usuario logueado)
-// MODIFICACIÓN: Añadimos u.foto_perfil al SELECT
 $query = "
     SELECT u.id AS usuario_id, u.nombre_usuario, u.foto_perfil,
     e.cod_empleado, e.mail, e.telefono, e.dni
@@ -41,7 +39,7 @@ if (!$empleado) {
 $usuario_id_target = $empleado["usuario_id"];
 $errores = [];
 
-// --- PROCESAR FORMULARIO ---
+// Procesamos formulario
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nuevo_nombre = trim($_POST["nombre"]);
     $nuevo_email = trim($_POST["email"]);
@@ -57,14 +55,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($errores)) {
         $connection->begin_transaction();
         try {
-            // 1. Actualizar Nombre (Usuarios y Empleado)
+            // Actualizar Nombre 
             if (!empty($nuevo_nombre) && $nuevo_nombre !== $empleado["nombre_usuario"]) {
                 // Verificar duplicados
                 $check = $connection->prepare("SELECT id FROM usuarios WHERE nombre_usuario = ? AND id != ?");
                 $check->bind_param("si", $nuevo_nombre, $usuario_id_target);
                 $check->execute();
                 if($check->get_result()->num_rows > 0){
-                     throw new Exception("El nombre de usuario ya está en uso.");
+                    throw new Exception("El nombre de usuario ya está en uso.");
                 }
 
                 $stmt = $connection->prepare("UPDATE usuarios SET nombre_usuario = ? WHERE id = ?");
@@ -76,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt->execute();
             }
 
-            // 2. Actualizar Contraseña (si se escribe algo)
+            // Actualizar Contraseña
             if (!empty($nueva_contrasenia)) {
                 $hash = password_hash($nueva_contrasenia, PASSWORD_DEFAULT);
                 $stmt = $connection->prepare("UPDATE usuarios SET contrasenia = ? WHERE id = ?");
@@ -88,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt->execute();
             }
 
-            // 3. Actualizar Datos Empleado
+            // Actualizar Datos
             if (!empty($nuevo_email) && $nuevo_email !== $empleado["mail"]) {
                 $stmt = $connection->prepare("UPDATE empleado SET mail = ? WHERE usuario_id = ?");
                 $stmt->bind_param("si", $nuevo_email, $usuario_id_target);
@@ -109,7 +107,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $connection->commit();
             
-            // REDIRECCIÓN: Volver al listado de admin
             header("Location: " . BASE_URL . "/modules/home/admin_home.php?pagina=personal_list&mensaje=editado");
             exit;
 
@@ -120,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
-// MODIFICACIÓN: Lógica para determinar la ruta de la foto a mostrar
+// Lógica para determinar la ruta de la foto a mostrar
 $ruta_foto = BASE_URL . "/assets/img/default_user.jpg"; 
 if (!empty($empleado['foto_perfil']) && file_exists(__DIR__ . "/../../../uploads/fotos_perfil/" . $empleado['foto_perfil'])) {
     $ruta_foto = BASE_URL . "/uploads/fotos_perfil/" . $empleado['foto_perfil'];
@@ -134,7 +131,6 @@ if (!empty($empleado['foto_perfil']) && file_exists(__DIR__ . "/../../../uploads
     <title>Editar Empleado (Admin)</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
     <style>
-        /* Estilos para la visualización de la foto */
         .perfil-img-container { text-align: center; margin-bottom: 20px; }
         .perfil-img { 
             width: 120px; height: 120px; 

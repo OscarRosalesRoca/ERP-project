@@ -3,27 +3,33 @@ session_start();
 
 require_once(__DIR__ . "/../../config/config_path.php"); 
 
-
-if (!isset($_SESSION["usuario_id"])) {
+// Comprobamos si falla algo
+if (!isset($_SESSION["usuario_id"]) || !isset($_SESSION["rol_id"])) {
     header("Location: " . BASE_URL . "/modules/login/login.php");
     exit;
 }
 
-if (!isset($_SESSION["rol_id"]) || $_SESSION["rol_id"] !== 1) {
-    header("Location: " . BASE_URL . "/modules/home/empleado_home.php");
+// Si no es admin miramos
+if ($_SESSION["rol_id"] !== 1) {
+    if ($_SESSION["rol_id"] == 2) {
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php");
+    } 
+    // Si tiene un rol desconocido o no permitido al login por seguridad
+    else {
+        header("Location: " . BASE_URL . "/modules/login/login.php");
+    }
     exit;
 }
 
 $pagina = $_GET["pagina"] ?? "personal"; 
 $permitidas = ["personal", "personal_list", "historial", "clientes", "proveedores", "almacenes", "productos", "facturas"];
 
-// MODIFICACIÓN: Ruta corregida a "fotos_perfil"
 $foto_perfil_src = BASE_URL . "/assets/img/default_user.jpg"; 
 if (isset($_SESSION['foto_perfil']) && !empty($_SESSION['foto_perfil'])) {
     if ($_SESSION['foto_perfil'] == 'default_user.jpg') {
         $foto_perfil_src = BASE_URL . "/assets/img/default_user.jpg";
     } else {
-        // AQUÍ EL CAMBIO:
+        // Si en la base de datos el empleado tiene una foto asociada, la cambiamos
         $foto_perfil_src = BASE_URL . "/uploads/fotos_perfil/" . $_SESSION['foto_perfil'];
     }
 }
@@ -34,7 +40,6 @@ if (isset($_SESSION['foto_perfil']) && !empty($_SESSION['foto_perfil'])) {
 <head>
     <meta charset="UTF-8">
     <title>Panel de Administrador</title>
-    
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/style_empleado_home.css">
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
 </head>
@@ -49,9 +54,7 @@ if (isset($_SESSION['foto_perfil']) && !empty($_SESSION['foto_perfil'])) {
 
             <ul class="menu">
                 <li><a href="<?php echo BASE_URL; ?>/modules/home/admin_home.php?pagina=personal" class="<?= $pagina == 'personal' ? 'active' : '' ?>">Área personal</a></li>
-                
                 <li><a href="<?php echo BASE_URL; ?>/modules/home/admin_home.php?pagina=personal_list" class="<?= $pagina == 'personal_list' ? 'active' : '' ?>">Listado de personal</a></li>
-                
                 <li><a href="<?php echo BASE_URL; ?>/modules/home/admin_home.php?pagina=historial" class="<?= $pagina == 'historial' ? 'active' : '' ?>">Historial de actividad</a></li>
                 <li><a href="<?php echo BASE_URL; ?>/modules/home/admin_home.php?pagina=clientes" class="<?= $pagina == 'clientes' ? 'active' : '' ?>">Clientes</a></li>
                 <li><a href="<?php echo BASE_URL; ?>/modules/home/admin_home.php?pagina=proveedores" class="<?= $pagina == 'proveedores' ? 'active' : '' ?>">Proveedores</a></li>
@@ -64,7 +67,6 @@ if (isset($_SESSION['foto_perfil']) && !empty($_SESSION['foto_perfil'])) {
                 <a class="logout_button" href="<?php echo BASE_URL; ?>/modules/login/logout.php">Cerrar sesión</a>
             </div>
         </div>
-
         <div class="main_content">
             <?php
             if (in_array($pagina, $permitidas)) {

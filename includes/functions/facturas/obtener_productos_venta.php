@@ -26,7 +26,7 @@ if ($connection) {
         if ($stmt->execute()) {
             $resultado_productos = $stmt->get_result();
             while ($producto = $resultado_productos->fetch_assoc()) {
-                //Para cada producto obtener los almacenes donde hay stock y la cantidad
+                // Para cada producto obtener los almacenes donde hay stock y la cantidad
                 $producto['almacenes_con_stock'] = [];
                 $stmt_stock_almacen = $connection->prepare(
                     "SELECT a.cod_almacen, a.ubicacion, aps.cantidad 
@@ -44,7 +44,7 @@ if ($connection) {
                     }
                     $stmt_stock_almacen->close();
                 }
-                //Solo añadir el producto si tiene al menos un almacén con stock
+                // Solo añadir el producto si tiene al menos un almacén con stock
                 if (!empty($producto['almacenes_con_stock'])) {
                     $productos_venta[] = $producto;
                 }

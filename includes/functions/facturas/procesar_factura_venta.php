@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
     if (empty($errores_factura)) {
         $connection->begin_transaction();
         try {
-            //Obtener nombre del cliente para snapshot
+            // Obtener nombre del cliente para snapshot
             $nombre_cliente_snapshot = 'Cliente Desconocido';
             $stmt_cli_snap = $connection->prepare("SELECT nombre FROM proveedores_clientes WHERE cod_actor = ? AND tipo = 'cliente'");
             if ($stmt_cli_snap) {
@@ -77,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
                 throw new Exception("Error al obtener datos del cliente.");
             }
 
-            //Insertar en la tabla 'facturas'
+            // Insertar en la tabla "facturas"
             $tipo_factura_db = 'venta';
             $actor_tipo_snapshot_db = 'cliente';
 
@@ -103,7 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
             $num_factura_generado = $connection->insert_id;
             $stmt_insert_factura->close();
 
-            //Iterar e insertar líneas y actualizar stock
+            // Iterar e insertar líneas y actualizar stock
             $linea_num_bd = 0;
             foreach ($lineas_factura_venta as $num_linea_form => $linea_data) {
                 $linea_num_bd++;
@@ -113,12 +113,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
                 $precio_unitario_sin_iva = floatval($linea_data['precio_unitario_sin_iva']);
                 $iva_producto_porcentaje = floatval($linea_data['iva_producto']);
                 
-                //Recalcular precio total de la línea con IVA
+                // Recalcular precio total de la línea con IVA
                 $subtotal_linea_sin_iva = $cantidad_vendida * $precio_unitario_sin_iva;
                 $valor_iva_linea = $subtotal_linea_sin_iva * ($iva_producto_porcentaje / 100);
                 $precio_total_linea_con_iva = $subtotal_linea_sin_iva + $valor_iva_linea;
 
-                //Obtener snapshots para la línea
+                // Obtener snapshots para la línea
                 $producto_nombre_snapshot = 'Producto Desconocido';
                 $stmt_prod_snap = $connection->prepare("SELECT nombre FROM producto_servicio WHERE cod_producto = ?");
                 if($stmt_prod_snap){
@@ -137,7 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
                     $stmt_alm_snap->close();
                 }
                 
-                // Insertar en 'lineas'
+                // Insertar en "lineas"
                 $stmt_insert_linea = $connection->prepare(
                     "INSERT INTO lineas (num_linea, num_factura, cod_producto, cod_almacen, cantidad, precio_negociado_unitario, precio_total, producto_nombre_snapshot, almacen_ubicacion_snapshot)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -150,7 +150,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
                 if(!$stmt_insert_linea->execute()) throw new Exception("Error guardando línea de venta " . $linea_num_bd . ": " . $stmt_insert_linea->error);
                 $stmt_insert_linea->close();
 
-                // Restar stock en 'almacen_producto_servicio'
+                // Restar stock en "almacen_producto_servicio"
                 $stmt_check_stock = $connection->prepare("SELECT cantidad FROM almacen_producto_servicio WHERE cod_almacen = ? AND cod_producto = ?");
                 if(!$stmt_check_stock) throw new Exception("Error preparando verificación de stock: " . $connection->error);
                 $stmt_check_stock->bind_param("ii", $cod_almacen_origen, $cod_producto);
@@ -192,10 +192,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
             exit;
         }
     } else {
-        //Añadir el valor problemático al mensaje de error para facilitar la depuración desde la UI
+        // Añadir el valor problemático al mensaje de error para facilitar la depuración desde la UI
         foreach ($lineas_factura_venta as $num_linea_form_idx => $linea_con_error) {
             if (empty($linea_con_error['cod_almacen_origen']) || intval($linea_con_error['cod_almacen_origen']) <= 0) {
-                //Buscar el error específico de esta línea para añadirle más contexto
+                // Buscar el error específico de esta línea para añadirle más contexto
                 foreach($errores_factura as $key_error => $mensaje_error){
                     if(strpos($mensaje_error, "Línea " . htmlspecialchars($num_linea_form_idx)) !== false && strpos($mensaje_error, "almacén de origen") !== false){
                         $valor_recibido_almacen = isset($linea_con_error['cod_almacen_origen']) ? $linea_con_error['cod_almacen_origen'] : 'NO ENVIADO';

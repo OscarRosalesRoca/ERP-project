@@ -1,5 +1,5 @@
 <?php
-// MODIFICACIÓN: Iniciamos sesión para saber si es el Admin quien registra
+// Verificamos quien registra
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -49,9 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             require_once(__DIR__ ."/../../includes/functions/empleado/create_empleado.php");
 
             if (createEmpleado($nombre, $mail, $telefono, $dni, $contrasenia)) {
-                
-                // MODIFICACIÓN: Lógica de redirección inteligente
-                // Si existe una sesión y el rol es 1 (Admin), volvemos al panel de admin
                 if (isset($_SESSION['rol_id']) && $_SESSION['rol_id'] == 1) {
                     header("Location: " . BASE_URL . "/modules/home/admin_home.php?pagina=personal_list&mensaje=empleado_creado");
                 } else {

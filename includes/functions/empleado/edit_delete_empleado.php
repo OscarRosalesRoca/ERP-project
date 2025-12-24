@@ -6,7 +6,6 @@ require_once(__DIR__ . "/../../auth.php");
 
 $nombre_usuario = $_SESSION["nombre_usuario"] ?? null;
 
-// Validar sesión
 if (!$nombre_usuario) {
     header("Location: " . BASE_URL . "/modules/login/login.php");
     exit;
@@ -16,7 +15,6 @@ if (!$nombre_usuario) {
 // Por defecto asumimos que es empleado
 $ruta_home = BASE_URL . "/modules/home/empleado_home.php";
 
-// Si existe el rol en la sesión y es 1, cambiamos la ruta a admin
 if (isset($_SESSION["rol_id"]) && $_SESSION["rol_id"] == 1) {
     $ruta_home = BASE_URL . "/modules/home/admin_home.php";
 }
@@ -44,7 +42,7 @@ if (!$empleado) {
 $usuario_id = $empleado["usuario_id"];
 $errores = [];
 
-// --- FUNCIÓN PROCESAR IMAGEN ---
+// Vemos la imagen
 function procesarImagen($file, $userId) {
     $target_dir = __DIR__ . "/../../../uploads/fotos_perfil/";
     if (!file_exists($target_dir)) { mkdir($target_dir, 0777, true); }
@@ -78,20 +76,20 @@ function procesarImagen($file, $userId) {
     
     if (!$src_image) return ["error" => "Error al procesar la imagen."];
 
-    // CÁLCULOS PARA RECORTAR AL CENTRO (CUADRADO)
+    // Cuadrar la imagen
     $width = imagesx($src_image);
     $height = imagesy($src_image);
     $min = min($width, $height); 
     $x = ($width - $min) / 2;
     $y = ($height - $min) / 2;
 
-    // Crear lienzo nuevo de 500x500 px
+    // Crear lienzo nuevo de 500x500
     $new_size = 500;
     $dst_image = imagecreatetruecolor($new_size, $new_size);
 
-    // Manejo de transparencia antes de convertir a JPG
+    // Manejo de transparencia antes de convertir a jpg
     if ($imageType == IMAGETYPE_PNG || $imageType == IMAGETYPE_WEBP) {
-        // Crear un fondo blanco para evitar que la transparencia se vea negra en JPG
+        // Crear un fondo blanco para evitar que la transparencia se vea negra en jpg
         $white = imagecolorallocate($dst_image, 255, 255, 255);
         imagefilledrectangle($dst_image, 0, 0, $new_size, $new_size, $white);
     }
@@ -99,7 +97,7 @@ function procesarImagen($file, $userId) {
     // Recortar y redimensionar
     imagecopyresampled($dst_image, $src_image, 0, 0, $x, $y, $new_size, $new_size, $min, $min);
 
-    // GUARDAR SIEMPRE COMO JPG (Estandarización)
+    // GUARDAR SIEMPRE COMO JPG
     if(imagejpeg($dst_image, $target_file, 90)) {
         imagedestroy($src_image);
         imagedestroy($dst_image);
@@ -168,7 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $connection->commit();
             
-            // --- REDIRECCIÓN CORREGIDA SEGÚN ROL ---
+            // Redirigimos
             header("Location: " . $ruta_home . "?pagina=personal&mensaje=actualizado");
             exit;
 

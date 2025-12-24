@@ -3,14 +3,14 @@
 require_once("../../../config/config_path.php");
 require_once("../../../includes/connection.php"); 
 
-header('Content-Type: application/json'); //Indicar que la respuesta será JSON
+header('Content-Type: application/json'); // Indicar que la respuesta será JSON
 
 $cod_proveedor = isset($_GET['cod_proveedor']) ? intval($_GET['cod_proveedor']) : 0;
 $productos = [];
 
 if ($cod_proveedor > 0) {
     if ($connection) {
-        // Consultar productos activos (o todos, según tu lógica) asociados al proveedor 
+        // Consultar productos activos asociados al proveedor 
         // y que tengan un precio de compra definido en producto_proveedor.
         $query = "
             SELECT 
@@ -29,7 +29,7 @@ if ($cod_proveedor > 0) {
             if ($stmt->execute()) {
                 $resultado = $stmt->get_result();
                 while ($row = $resultado->fetch_assoc()) {
-                    //Asegurarse de que precio_compra no sea null o convertirlo a 0.00 si lo es
+                    // Asegurarse de que precio_compra no sea null o convertirlo a 0.00 si lo es
                     $row['precio_compra'] = $row['precio_compra'] !== null ? floatval($row['precio_compra']) : 0.00;
                     $productos[] = $row;
                 }

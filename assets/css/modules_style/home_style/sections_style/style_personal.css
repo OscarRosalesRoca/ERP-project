@@ -1,4 +1,3 @@
-/* General */
 body {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -6,7 +5,6 @@ body {
     background-color: #ffffff; 
 }
 
-/* Contenedor principal */
 .personal_container {
     width: 100%;
     min-height: 100vh;
@@ -14,14 +12,12 @@ body {
     box-sizing: border-box;
 }
 
-/* Título principal */
 .personal_container h2 {
     font-size: 32px;
     color: #2c3e50;
     margin: 0 0 20px 0;
 }
 
-/* Estilos para las franjas alternadas */
 .personal_info {
     list-style-type: none;
     padding: 0;
@@ -37,20 +33,18 @@ body {
 
 /* Franjas de fondo alternadas */
 .personal_info li:nth-child(odd) {
-    background-color: #ecf0f1; /* Gris muy claro */
+    background-color: #ecf0f1; 
 }
 
 .personal_info li:nth-child(even) {
-    background-color: #ffffff; /* Blanco */
+    background-color: #ffffff; 
 }
 
-/* Resaltado de valores */
 .personal_info li strong {
     color: #2c3e50;
     font-weight: bold;
 }
 
-/* Contraseña con asteriscos */
 .personal_info li.contrasenia::after {
-    content: "********"; /* Esto crea la cadena de asteriscos */
+    content: "********";
 }

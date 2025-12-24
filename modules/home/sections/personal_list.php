@@ -1,4 +1,5 @@
 <?php
+
 require_once(__DIR__ . "/../../../config/config_path.php");
 require_once(__DIR__ . "/../../../includes/connection.php");
 
@@ -125,7 +126,6 @@ if ($stmt_personal) {
             <tbody>
                 <?php foreach ($empleados as $emp): ?>
                     <?php 
-                        // MODIFICACIÓN: Ruta cambiada a "fotos_perfil"
                         $ruta_foto_row = BASE_URL . "/assets/img/default_user.jpg";
                         if (!empty($emp['foto_perfil']) && $emp['foto_perfil'] !== 'default_user.jpg') {
                             $ruta_foto_row = BASE_URL . "/uploads/fotos_perfil/" . $emp['foto_perfil'];

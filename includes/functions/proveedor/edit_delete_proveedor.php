@@ -44,49 +44,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $mail = trim($_POST["mail"]);
     $telefono = trim($_POST["telefono"]);
 
-    // Validaciones básicas
     if (!empty($mail) && !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
         $errores[] = "El correo electrónico no es válido.";
     }
 
-    // Si no hay errores, procesamos actualizaciones
+    // Si no hay errores procesamos actualizaciones
     if (empty($errores)) {
-        // Nombre: solo actualizar si se ha cambiado
         if (!empty($nombre) && $nombre !== $proveedor["nombre"]) {
             $stmt = $connection->prepare("UPDATE proveedores_clientes SET nombre = ? WHERE cod_actor = ?");
             $stmt->bind_param("si", $nombre, $cod_actor);
             $stmt->execute();
         }
 
-        // DNI: solo actualizar si se ha cambiado
         if (!empty($dni) && $dni !== $proveedor["nif_dni"]) {
             $stmt = $connection->prepare("UPDATE proveedores_clientes SET nif_dni = ? WHERE cod_actor = ?");
             $stmt->bind_param("si", $dni, $cod_actor);
             $stmt->execute();
         }
 
-        // Población: solo actualizar si se ha cambiado
         if (!empty($poblacion) && $poblacion !== $proveedor["poblacion"]) {
             $stmt = $connection->prepare("UPDATE proveedores_clientes SET poblacion = ? WHERE cod_actor = ?");
             $stmt->bind_param("si", $poblacion, $cod_actor);
             $stmt->execute();
         }
 
-        // Dirección: solo actualizar si se ha cambiado
         if (!empty($direccion) && $direccion !== $proveedor["direccion"]) {
             $stmt = $connection->prepare("UPDATE proveedores_clientes SET direccion = ? WHERE cod_actor = ?");
             $stmt->bind_param("si", $direccion, $cod_actor);
             $stmt->execute();
         }
 
-        // Correo electrónico: solo actualizar si se ha cambiado
         if (!empty($mail) && $mail !== $proveedor["mail"]) {
             $stmt = $connection->prepare("UPDATE proveedores_clientes SET mail = ? WHERE cod_actor = ?");
             $stmt->bind_param("si", $mail, $cod_actor);
             $stmt->execute();
         }
 
-        // Teléfono: solo actualizar si se ha cambiado
         if (!empty($telefono) && $telefono !== $proveedor["telefono"]) {
             $stmt = $connection->prepare("UPDATE proveedores_clientes SET telefono = ? WHERE cod_actor = ?");
             $stmt->bind_param("si", $telefono, $cod_actor);

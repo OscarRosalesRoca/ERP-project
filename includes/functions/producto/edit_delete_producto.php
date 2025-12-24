@@ -5,7 +5,7 @@ require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
 $cod_producto = $_GET["cod"] ?? null;
-$mensaje = $_GET["mensaje"] ?? null; // Para mensajes de éxito/error
+$mensaje = $_GET["mensaje"] ?? null;
 
 if (!$cod_producto) {
     header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=productos&error=noproducto");
@@ -15,8 +15,6 @@ if (!$cod_producto) {
 $producto_actual = null;
 $errores = [];
 
-// Obtener datos actuales del producto y su proveedor asociado
-// No necesitamos obtener el almacén aquí ya que no se gestionará desde esta pantalla.
 $query_producto = "
     SELECT 
         ps.cod_producto, 
@@ -154,8 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
             if(!$stmt_update_ps->execute()) throw new Exception("Error actualizando producto_servicio: " . $stmt_update_ps->error);
             $stmt_update_ps->close();
 
-            // Actualizar producto_proveedor
-            // Si el proveedor ha cambiado o el precio de compra ha cambiado
+            // Actualizar producto_proveedor si el proveedor ha cambiado o el precio de compra ha cambiado
             if ($cod_proveedor_nuevo != $producto_actual["cod_proveedor_actual"] || $precio_compra_nuevo != $producto_actual["precio_compra"]) {
                 
                 // Actualizamos el proveedor y el precio de compra
@@ -165,9 +162,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
                 if(!$stmt_update_pp->execute()) throw new Exception("Error actualizando producto_proveedor: " . $stmt_update_pp->error);
                 $stmt_update_pp->close();
             }
-            
-            // La gestión de almacén y stock (tabla almacen_producto_servicio y producto_servicio.activo)
-            // se realiza a través de las facturas de compra/venta. No se toca aquí.
 
             $connection->commit();
             
@@ -178,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_producto"])
             $producto_actual['precio_compra'] = $precio_compra_nuevo;
             $producto_actual['cod_proveedor_actual'] = $cod_proveedor_nuevo;
             $producto_actual['nombre_proveedor_actual'] = $nombre_proveedor_snapshot_nuevo;
-            $mensaje = "Producto actualizado correctamente."; // Mensaje de éxito
+            $mensaje = "Producto actualizado correctamente.";
 
         } catch (Exception $e) {
             $connection->rollback();

@@ -4,6 +4,7 @@ body {
     padding: 20px;
     background-color: #f4f4f4;
 }
+
 .factura-container {
     max-width: 800px;
     margin: 20px auto;
@@ -12,46 +13,51 @@ body {
     border: 1px solid #ddd;
     box-shadow: 0 0 15px rgba(0,0,0,0.1);
 }
-.factura-header-top { /* Modificado: Contenedor solo para "FACTURA" y su info */
-    text-align: right; /* Alinea el bloque de info de factura a la derecha */
+
+.factura-header-top { 
+    text-align: right; 
     border-bottom: 2px solid #333;
     padding-bottom: 20px;
     margin-bottom: 20px;
 }
+
 .factura-header-top .factura-info-main h1 {
     margin: 0 0 10px 0;
     color: #333;
-    font-size: 2.5em; /* Más grande */
+    font-size: 2.5em; 
     text-align: right;
 }
+
 .factura-header-top .factura-info-main p { 
     margin: 5px 0; 
     text-align: right;
     font-size: 0.9em;
 }
 
-/* Clase común para los bloques de información del actor y empleado */
+/* Estilos común para los bloques de información del actor y empleado */
 .info-block { 
-    margin-bottom: 20px; /* Reducido el margen inferior */
+    margin-bottom: 20px; 
     padding: 15px;
     border: 1px solid #eee;
     background-color: #f9f9f9;
-    border-radius: 4px; /* Añadido borde redondeado */
+    border-radius: 4px; 
 }
+
 .info-block h3 { 
     margin-top: 0; 
-    margin-bottom: 10px; /* Reducido margen */
+    margin-bottom: 10px; 
     color: #555; 
-    font-size: 1.1em; /* Ligeramente más pequeño */
-    border-bottom: 1px solid #e0e0e0; /* Línea sutil debajo del título del bloque */
+    font-size: 1.1em; 
+    border-bottom: 1px solid #e0e0e0; 
     padding-bottom: 5px;
 }
+
 .info-block p {
     margin: 4px 0;
     font-size: 0.9em;
 }
 
-.detalle-productos-titulo { /* Nuevo título para la sección de líneas */
+.detalle-productos-titulo { 
     font-size: 1.3em;
     color: #333;
     margin-top: 30px;
@@ -70,25 +76,27 @@ body {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
-    font-size: 0.9em; /* Tamaño de fuente consistente */
+    font-size: 0.9em; 
 }
 .tabla-lineas-factura th {
     background-color: #f0f0f0;
     font-weight: bold;
 }
-.tabla-lineas-factura td.numero { text-align: right; }
+.tabla-lineas-factura td.numero { 
+    text-align: right; 
+}
 
 .factura-totales {
     margin-top: 20px;
     float: right;
-    width: 300px; /* Ajustado ancho */
+    width: 300px; 
 }
 .factura-totales table {
     width: 100%;
     border-collapse: collapse;
 }
 .factura-totales td {
-    padding: 9px; /* Ajustado padding */
+    padding: 9px; 
     border: 1px solid #eee;
 }
 .factura-totales .label { font-weight: bold; font-size: 0.9em; }
@@ -128,10 +136,11 @@ body {
 /* Estilos específicos para la impresión */
 @media print {
     body {
-        background-color: #fff; /* Fondo blanco para impresión */
+        background-color: #fff; 
         padding: 0;
         margin: 0;
     }
+
     .factura-container {
         width: 100%;
         max-width: 100%;
@@ -140,21 +149,18 @@ body {
         border: none;
         box-shadow: none;
     }
+
     .info-block {
-        background-color: #fff; /* Quitar fondo gris para impresión si se desea */
-        border: 1px solid #ccc; /* Borde más visible en impresión si es necesario */
+        background-color: #fff; 
+        border: 1px solid #ccc;
     }
+
     .tabla-lineas-factura th {
-        background-color: #fff; /* Quitar fondo de cabecera de tabla para impresión */
+        background-color: #fff; 
         color: #000;
     }
-    .botones-accion-factura.no-print { /* Ocultar el contenedor de botones si tiene la clase no-print */
+
+    .botones-accion-factura.no-print { 
         display: none !important;
     }
-    /* Si quieres ocultar elementos individuales en lugar del contenedor: */
-    /*
-    .no-print-item {
-        display: none !important;
-    }
-    */
 }

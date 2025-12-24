@@ -1,10 +1,9 @@
 <?php
-require_once("../../config/config_path.php");
 
+require_once("../../config/config_path.php");
 require_once("../../includes/connection.php");
 require_once("../../includes/auth.php");
 
-// Asegurar que la sesión está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -12,7 +11,6 @@ if (session_status() == PHP_SESSION_NONE) {
 // Recuperar el ID del usuario de la sesión para evitar errores en bind_param
 $usuario_id = $_SESSION['usuario_id'] ?? 0;
 
-// Consulta con JOIN entre usuarios y empleado
 $query = "
     SELECT 
         u.nombre_usuario,
@@ -42,7 +40,6 @@ if (!$datos) {
     exit;
 }
 
-// Determinar el rol en texto
 $roles = [
     1 => "Administrador",
     2 => "Empleado",

@@ -1,6 +1,6 @@
 <?php
-require_once("../../../config/config_path.php");
 
+require_once("../../../config/config_path.php");
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 

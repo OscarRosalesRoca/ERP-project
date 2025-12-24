@@ -1,6 +1,6 @@
 <?php
-require_once("../../../config/config_path.php");
 
+require_once("../../../config/config_path.php");
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
@@ -41,9 +41,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST["ubicacion"])) {
         $ubicacion = trim($_POST["ubicacion"]);
 
-        // Si no hay errores, procesamos actualizaciones
+        // Si no hay errores procesamos actualizaciones
         if (empty($errores)) {
-            // Nombre: solo actualizar si se ha cambiado y no está vacío
+            // Nombre
             if (!empty($ubicacion) && $ubicacion !== $almacen["ubicacion"]) {
                 $stmt = $connection->prepare("UPDATE almacen SET ubicacion = ? WHERE cod_almacen = ?");
                 $stmt->bind_param("si", $ubicacion, $cod_almacen);

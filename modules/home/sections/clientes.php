@@ -1,15 +1,13 @@
 <?php
+
 require_once("../../config/config_path.php");
+require_once("../../includes/connection.php");
+require_once("../../includes/auth.php");
 
-require_once("../../includes/connection.php"); // Conexión a la BD
-require_once("../../includes/auth.php");       // Autenticación y control de sesión
-
-// Iniciar sesión si no está iniciada (auth.php ya debería hacerlo)
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Definir los campos por los que se puede buscar para clientes
 $campos_busqueda_config = [
     'cod_actor' => ['display' => 'Código', 'column' => 'cod_actor'],
     'nombre'    => ['display' => 'Nombre', 'column' => 'nombre'],
@@ -19,13 +17,11 @@ $campos_busqueda_config = [
     'mail'      => ['display' => 'Email', 'column' => 'mail']
 ];
 
-// Valores iniciales para la búsqueda
 $campo_seleccionado_key = 'cod_actor';
 $termino_busqueda = '';
 $clientes = [];
 $busqueda_activa = false;
 
-// Construir la consulta SQL base
 $sql_base = "SELECT cod_actor, nombre, nif_dni, poblacion, direccion, telefono, mail 
             FROM proveedores_clientes 
             WHERE tipo = 'cliente'";
@@ -33,8 +29,6 @@ $sql_final = $sql_base;
 $params = [];
 $types = "";
 
-// Verificar si se envió el formulario de búsqueda (parámetro 'buscar' en la URL)
-// y si el término de búsqueda no está vacío.
 if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) !== '') {
     $busqueda_activa = true;
     if (isset($_GET['campo']) && array_key_exists($_GET['campo'], $campos_busqueda_config)) {
@@ -57,14 +51,11 @@ if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) 
 } else {
     $sql_final .= " ORDER BY cod_actor ASC";
     if (isset($_GET['buscar']) && trim($_GET['termino']) === '') {
-        // Si se hizo clic en buscar con término vacío, se resetea
         $termino_busqueda = '';
         $campo_seleccionado_key = 'cod_actor';
     }
 }
 
-// Preparar y ejecutar la consulta
-// Asegurarse de que $connection está disponible
 if (!isset($connection) || $connection === null) {
     die("<p>Error: La conexión a la base de datos no está disponible. Revisa la inclusión de 'connection.php'.</p>");
 }

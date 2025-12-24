@@ -1,7 +1,6 @@
 <?php
 
 require_once("../../config/config_path.php");
-
 require_once("../../includes/connection.php");
 require_once("../../includes/auth.php");
 
@@ -9,7 +8,6 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Configuración de campos de búsqueda para el historial
 $campos_busqueda_config_historial = [
     'num_factura'       => ['display' => 'Nº Factura', 'column' => 'f.num_factura', 'type' => 'number'],
     'cod_empleado'      => ['display' => 'Cód. Empleado', 'column' => 'f.cod_empleado', 'type' => 'number'],
@@ -20,13 +18,11 @@ $campos_busqueda_config_historial = [
     'tipo'              => ['display' => 'Tipo Factura', 'column' => 'f.tipo', 'type' => 'select', 'options' => ['compra' => 'Compra', 'venta' => 'Venta']]
 ];
 
-// Valores iniciales
 $campo_seleccionado_key_historial = 'num_factura';
 $termino_busqueda_historial = '';
 $facturas = [];
 $busqueda_activa_historial = false;
 
-// Construcción de la consulta SQL base
 $sql_base_historial = "
     SELECT 
         f.num_factura,
@@ -45,7 +41,6 @@ $sql_conditions_historial = [];
 $params_historial = [];
 $types_historial = "";
 
-// Verificar si se envió el formulario de búsqueda
 if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) !== '') {
     $busqueda_activa_historial = true;
     if (isset($_GET['campo']) && array_key_exists($_GET['campo'], $campos_busqueda_config_historial)) {
@@ -212,7 +207,7 @@ if ($stmt_historial) {
         
         const camposConfigJs = <?php echo json_encode($campos_busqueda_config_historial); ?>;
 
-        if (campoBusquedaSelect && terminoBusquedaContainer) { // Asegurarse que ambos existen
+        if (campoBusquedaSelect && terminoBusquedaContainer) {
             campoBusquedaSelect.addEventListener('change', function() {
                 const selectedKey = this.value;
                 const config = camposConfigJs[selectedKey];

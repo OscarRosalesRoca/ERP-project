@@ -14,39 +14,39 @@ body {
 
 h2 {
     font-size: 32px;
-    color: #2c3e50; /* Azul oscuro/gris */
+    color: #2c3e50; 
     margin: 0 0 20px 0;
 }
 
-/* Contenedor para alinear búsqueda y botón "Nuevo" */
+/* Contenedor para alinear búsqueda y botón*/
 .cabecera_acciones {
-    display: flex; /* Activa Flexbox */
-    justify-content: space-between; /* Espacio entre los elementos */
-    align-items: center; /* Alinea verticalmente los elementos al centro */
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea si no caben */
-    gap: 15px; /* Espacio entre el formulario de búsqueda y el botón nuevo */
+    flex-wrap: wrap; 
+    gap: 15px; 
 }
 
-/* Estilos para el contenedor del formulario de búsqueda */
+/* Contenedor del formulario de búsqueda */
 .contenedor_busqueda {
-    flex-grow: 1; /* Permite que el contenedor de búsqueda ocupe el espacio disponible */
-    min-width: 300px; /* Ancho mínimo para el formulario */
+    flex-grow: 1; 
+    min-width: 300px;
 }
 
 .formulario_busqueda {
-    display: flex; /* Alinea los elementos del formulario en línea */
-    gap: 10px; /* Espacio entre los elementos del formulario */
-    align-items: center; /* Alinea verticalmente los elementos del formulario */
+    display: flex; 
+    gap: 10px; 
+    align-items: center; 
     padding: 10px;
-    background-color: #f8f9fa; /* Un fondo ligeramente diferente para el formulario */
+    background-color: #f8f9fa; 
     border-radius: 5px;
-    border: 1px solid #dee2e6; /* Borde sutil */
+    border: 1px solid #dee2e6; 
 }
 
 .formulario_busqueda label {
     font-weight: bold;
-    color: #495057; /* Color de texto para la etiqueta */
+    color: #495057; 
 }
 
 .formulario_busqueda select,
@@ -58,12 +58,12 @@ h2 {
 }
 
 .formulario_busqueda input[type="text"] {
-    flex-grow: 1; /* Permite que el campo de texto crezca */
+    flex-grow: 1; 
 }
 
 .formulario_busqueda input[type="submit"],
 .formulario_busqueda .boton_limpiar {
-    background-color: #007bff; /* Azul primario */
+    background-color: #007bff; 
     color: white;
     padding: 8px 15px;
     text-decoration: none;
@@ -75,47 +75,41 @@ h2 {
 }
 
 .formulario_busqueda input[type="submit"]:hover {
-    background-color: #0056b3; /* Azul más oscuro al pasar el ratón */
+    background-color: #0056b3; 
 }
 
 .formulario_busqueda .boton_limpiar {
-    background-color: #6c757d; /* Gris */
+    background-color: #6c757d; 
 }
 
 .formulario_busqueda .boton_limpiar:hover {
-    background-color: #545b62; /* Gris más oscuro */
-}
-
-
-.nuevo_general {
-    /* margin-bottom: 20px; Ajustado por .cabecera_acciones */
-    /* No es necesario flex-grow aquí si queremos que el botón mantenga su tamaño */
+    background-color: #545b62; 
 }
 
 .nuevo_general a {
-    background-color: #28a745; /* Verde */
+    background-color: #28a745; 
     color: white;
     padding: 10px 16px;
     text-decoration: none;
     border-radius: 5px;
     font-size: 14px;
-    display: inline-block; /* Para que el padding y el radio se apliquen correctamente */
+    display: inline-block; 
     transition: background-color 0.2s ease-in-out;
 }
 
 .nuevo_general a:hover {
-    background-color: #1e7e34; /* Verde más oscuro al pasar el ratón */
+    background-color: #1e7e34; 
 }
 
-/* Estilos de la tabla (tus estilos originales con pequeñas adaptaciones si fueran necesarias) */
-table.tabla_general { /* Especificidad aumentada para asegurar que se apliquen */
+/* Tabla */
+table.tabla_general { 
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px; /* Añadido para separar de la cabecera de acciones */
+    margin-top: 20px; 
 }
 
-.tabla_general thead { /* No es necesario .tabla_general aquí, pero por consistencia */
-    background-color: #f2f2f2; /* Este se sobrescribe por el de th más abajo */
+.tabla_general thead { 
+    background-color: #f2f2f2; 
 }
 
 .tabla_general th, .tabla_general td {
@@ -125,26 +119,26 @@ table.tabla_general { /* Especificidad aumentada para asegurar que se apliquen *
 }
 
 .tabla_general th {
-    background-color: #2c3e50; /* Azul oscuro/gris para cabeceras */
+    background-color: #2c3e50; 
     color: white;
-    font-weight: bold; /* Asegurar que el texto de cabecera sea negrita */
+    font-weight: bold; 
 }
 
 /* Filas alternadas */
 .tabla_general tbody tr:nth-child(odd) {
-    background-color: #ecf0f1; /* Gris claro */
+    background-color: #ecf0f1; 
 }
 
 .tabla_general tbody tr:nth-child(even) {
-    background-color: #ffffff; /* Blanco */
+    background-color: #ffffff; 
 }
 
 .sin_resultados {
     padding: 20px;
     text-align: center;
-    background-color: #f8d7da; /* Rosa claro para mensajes de error/advertencia */
-    color: #721c24; /* Texto oscuro para contraste */
-    border: 1px solid #f5c6cb; /* Borde para el mensaje */
+    background-color: #f8d7da; 
+    color: #721c24; 
+    border: 1px solid #f5c6cb; 
     border-radius: 5px;
     margin-top: 20px;
 }
@@ -154,14 +148,14 @@ table.tabla_general { /* Especificidad aumentada para asegurar que se apliquen *
     padding: 0;
 }
 
-.sin_resultados a { /* Estilo para el enlace dentro de .sin_resultados */
-    color: #0056b3; /* Azul para que destaque como enlace */
+.sin_resultados a { 
+    color: #0056b3; 
     text-decoration: underline;
 }
 
 .editar a {
     text-decoration: none;
-    color: #007bff; /* Azul para el enlace de editar */
+    color: #007bff; 
     font-weight: bold;
 }
 

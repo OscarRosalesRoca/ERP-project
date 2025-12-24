@@ -16,7 +16,7 @@ $error_message = '';
 if ($num_factura_get <= 0) {
     $error_message = "Número de factura no válido.";
 } else {
-    //Obtener datos de la factura principal
+    // Obtener datos de la factura principal
     $query_factura = "
         SELECT 
             f.num_factura,
@@ -42,7 +42,7 @@ if ($num_factura_get <= 0) {
         if (!$factura) {
             $error_message = "Factura no encontrada.";
         } else {
-            //Obtener líneas de la factura
+            // Obtener líneas de la factura
             $query_lineas = "
                 SELECT 
                     l.num_linea,

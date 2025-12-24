@@ -14,7 +14,7 @@ if ($stmt_proveedores) {
     $resultado_proveedores = $stmt_proveedores->get_result();
     if ($resultado_proveedores->num_rows > 0) {
         while ($row = $resultado_proveedores->fetch_assoc()) {
-            $proveedores[] = $row; // Guardar cod_actor y nombre
+            $proveedores[] = $row;
         }
     } else {
         $errores[] = "No hay proveedores disponibles. Por favor, registre al menos un proveedor.";
@@ -27,7 +27,7 @@ if ($stmt_proveedores) {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nombre = trim($_POST["nombre"]);
-    $iva = isset($_POST["iva"]) ? floatval($_POST["iva"]) : null; // Permitir null si no se envía o está vacío
+    $iva = isset($_POST["iva"]) ? floatval($_POST["iva"]) : null; // Permitir null si no se envía
     $precio_compra = isset($_POST["precio_compra"]) ? floatval($_POST["precio_compra"]) : null;
     $precio_venta = isset($_POST["precio_venta"]) ? floatval($_POST["precio_venta"]) : null;
     $cod_proveedor_seleccionado = isset($_POST["cod_proveedor"]) ? intval($_POST["cod_proveedor"]) : 0;
@@ -76,8 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $connection->begin_transaction(); // Iniciar transacción
 
         try {
-            // Insertar el producto en producto_servicio
-            // activo se establece en 0 (FALSE) por defecto, ya que no hay stock inicial
+            // Insertar el producto en producto_servicio activo se establece en 0 (FALSE) por defecto, ya que no hay stock inicial
             // No se asigna almacén ni stock aquí
             $stmt_insert_producto = $connection->prepare("INSERT INTO producto_servicio (nombre, iva, precio_venta, activo) VALUES (?, ?, ?, FALSE)");
             if (!$stmt_insert_producto) {

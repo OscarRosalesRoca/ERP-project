@@ -6,13 +6,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const apiPathVenta = `${baseUrl}/includes/functions/facturas/obtener_productos_venta.php`;
 
 
-    // --- Variables Comunes ---
+    // Variables Comunes
     const tabCompra = document.getElementById('tabCompra');
     const tabVenta = document.getElementById('tabVenta');
     const formCompra = document.getElementById('formCompra');
     const formVenta = document.getElementById('formVenta');
 
-    // --- Lógica de Pestañas (sin cambios) ---
+    // Lógica de Pestañas
     if (tabCompra && tabVenta && formCompra && formVenta) {
         tabCompra.addEventListener('click', () => {
             tabCompra.classList.add('activo'); tabVenta.classList.remove('activo');
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // --- LÓGICA PARA FORMULARIO DE COMPRA ---
+    // Lógica para formulario de compra
     const proveedorSelectCompra = document.getElementById('proveedorFactura');
     const contenedorLineasCompra = document.getElementById('contenedorLineasFacturaCompra');
     const botonAnadirLineaCompra = document.getElementById('botonAnadirLineaCompra');
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return new Promise(async (resolve, reject) => { 
             selectProductoElement.innerHTML = '<option value="">Cargando productos...</option>';
             try {
-                // RUTA MODIFICADA con apiPathCompra
+                // Ruta modificada con apiPathCompra
                 const response = await fetch(`${apiPathCompra}?cod_proveedor=${codProveedor}`);
                 if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
                 const productos = await response.json();
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // --- LÓGICA PARA FORMULARIO DE VENTA ---
+    // Lógica para formulario de venta
     const clienteSelectVenta = document.getElementById('clienteFactura'); 
     const contenedorLineasVenta = document.getElementById('contenedorLineasFacturaVenta');
     const botonAnadirLineaVenta = document.getElementById('botonAnadirLineaVenta');
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function precargarProductosVenta() {
         try {
             console.log("JS: Intentando precargar productos para venta...");
-            // RUTA MODIFICADA con apiPathVenta
+            // Ruta modificada con apiPathVenta
             const response = await fetch(apiPathVenta);
             if (!response.ok) {
                 const errorText = await response.text();
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (selectAlmacen.options.length > 1 && selectAlmacen.options[0].value === "" && selectAlmacen.options[0].textContent.startsWith("-- Seleccione Almacén --")) {
                     selectAlmacen.setCustomValidity('Debe seleccionar un almacén de origen.');
                 } else {
-                    // Caso: no hay almacenes válidos para seleccionar (ej. "Stock insuficiente...")
+                    // Caso: no hay almacenes válidos para seleccionar ("Stock insuficiente...")
                     selectAlmacen.setCustomValidity('No hay almacén válido con stock suficiente.');
                 }
             } else if (selectedAlmacenOption && selectedAlmacenOption.value) {
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // --- FUNCIONES GENÉRICAS PARA LÍNEAS (COMPRA Y VENTA) ---
+    // Funciones genéricas para líneas (compra/venta)
     function configurarEventListenersLinea(linea) {
         const tipoLinea = linea.dataset.tipoLinea; 
         const selectProducto = linea.querySelector('.select_producto_linea');
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function () {
         else if (contenedor === contenedorLineasVenta) calcularTotalFacturaVenta();
     }
 
-    // --- Inicialización de ambos formularios ---
+    // Inicialización de ambos formularios
     if (contenedorLineasCompra) {
         document.querySelectorAll('#contenedorLineasFacturaCompra .linea_factura').forEach(configurarEventListenersLinea);
         actualizarVisibilidadBotonesEliminar(contenedorLineasCompra);

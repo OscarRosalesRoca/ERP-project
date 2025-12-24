@@ -1,16 +1,14 @@
-/* Fondo general */
 body {
     margin: 0;
     padding: 0;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #d0e6f7; /* azul claro #d0e6f7*/
+    background-color: #d0e6f7; 
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
 
-/* Tarjetas */
 .card {
     background-color: #fefefe;
     padding: 2.5rem;
@@ -25,7 +23,6 @@ body {
     color: #333;
 }
 
-/* Etiquetas y inputs */
 form label {
     display: block;
     margin: 0.8rem 0 0.3rem;
@@ -45,13 +42,11 @@ form input[type="password"] {
     box-sizing: border-box;
 }
 
-/* Checkbox de mostrar contraseña */
 .password_wrapper {
     position: relative;
     text-align: left;
 }
 
-/* Botones */
 .button {
     margin-top: 1.2rem;
     padding: 0.7rem;
@@ -70,7 +65,6 @@ form input[type="password"] {
     background-color: #1f5fb5;
 }
 
-/* Texto de error */
 .error {
     color: #e74c3c;
     background-color: #fdecea;
@@ -80,7 +74,6 @@ form input[type="password"] {
     margin-bottom: 1rem;
 }
 
-/* Enlaces */
 .link {
     color: #2a7de1;
     text-decoration: none;

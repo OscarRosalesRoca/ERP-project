@@ -1,65 +1,61 @@
-/* Reset básico y estilos generales del cuerpo si los necesitas aquí */
 body {
     margin: 0;
     padding: 0;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    /* background-color: #d0e6f7; /* Lo tenías antes, puedes mantenerlo o quitarlo si general_sections_style.css lo maneja */
 }
 
-/* --- ESTILOS PARA LAS PESTAÑAS DE FACTURA (COMPRAS/VENTAS) --- */
+/* Pestañas de facturas */
 .factura_header {
     display: flex;
-    background-color: #2c3e50; /* Color de fondo oscuro para la cabecera de pestañas */
-    border-top-left-radius: 8px; /* Si tu .card tiene bordes redondeados */
-    border-top-right-radius: 8px; /* Si tu .card tiene bordes redondeados */
-    overflow: hidden; /* Para que los bordes redondeados se apliquen bien a los hijos */
+    background-color: #2c3e50; 
+    border-top-left-radius: 8px; 
+    border-top-right-radius: 8px; 
+    overflow: hidden; 
 }
 
 .factura_tab {
-    flex: 1; /* Cada pestaña ocupa el mismo espacio */
-    padding: 18px 20px; /* Ajusta el padding para la altura deseada */
+    flex: 1; 
+    padding: 18px 20px; 
     border: none;
     cursor: pointer;
     font-weight: normal;
-    color: #000000; /* Texto blanco para pestañas inactivas */
-    background-color: #ffffff; /* Fondo oscuro para pestañas inactivas, igual al header */
-    text-align: center; /* Centrar texto en la pestaña */
-    font-size: 1.8rem; /* Tamaño de fuente para las pestañas, ajusta según necesites */
-    transition: background-color 0.3s ease, color 0.3s ease, font-weight 0.3s ease, border-color 0.3s ease; /* Animación suave */
+    color: #000000; 
+    background-color: #ffffff; 
+    text-align: center;
+    font-size: 1.8rem; 
+    transition: background-color 0.3s ease, color 0.3s ease, font-weight 0.3s ease, border-color 0.3s ease; 
     border-bottom: 3px solid #2c3e50;
 }
 
-/* Efecto hover para pestañas inactivas */
+/* Efecto para pestañas inactivas */
 .factura_tab:not(.activo):hover {
-    background-color: #3b526a; /* Un poco más claro al pasar el ratón sobre inactivas */
+    background-color: #3b526a; 
     color: #ffffff;
 }
 
 /* Estilo para la pestaña activa */
 .factura_tab.activo {
-    background-color: #2c3e50; /* Fondo blanco para la pestaña activa (color del cuerpo del formulario) */
-    color: #ffffff; /* Texto azul para la pestaña activa, para que destaque */
-    font-weight: bold; /* Texto en negrita */
-    border-bottom: 3px solid #2c3e50; /* Borde inferior azul para destacar y conectar con el cuerpo */
+    background-color: #2c3e50; 
+    color: #ffffff;
+    font-weight: bold; 
+    border-bottom: 3px solid #2c3e50; 
 }
 
-/* --- ESTILOS PARA EL CUERPO Y FORMULARIOS DE FACTURA --- */
+/* Cuerpo y formulario de facturas */
 .factura_body {
     padding: 25px;
-    background-color: #ffffff; /* Fondo blanco para el contenido del formulario */
-    /* Marco azul para el cuerpo, conectando con la pestaña activa */
+    background-color: #ffffff; 
     border-left: 3px solid #2c3e50;
     border-right: 3px solid #2c3e50;
     border-bottom: 3px solid #2c3e50;
-    border-top: none; /* La "parte superior" del marco es el border-bottom de la pestaña activa */
-    border-bottom-left-radius: 8px; /* Si tu .card tiene bordes redondeados */
-    border-bottom-right-radius: 8px; /* Si tu .card tiene bordes redondeados */
-    min-height: 300px; /* Altura mínima */
+    border-top: none; 
+    border-bottom-left-radius: 8px; 
+    border-bottom-right-radius: 8px;
+    min-height: 300px; 
 }
 
-.formulario_factura { /* Clase común para formCompra y formVenta */
+.formulario_factura { 
     padding: 15px; 
-    /* background-color: #f8f9fa; /* Puedes usar un fondo ligeramente diferente para el form si quieres */
 }
 
 .formulario_factura h2, .formulario_factura h3 {
@@ -116,7 +112,6 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     outline: none;
 }
-
 
 .form_grupo input[readonly] {
     background-color: #e9ecef; 
@@ -176,7 +171,6 @@ hr.separador_secciones_factura {
 .linea_factura .input_precio_total_linea {
     text-align: right;
 }
-
 
 .boton_eliminar_linea {
     background-color: #dc3545;
@@ -243,8 +237,9 @@ hr.separador_secciones_factura {
         min-width: 100%; 
         margin-bottom: 12px; 
     }
-    .linea_factura .input_cantidad_linea { max-width: 100%; }
-
+    .linea_factura .input_cantidad_linea { 
+        max-width: 100%; 
+    }
     .boton_eliminar_linea {
         margin-left: 0; 
         margin-top: 10px; 

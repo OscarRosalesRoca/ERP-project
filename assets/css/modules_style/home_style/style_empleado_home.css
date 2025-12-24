@@ -9,13 +9,11 @@ html, body {
     height: 100%;
 }
 
-/* Estilo general del contenedor principal */
 .dashboard_container {
     display: flex;
     height: 100vh; 
 }
 
-/* Estilo de la sidebar */
 .sidebar {
     width: 250px;
     background-color: #2c3e50;
@@ -23,25 +21,24 @@ html, body {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Para que los elementos estén alineados desde arriba */
-    height: 100vh; /* Asegura que la barra lateral ocupe siempre toda la altura */
-    position: fixed; /* Fija la barra lateral en la pantalla */
+    justify-content: flex-start; 
+    height: 100vh; 
+    position: fixed; 
     top: 0;
     left: 0;
     bottom: 0;
 }
 
-/* Contenedor de la foto de usuario y nombre */
 .user_info_container {
     text-align: center;
-    margin-bottom: 10px; /* Reducimos el espacio entre la foto y el nombre */
+    margin-bottom: 10px; 
 }
 
 .user_photo {
     width: 130px;
     height: 130px;
     border-radius: 50%;
-    margin-bottom: 5px; /* Reducimos el margen debajo de la foto */
+    margin-bottom: 5px; 
 }
 
 .user_info_container span {
@@ -50,12 +47,11 @@ html, body {
     margin-bottom: 5px;
 }
 
-/* Menú de la sidebar */
 .menu {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    max-height: 400px; /* Ajusta según tu diseño */
+    max-height: 400px; 
     overflow-y: auto;
 }
 
@@ -72,7 +68,6 @@ html, body {
     transition: background-color 0.3s ease;
 }
 
-/* Estilo de la clase .active cuando un enlace es seleccionado */
 .sidebar .menu li a.active {
     background-color: #ffffff;
     color: #2c3e50;
@@ -80,14 +75,12 @@ html, body {
     border-left: 5px solid #2c3e50;
 }
 
-/* Estilo de los enlaces al pasar el cursor */
 .menu li a:hover {
     background-color: #44617e;
 }
 
-/* Estilo del botón de logout */
 .logout_container {
-    margin-top: 20px; /* Espacio después del menú */
+    margin-top: 20px;
     text-align: center;
 }
 
@@ -105,12 +98,11 @@ html, body {
     background-color: #c0392b;
 }
 
-/* Estilo del contenedor DINÁMICO */
 .main_content {
     padding: 20px;
-    margin-left: 290px; /* El main-content empieza después de la sidebar */
-    height: 100vh; /* Hace que el contenido principal ocupe toda la altura */
-    overflow-y: auto; /* Solo permite el scroll vertical en el main-content */
+    margin-left: 290px; 
+    height: 100vh; 
+    overflow-y: auto; 
     box-sizing: border-box;
-    width: calc(100% - 250px); /* Ajustamos el ancho restante */
+    width: calc(100% - 250px); 
 }

@@ -26,8 +26,6 @@ unset($_SESSION['mensaje_exito_factura_venta']);
 $cod_empleado_actual = $_SESSION['usuario_id'] ?? 0;
 $nombre_empleado_snapshot = '';
 if ($cod_empleado_actual > 0) {
-    // Asumiendo que 'usuario_id' en sesión es el 'cod_empleado' o se puede mapear.
-    // Ajusta esta consulta según tu estructura de BD para obtener el nombre del empleado.
     $stmt_empleado = $connection->prepare("SELECT nombre FROM empleado WHERE usuario_id = ?");
     if ($stmt_empleado) {
         $stmt_empleado->bind_param("i", $cod_empleado_actual);
@@ -43,9 +41,9 @@ if ($cod_empleado_actual > 0) {
 // Cargar datos para los selects
 $proveedores_compra = [];
 $clientes_venta = [];
-$almacenes_disponibles = []; // Para ambos formularios, aunque en ventas se filtrará más
+$almacenes_disponibles = [];
 
-// Obtener Proveedores (para Compras)
+// Obtener Proveedores para Compras
 $stmt_proveedores = $connection->prepare("SELECT cod_actor, nombre FROM proveedores_clientes WHERE tipo = 'proveedor' ORDER BY nombre ASC");
 if ($stmt_proveedores) {
     $stmt_proveedores->execute();
@@ -56,7 +54,7 @@ if ($stmt_proveedores) {
     $stmt_proveedores->close();
 }
 
-// Obtener Clientes (para Ventas)
+// Obtener Clientes para Ventas
 $stmt_clientes = $connection->prepare("SELECT cod_actor, nombre FROM proveedores_clientes WHERE tipo = 'cliente' ORDER BY nombre ASC");
 if ($stmt_clientes) {
     $stmt_clientes->execute();
@@ -67,7 +65,7 @@ if ($stmt_clientes) {
     $stmt_clientes->close();
 }
 
-// Obtener Almacenes (para Compras y como base para Ventas)
+// Obtener Almacenes para Compras y como base para Ventas
 $stmt_almacenes = $connection->prepare("SELECT cod_almacen, ubicacion FROM almacen ORDER BY ubicacion ASC");
 if ($stmt_almacenes) {
     $stmt_almacenes->execute();
@@ -79,7 +77,7 @@ if ($stmt_almacenes) {
 }
 
 // Determinar qué pestaña está activa
-$tab_activa_default = 'compra'; // Por defecto
+$tab_activa_default = 'compra';
 if (isset($_GET['error_guardado_venta']) || isset($_GET['validation_error_venta']) || isset($_GET['mensaje_venta_creada'])) {
     $tab_activa_default = 'venta';
 } elseif (isset($_GET['error_guardado_compra']) || isset($_GET['validation_error_compra']) || isset($_GET['mensaje_compra_creada'])) {
@@ -309,12 +307,12 @@ if (isset($_GET['error_guardado_venta']) || isset($_GET['validation_error_venta'
         <script>
             const BASE_URL_JS = "<?php echo BASE_URL; ?>";
 
-            const almacenesDataGlobal = <?php echo json_encode($almacenes_disponibles); ?>; // Para compras
+            const almacenesDataGlobal = <?php echo json_encode($almacenes_disponibles); ?>; 
             const proveedorSeleccionadoAlCargarCompra = document.getElementById('proveedorFactura').value;
             const lineasConErrorCompra = <?php echo json_encode($form_data_sesion_compra['lineas'] ?? null); ?>;
 
             // Para ventas, los productos y sus almacenes se cargarán dinámicamente
-            const clienteSeleccionadoAlCargarVenta = document.getElementById('clienteFactura').value; // Aunque no afecta la carga inicial de productos de venta
+            const clienteSeleccionadoAlCargarVenta = document.getElementById('clienteFactura').value;
             const lineasConErrorVenta = <?php echo json_encode($form_data_sesion_venta['lineas'] ?? null); ?>;
         </script>
         <script src="<?php echo BASE_URL; ?>/assets/js/facturas.js"></script>

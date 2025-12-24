@@ -3,8 +3,7 @@ session_start();
 
 require_once(__DIR__ . "/../../config/config_path.php"); 
 
-
-// Comprobamos si hay sesión activa
+// Si no hay sesión iniciada vamos a login
 if (!isset($_SESSION["usuario_id"])) {
     header("Location: " . BASE_URL . "/modules/login/login.php");
     exit;
@@ -13,13 +12,12 @@ if (!isset($_SESSION["usuario_id"])) {
 $pagina = $_GET["pagina"] ?? "personal"; // Página por defecto
 $permitidas = ["personal", "historial", "clientes", "proveedores", "almacenes", "productos", "facturas"];
 
-// MODIFICACIÓN: Ruta corregida a "fotos_perfil"
 $foto_perfil_src = BASE_URL . "/assets/img/default_user.jpg"; 
 if (isset($_SESSION['foto_perfil']) && !empty($_SESSION['foto_perfil'])) {
     if ($_SESSION['foto_perfil'] == 'default_user.jpg') {
         $foto_perfil_src = BASE_URL . "/assets/img/default_user.jpg";
     } else {
-        // AQUÍ EL CAMBIO:
+        // Si en la base de datos el empleado tiene una foto asociada, la cambiamos
         $foto_perfil_src = BASE_URL . "/uploads/fotos_perfil/" . $_SESSION['foto_perfil'];
     }
 }
@@ -33,7 +31,7 @@ if (isset($_SESSION['foto_perfil']) && !empty($_SESSION['foto_perfil'])) {
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/style_empleado_home.css">
 </head>
 <body>
-<div class="dashboard_container">
+    <div class="dashboard_container">
         <div class="sidebar">
             <div class="user_info_container">
                 <img src="<?php echo $foto_perfil_src; ?>" class="user_photo" alt="Foto de usuario" style="object-fit: cover;">
@@ -54,7 +52,6 @@ if (isset($_SESSION['foto_perfil']) && !empty($_SESSION['foto_perfil'])) {
                 <a class="logout_button" href="<?php echo BASE_URL; ?>/modules/login/logout.php">Cerrar sesión</a>
             </div>
         </div>
-
         <div class="main_content">
             <?php
             if (in_array($pagina, $permitidas)) {

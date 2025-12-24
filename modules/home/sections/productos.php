@@ -4,12 +4,10 @@ require_once("../../config/config_path.php");
 require_once("../../includes/connection.php");
 require_once("../../includes/auth.php");
 
-// Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Configuración de campos de búsqueda para productos
 $campos_busqueda_config_producto = [
     'cod_producto'      => ['display' => 'Código', 'column' => 'ps.cod_producto', 'table_alias' => 'ps'],
     'nombre_producto'   => ['display' => 'Nombre Producto', 'column' => 'ps.nombre', 'table_alias' => 'ps'],
@@ -17,15 +15,13 @@ $campos_busqueda_config_producto = [
     'ubicacion_almacen' => ['display' => 'Almacén', 'column' => 'a.ubicacion', 'table_alias' => 'a']
 ];
 
-// Valores iniciales
 $campo_seleccionado_key_producto = 'cod_producto';
 $termino_busqueda_producto = '';
 $productos = [];
 $busqueda_activa_producto = false;
 
-// Construcción de la consulta SQL base
-// Se usa DISTINCT para evitar filas duplicadas si un producto está en múltiples almacenes
-// y la búsqueda es por almacén, o si tiene múltiples proveedores.
+// Se usa DISTINCT para evitar filas duplicadas si un producto está en múltiples almacenes 
+// y la búsqueda es por almacén, o si tiene múltiples proveedores
 $sql_base_producto = "
     SELECT DISTINCT
         ps.cod_producto, 
@@ -43,11 +39,10 @@ $sql_base_producto = "
 
 // La cláusula WHERE se construirá dinámicamente
 $sql_conditions_producto = [];
-$sql_final_producto = ""; // Se inicializará después
+$sql_final_producto = ""; 
 $params_producto = [];
 $types_producto = "";
 
-// Verificar si se envió el formulario de búsqueda
 if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) !== '') {
     $busqueda_activa_producto = true;
     if (isset($_GET['campo']) && array_key_exists($_GET['campo'], $campos_busqueda_config_producto)) {
@@ -57,19 +52,17 @@ if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) 
     $columna_config = $campos_busqueda_config_producto[$campo_seleccionado_key_producto];
     $columna_a_buscar_producto = $columna_config['column'];
 
-    if ($campo_seleccionado_key_producto == 'cod_producto') { // Búsqueda exacta para código
+    if ($campo_seleccionado_key_producto == 'cod_producto') { 
         $sql_conditions_producto[] = $columna_a_buscar_producto . " = ?";
         $params_producto[] = $termino_busqueda_producto;
         $types_producto .= "i";
-    } else { // Búsqueda parcial (LIKE) para otros campos
+    } else {
         $sql_conditions_producto[] = $columna_a_buscar_producto . " LIKE ?";
         $params_producto[] = "%" . $termino_busqueda_producto . "%";
         $types_producto .= "s";
     }
-    // Ordenación cuando la búsqueda está activa
     $orderByClause = " ORDER BY " . $columna_a_buscar_producto . " ASC, ps.nombre ASC";
 } else {
-    // Ordenación por defecto (carga inicial o después de limpiar)
     $orderByClause = " ORDER BY ps.cod_producto ASC";
     if (isset($_GET['buscar']) && trim($_GET['termino']) === '') {
         $termino_busqueda_producto = '';
@@ -84,7 +77,7 @@ if (!empty($sql_conditions_producto)) {
 }
 $sql_final_producto .= $orderByClause;
 
-// Preparar y ejecutar la consulta principal de productos
+// Preparar y ejecutar la consulta
 if (!isset($connection) || $connection === null) {
     die("<p>Error crítico: La conexión a la base de datos no está disponible en productos.php.</p>");
 }

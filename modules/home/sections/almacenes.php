@@ -4,30 +4,26 @@ require_once("../../config/config_path.php");
 require_once("../../includes/connection.php");
 require_once("../../includes/auth.php");
 
-// Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Configuración de campos de búsqueda para almacenes
 $campos_busqueda_config_almacen = [
     'cod_almacen' => ['display' => 'Código', 'column' => 'cod_almacen'],
     'ubicacion'   => ['display' => 'Ubicación', 'column' => 'ubicacion']
 ];
 
-// Valores iniciales
-$campo_seleccionado_key_almacen = 'cod_almacen'; // Campo por defecto
+$campo_seleccionado_key_almacen = 'cod_almacen';
 $termino_busqueda_almacen = '';
-$almacenes = []; // Array para almacenar los almacenes recuperados
-$busqueda_activa_almacen = false; // Para saber si se está realizando una búsqueda
+$almacenes = [];
+$busqueda_activa_almacen = false;
 
-// Construcción de la consulta SQL base
+
 $sql_base_almacen = "SELECT cod_almacen, ubicacion FROM almacen";
-$sql_final_almacen = ""; // Se inicializará después
+$sql_final_almacen = "";
 $params_almacen = [];
 $types_almacen = "";
 
-// Verificar si se envió el formulario de búsqueda
 if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) !== '') {
     $busqueda_activa_almacen = true;
     if (isset($_GET['campo']) && array_key_exists($_GET['campo'], $campos_busqueda_config_almacen)) {
@@ -36,8 +32,7 @@ if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) 
     $termino_busqueda_almacen = trim($_GET['termino']);
     $columna_a_buscar_almacen = $campos_busqueda_config_almacen[$campo_seleccionado_key_almacen]['column'];
 
-    // Modificar la consulta SQL para la búsqueda
-    if ($columna_a_buscar_almacen == 'cod_almacen') { // Búsqueda exacta para código
+    if ($columna_a_buscar_almacen == 'cod_almacen') { 
         $sql_final_almacen = $sql_base_almacen . " WHERE " . $columna_a_buscar_almacen . " = ?";
         $params_almacen[] = $termino_busqueda_almacen;
         $types_almacen .= "i";
@@ -46,18 +41,15 @@ if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) 
         $params_almacen[] = "%" . $termino_busqueda_almacen . "%";
         $types_almacen .= "s";
     }
-    // Ordenación cuando la búsqueda está activa
     $sql_final_almacen .= " ORDER BY " . $columna_a_buscar_almacen . " ASC";
 } else {
-    // Consulta y ordenación por defecto (carga inicial o después de limpiar)
     $sql_final_almacen = $sql_base_almacen . " ORDER BY cod_almacen ASC";
-    if (isset($_GET['buscar']) && trim($_GET['termino']) === '') { // Si se hizo clic en buscar con término vacío
+    if (isset($_GET['buscar']) && trim($_GET['termino']) === '') {
         $termino_busqueda_almacen = '';
         $campo_seleccionado_key_almacen = 'cod_almacen';
     }
 }
 
-// Preparar y ejecutar la consulta
 if (!isset($connection) || $connection === null) {
     die("<p>Error crítico: La conexión a la base de datos no está disponible en almacenes.php.</p>");
 }
@@ -68,7 +60,7 @@ if ($stmt_almacen) {
         $stmt_almacen->bind_param($types_almacen, ...$params_almacen);
     }
     if ($stmt_almacen->execute()) {
-        $resultado = $stmt_almacen->get_result(); // Sobrescribe $resultado original, lo cual está bien aquí
+        $resultado = $stmt_almacen->get_result(); 
         if ($resultado) {
             $almacenes = $resultado->fetch_all(MYSQLI_ASSOC);
         } else {
