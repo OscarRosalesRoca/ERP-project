@@ -8,6 +8,17 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Configuración de paginación
+$registros_por_pagina = 10;
+$pagina_actual = isset($_GET['pag']) ? (int)$_GET['pag'] : 1;
+if ($pagina_actual < 1) $pagina_actual = 1;
+$offset = ($pagina_actual - 1) * $registros_por_pagina;
+
+function get_url_paginacion($pagina, $params_get) {
+    $params_get['pag'] = $pagina;
+    return '?' . http_build_query($params_get);
+}
+
 $campos_busqueda_config_producto = [
     'cod_producto'      => ['display' => 'Código', 'column' => 'ps.cod_producto', 'table_alias' => 'ps'],
     'nombre_producto'   => ['display' => 'Nombre Producto', 'column' => 'ps.nombre', 'table_alias' => 'ps'],
@@ -20,26 +31,8 @@ $termino_busqueda_producto = '';
 $productos = [];
 $busqueda_activa_producto = false;
 
-// Se usa DISTINCT para evitar filas duplicadas si un producto está en múltiples almacenes 
-// y la búsqueda es por almacén, o si tiene múltiples proveedores
-$sql_base_producto = "
-    SELECT DISTINCT
-        ps.cod_producto, 
-        ps.nombre, 
-        ps.iva, 
-        pp.precio_compra, 
-        ps.precio_venta,
-        pc.nombre AS nombre_proveedor
-    FROM producto_servicio ps
-    LEFT JOIN producto_proveedor pp ON ps.cod_producto = pp.cod_producto
-    LEFT JOIN proveedores_clientes pc ON pp.cod_actor = pc.cod_actor AND pc.tipo = 'proveedor'
-    LEFT JOIN almacen_producto_servicio aps ON ps.cod_producto = aps.cod_producto
-    LEFT JOIN almacen a ON aps.cod_almacen = a.cod_almacen
-";
-
-// La cláusula WHERE se construirá dinámicamente
+// Condiciones SQL para WHERE
 $sql_conditions_producto = [];
-$sql_final_producto = ""; 
 $params_producto = [];
 $types_producto = "";
 
@@ -61,26 +54,78 @@ if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) 
         $params_producto[] = "%" . $termino_busqueda_producto . "%";
         $types_producto .= "s";
     }
-    $orderByClause = " ORDER BY " . $columna_a_buscar_producto . " ASC, ps.nombre ASC";
 } else {
-    $orderByClause = " ORDER BY ps.cod_producto ASC";
     if (isset($_GET['buscar']) && trim($_GET['termino']) === '') {
         $termino_busqueda_producto = '';
         $campo_seleccionado_key_producto = 'cod_producto';
     }
 }
 
+if (!isset($connection) || $connection === null) {
+    die("<p>Error crítico: La conexión a la base de datos no está disponible en productos.php.</p>");
+}
+
+// Consulta de conteo (COUNT DISTINCT para evitar duplicados por los JOIN)
+$sql_conteo_base = "
+    SELECT COUNT(DISTINCT ps.cod_producto) as total
+    FROM producto_servicio ps
+    LEFT JOIN producto_proveedor pp ON ps.cod_producto = pp.cod_producto
+    LEFT JOIN proveedores_clientes pc ON pp.cod_actor = pc.cod_actor AND pc.tipo = 'proveedor'
+    LEFT JOIN almacen_producto_servicio aps ON ps.cod_producto = aps.cod_producto
+    LEFT JOIN almacen a ON aps.cod_almacen = a.cod_almacen
+";
+if (!empty($sql_conditions_producto)) {
+    $sql_conteo_base .= " WHERE " . implode(" AND ", $sql_conditions_producto);
+}
+
+$stmt_conteo = $connection->prepare($sql_conteo_base);
+if (!empty($params_producto)) {
+    $stmt_conteo->bind_param($types_producto, ...$params_producto);
+}
+$stmt_conteo->execute();
+$res_conteo = $stmt_conteo->get_result();
+$row_conteo = $res_conteo->fetch_assoc();
+$total_registros = $row_conteo['total'];
+$total_paginas = ceil($total_registros / $registros_por_pagina);
+$stmt_conteo->close();
+
+// Consulta principal
+$sql_base_producto = "
+    SELECT DISTINCT
+        ps.cod_producto, 
+        ps.nombre, 
+        ps.iva, 
+        pp.precio_compra, 
+        ps.precio_venta,
+        pc.nombre AS nombre_proveedor
+    FROM producto_servicio ps
+    LEFT JOIN producto_proveedor pp ON ps.cod_producto = pp.cod_producto
+    LEFT JOIN proveedores_clientes pc ON pp.cod_actor = pc.cod_actor AND pc.tipo = 'proveedor'
+    LEFT JOIN almacen_producto_servicio aps ON ps.cod_producto = aps.cod_producto
+    LEFT JOIN almacen a ON aps.cod_almacen = a.cod_almacen
+";
+
 // Construir la consulta final
 $sql_final_producto = $sql_base_producto;
 if (!empty($sql_conditions_producto)) {
     $sql_final_producto .= " WHERE " . implode(" AND ", $sql_conditions_producto);
 }
-$sql_final_producto .= $orderByClause;
 
-// Preparar y ejecutar la consulta
-if (!isset($connection) || $connection === null) {
-    die("<p>Error crítico: La conexión a la base de datos no está disponible en productos.php.</p>");
+// Ordenamiento
+if ($busqueda_activa_producto) {
+    $columna_config = $campos_busqueda_config_producto[$campo_seleccionado_key_producto];
+    $columna_a_buscar_producto = $columna_config['column'];
+    $sql_final_producto .= " ORDER BY " . $columna_a_buscar_producto . " ASC, ps.nombre ASC";
+} else {
+    $sql_final_producto .= " ORDER BY ps.cod_producto ASC";
 }
+
+// Paginación
+$sql_final_producto .= " LIMIT ? OFFSET ?";
+$params_producto[] = $registros_por_pagina;
+$params_producto[] = $offset;
+$types_producto .= "ii";
+
 $stmt_producto = $connection->prepare($sql_final_producto);
 
 if ($stmt_producto) {
@@ -110,6 +155,7 @@ if ($stmt_producto) {
     <meta charset="UTF-8">
     <title>Productos</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/paginacion.css">
 </head>
 <body>
 <div class="general_container">
@@ -198,6 +244,30 @@ if ($stmt_producto) {
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <?php if ($total_paginas > 1): ?>
+            <div class="paginacion-container">
+                <div class="info-paginacion">
+                    Página <?php echo $pagina_actual; ?> de <?php echo $total_paginas; ?> (Total: <?php echo $total_registros; ?>)
+                </div>
+                <div class="paginacion">
+                    <?php if ($pagina_actual > 1): ?>
+                        <a href="<?php echo get_url_paginacion($pagina_actual - 1, $_GET); ?>">&laquo; Anterior</a>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                        <a href="<?php echo get_url_paginacion($i, $_GET); ?>" class="<?php echo ($i == $pagina_actual) ? 'actual' : ''; ?>">
+                            <?php echo $i; ?>
+                        </a>
+                    <?php endfor; ?>
+
+                    <?php if ($pagina_actual < $total_paginas): ?>
+                        <a href="<?php echo get_url_paginacion($pagina_actual + 1, $_GET); ?>">Siguiente &raquo;</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
     <?php else: ?>
         <div class="sin_resultados">
             <?php if ($busqueda_activa_producto): ?>

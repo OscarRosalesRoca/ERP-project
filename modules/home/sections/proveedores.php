@@ -1,6 +1,6 @@
 <?php
-require_once("../../config/config_path.php");
 
+require_once("../../config/config_path.php");
 require_once("../../includes/connection.php");
 require_once("../../includes/auth.php");
 
@@ -8,9 +8,16 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Dedinimos los campos por los que se puede buscar para proveedores
-// La clave es el nombre que tiene en la base de datos
-// En el array con "display" es lo que ve el usuario y "column" la columna real en la base de datos
+// Configuración de paginación
+$registros_por_pagina = 10;
+$pagina_actual = isset($_GET['pag']) ? (int)$_GET['pag'] : 1;
+if ($pagina_actual < 1) $pagina_actual = 1;
+$offset = ($pagina_actual - 1) * $registros_por_pagina;
+
+function get_url_paginacion($pagina, $params_get) {
+    $params_get['pag'] = $pagina;
+    return '?' . http_build_query($params_get);
+}
 
 $campos_busqueda_config_proveedor = [
     "cod_actor" => ["display" => "Código", "column" => "cod_actor"],
@@ -21,60 +28,34 @@ $campos_busqueda_config_proveedor = [
     "mail"      => ["display" => "Email", "column" => "mail"]
 ];
 
-// Valores iniciales para la búsqueda
-
 $campo_seleccionado_key_proveedor = "cod_actor"; 
 $termino_busqueda_proveedor = "";
-$proveedores = []; // Array para almacenar los proveedores recuperados
-$busqueda_activa_proveedor = false; // Para saber si se está realizando una búsqueda
+$proveedores = [];
+$busqueda_activa_proveedor = false;
 
-$sql_base_proveedor = "SELECT cod_actor, nombre, nif_dni, poblacion, direccion, telefono, mail 
-                        FROM proveedores_clientes 
-                        WHERE tipo = 'proveedor'"; 
-$sql_final_proveedor = $sql_base_proveedor;
+// Construcción de condiciones SQL
+$sql_where = " WHERE tipo = 'proveedor'"; 
 $params_proveedor = []; 
 $types_proveedor = "";  
 
-// Verificar si se envió el formulario de búsqueda y si el término de búsqueda no está vacío
-
 if (isset($_GET["buscar"]) && isset($_GET["termino"]) && trim($_GET["termino"]) !== "") {
     $busqueda_activa_proveedor = true;
-
-    // Validar y obtener el campo de búsqueda seleccionado
-
     if (isset($_GET["campo"]) && array_key_exists($_GET["campo"], $campos_busqueda_config_proveedor)) {
         $campo_seleccionado_key_proveedor = $_GET["campo"];
     }
-
-    // Obtener y limpiar el término de búsqueda
-
     $termino_busqueda_proveedor = trim($_GET["termino"]);
     $columna_a_buscar_proveedor = $campos_busqueda_config_proveedor[$campo_seleccionado_key_proveedor]["column"];
 
-    // Modificar la consulta SQL para la búsqueda
-
     if ($columna_a_buscar_proveedor == "cod_actor") { 
-        $sql_final_proveedor .= " AND " . $columna_a_buscar_proveedor . " = ?";
+        $sql_where .= " AND " . $columna_a_buscar_proveedor . " = ?";
         $params_proveedor[] = $termino_busqueda_proveedor;
         $types_proveedor .= "i"; 
-    } else { // Búsqueda parcial LIKE para otros campos de texto
-        $sql_final_proveedor .= " AND " . $columna_a_buscar_proveedor . " LIKE ?";
+    } else { 
+        $sql_where .= " AND " . $columna_a_buscar_proveedor . " LIKE ?";
         $params_proveedor[] = "%" . $termino_busqueda_proveedor . "%";
         $types_proveedor .= "s";
     }
-
-    // Si hay búsqueda activa, ordenamos por el campo de búsqueda o nombre
-
-    $sql_final_proveedor .= " ORDER BY " . $columna_a_buscar_proveedor . " ASC, nombre ASC";
-
 } else {
-
-    // Si no hay búsqueda activa (carga inicial o después de limpiar), ordenar por cod_actor
-
-    $sql_final_proveedor .= " ORDER BY cod_actor ASC";
-
-    // Si el usuario hizo clic en buscar pero el término estaba vacío, se considera "limpiar"
-
     if (isset($_GET['buscar']) && trim($_GET['termino']) === "") {
         $termino_busqueda_proveedor = ""; 
         $campo_seleccionado_key_proveedor = "cod_actor"; 
@@ -84,22 +65,46 @@ if (isset($_GET["buscar"]) && isset($_GET["termino"]) && trim($_GET["termino"]) 
 if (!isset($connection) || $connection === null) {
     die("<p>Error crítico: La conexión a la base de datos no está disponible en proveedores.php.</p>");
 }
+
+// Consulta de conteo
+$sql_conteo = "SELECT COUNT(*) as total FROM proveedores_clientes" . $sql_where;
+$stmt_conteo = $connection->prepare($sql_conteo);
+if (!empty($params_proveedor)) {
+    $stmt_conteo->bind_param($types_proveedor, ...$params_proveedor);
+}
+$stmt_conteo->execute();
+$res_conteo = $stmt_conteo->get_result();
+$row_conteo = $res_conteo->fetch_assoc();
+$total_registros = $row_conteo['total'];
+$total_paginas = ceil($total_registros / $registros_por_pagina);
+$stmt_conteo->close();
+
+// Consulta final
+$sql_final_proveedor = "SELECT cod_actor, nombre, nif_dni, poblacion, direccion, telefono, mail FROM proveedores_clientes" . $sql_where;
+
+// Ordenamiento
+if ($busqueda_activa_proveedor) {
+    $columna_a_buscar_proveedor = $campos_busqueda_config_proveedor[$campo_seleccionado_key_proveedor]["column"];
+    $sql_final_proveedor .= " ORDER BY " . $columna_a_buscar_proveedor . " ASC, nombre ASC";
+} else {
+    $sql_final_proveedor .= " ORDER BY cod_actor ASC";
+}
+
+// Paginación
+$sql_final_proveedor .= " LIMIT ? OFFSET ?";
+$params_proveedor[] = $registros_por_pagina;
+$params_proveedor[] = $offset;
+$types_proveedor .= "ii";
+
 $stmt_proveedor = $connection->prepare($sql_final_proveedor);
 
 if ($stmt_proveedor) {
-
-    // Si hay parámetros (es decir, si se está buscando y hay término), vincularlos
-
     if (!empty($params_proveedor)) {
         $stmt_proveedor->bind_param($types_proveedor, ...$params_proveedor);
     }
-
     if ($stmt_proveedor->execute()) {
         $resultado_proveedor = $stmt_proveedor->get_result();
         if ($resultado_proveedor) {
-
-            // Obtener todos los proveedores como un array asociativo
-
             $proveedores = $resultado_proveedor->fetch_all(MYSQLI_ASSOC);
         } else {
             die("<p>Error al obtener resultados de proveedores: " . $connection->error . "</p>");
@@ -119,6 +124,7 @@ if ($stmt_proveedor) {
     <meta charset="UTF-8">
     <title>Proveedores</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/paginacion.css">
 </head>
 <body>
 <div class="general_container">
@@ -131,7 +137,7 @@ if ($stmt_proveedor) {
                 <select name="campo" id="campo_busqueda_proveedor">
                     <?php foreach ($campos_busqueda_config_proveedor as $key => $config): ?>
                         <option value="<?php echo htmlspecialchars($key); ?>" <?php if ($campo_seleccionado_key_proveedor == $key) echo 'selected'; ?>>
-                            <?php echo htmlspecialchars($config["display"]); // Mostrar 'display' al usuario ?>
+                            <?php echo htmlspecialchars($config["display"]); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -176,6 +182,30 @@ if ($stmt_proveedor) {
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <?php if ($total_paginas > 1): ?>
+            <div class="paginacion-container">
+                <div class="info-paginacion">
+                    Página <?php echo $pagina_actual; ?> de <?php echo $total_paginas; ?> (Total: <?php echo $total_registros; ?>)
+                </div>
+                <div class="paginacion">
+                    <?php if ($pagina_actual > 1): ?>
+                        <a href="<?php echo get_url_paginacion($pagina_actual - 1, $_GET); ?>">&laquo; Anterior</a>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                        <a href="<?php echo get_url_paginacion($i, $_GET); ?>" class="<?php echo ($i == $pagina_actual) ? 'actual' : ''; ?>">
+                            <?php echo $i; ?>
+                        </a>
+                    <?php endfor; ?>
+
+                    <?php if ($pagina_actual < $total_paginas): ?>
+                        <a href="<?php echo get_url_paginacion($pagina_actual + 1, $_GET); ?>">Siguiente &raquo;</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
     <?php else: ?>
         <div class="sin_resultados">
             <?php if ($busqueda_activa_proveedor): ?>

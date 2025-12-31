@@ -3,8 +3,20 @@ session_start();
 
 require_once(__DIR__ . "/../../config/config_path.php"); 
 
-// Si no hay sesión iniciada vamos a login
-if (!isset($_SESSION["usuario_id"])) {
+// Comprobamos si falla algo
+if (!isset($_SESSION["usuario_id"]) || !isset($_SESSION["rol_id"])) {
+    header("Location: " . BASE_URL . "/modules/login/login.php");
+    exit;
+}
+
+// Si el usuario es ADMIN (rol 1)
+if ($_SESSION["rol_id"] == 1) {
+    header("Location: " . BASE_URL . "/modules/home/admin_home.php");
+    exit;
+}
+
+// Si el usuario NO es Empleado (rol 2)
+if ($_SESSION["rol_id"] != 2) {
     header("Location: " . BASE_URL . "/modules/login/login.php");
     exit;
 }
@@ -12,11 +24,10 @@ if (!isset($_SESSION["usuario_id"])) {
 $pagina = $_GET["pagina"] ?? "personal"; // Página por defecto
 $permitidas = ["personal", "historial", "clientes", "proveedores", "almacenes", "productos", "facturas"];
 
+// Lógica de la imagen de perfil
 $foto_perfil_src = BASE_URL . "/assets/img/default_user.jpg"; 
 if (isset($_SESSION['foto_perfil']) && !empty($_SESSION['foto_perfil'])) {
-    if ($_SESSION['foto_perfil'] == 'default_user.jpg') {
-        $foto_perfil_src = BASE_URL . "/assets/img/default_user.jpg";
-    } else {
+    if ($_SESSION['foto_perfil'] !== 'default_user.jpg') {
         // Si en la base de datos el empleado tiene una foto asociada, la cambiamos
         $foto_perfil_src = BASE_URL . "/uploads/fotos_perfil/" . $_SESSION['foto_perfil'];
     }

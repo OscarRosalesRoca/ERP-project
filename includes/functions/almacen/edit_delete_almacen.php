@@ -7,11 +7,11 @@ require_once("../../../includes/auth.php");
 $cod_almacen = $_GET["cod"] ?? null;
 
 if (!$cod_almacen) {
-    echo "<p>Error: almacen no especificado.</p>";
+    echo "<p>Error: almacén no especificado.</p>";
     exit;
 }
 
-// Obtener datos actuales del almacen
+// Obtener datos actuales del almacén
 $query = "SELECT * FROM almacen WHERE cod_almacen = ?";
 $stmt = $connection->prepare($query);
 $stmt->bind_param("i", $cod_almacen);
@@ -20,38 +20,67 @@ $resultado = $stmt->get_result();
 $almacen = $resultado->fetch_assoc();
 
 if (!$almacen) {
-    echo "<p>Error: almacen no encontrado.</p>";
+    echo "<p>Error: almacén no encontrado.</p>";
     exit;
 }
 
 $errores = [];
 
+// Borrado
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_almacen"])) {
-    // Eliminar almacen
+    // Nota: Aquí sería ideal verificar si hay productos en este almacén antes de borrar (Integridad Referencial)
+    // De momento lo dejamos como borrado simple.
     $stmt = $connection->prepare("DELETE FROM almacen WHERE cod_almacen = ?");
     $stmt->bind_param("i", $cod_almacen);
-    $stmt->execute();
-
-    header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=almacenes");
-    exit;
+    
+    if ($stmt->execute()) {
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=almacenes&mensaje=eliminado");
+        exit;
+    } else {
+        $errores[] = "Error al eliminar: " . $connection->error;
+    }
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Si se presiona guardar cambios
-    if (isset($_POST["ubicacion"])) {
-        $ubicacion = trim($_POST["ubicacion"]);
+// Edición
+if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_almacen"])) {
+    $ubicacion = trim($_POST["ubicacion"]);
 
-        // Si no hay errores procesamos actualizaciones
-        if (empty($errores)) {
-            // Nombre
-            if (!empty($ubicacion) && $ubicacion !== $almacen["ubicacion"]) {
-                $stmt = $connection->prepare("UPDATE almacen SET ubicacion = ? WHERE cod_almacen = ?");
-                $stmt->bind_param("si", $ubicacion, $cod_almacen);
-                $stmt->execute();
-            }
+    if (empty($ubicacion)) {
+        $errores[] = "La ubicación es obligatoria.";
+    }
+
+    // Validación de duplicados (excluyendo el propio almacén)
+    if (empty($errores)) {
+        $campos_repetidos = [];
         
-            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=almacenes");
+        $sql_check = "SELECT cod_almacen FROM almacen WHERE ubicacion = ? AND cod_almacen != ?";
+        $stmt_check = $connection->prepare($sql_check);
+        $stmt_check->bind_param("si", $ubicacion, $cod_almacen);
+        $stmt_check->execute();
+        $stmt_check->store_result();
+
+        if ($stmt_check->num_rows > 0) {
+            $campos_repetidos[] = "ubicación";
+        }
+        $stmt_check->close();
+
+        if (count($campos_repetidos) > 0) {
+            $lista = implode(" y ", $campos_repetidos);
+            $errores[] = "Los datos que ha introducido ($lista) ya están registrados y por lo tanto no son válidos.";
+        }
+    }
+
+    // Actualizar si no hay errores
+    if (empty($errores)) {
+        // Solo actualizamos si ha cambiado
+        $stmt = $connection->prepare("UPDATE almacen SET ubicacion = ? WHERE cod_almacen = ?");
+        $stmt->bind_param("si", $ubicacion, $cod_almacen);
+        
+        if ($stmt->execute()) {
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=almacenes&mensaje=actualizado");
             exit;
+        } else {
+            $errores[] = "Error al actualizar: " . $connection->error;
         }
     }
 }
@@ -61,13 +90,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Editar almacen</title>
+    <title>Editar Almacén</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/functions_style/general_create_edit_delete_style.css">
 </head>
 <body>
 <div class="fondo">
     <div class="card">
-        <h2>Editar almacen</h2>
+        <h2>Editar almacén</h2>
 
         <?php if (!empty($errores)): ?>
             <div class="errores">
@@ -79,13 +108,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <form method="POST">
             <label>Ubicación</label>
-            <input type="text" name="ubicacion" value="<?= htmlspecialchars($almacen["ubicacion"]) ?>" placeholder="<?= htmlspecialchars($almacen["ubicacion"]) ?>">
+            <input type="text" name="ubicacion" value="<?= htmlspecialchars($_POST["ubicacion"] ?? $almacen["ubicacion"]) ?>" required>
 
             <div class="botones">
                 <button type="submit">Guardar cambios</button>
                 <p>o</p>
-                <button type="submit" name="eliminar_almacen" class="eliminar_boton" onclick="return confirm('¿Eliminar almacen? Esta acción no se puede deshacer.')">
-                    <p>Eliminar almacen</p>
+                <button type="submit" name="eliminar_almacen" class="eliminar_boton" onclick="return confirm('¿Eliminar almacén? Esta acción no se puede deshacer.')">
+                    <p>Eliminar almacén</p>
                 </button>
             </div>
             <div style="margin-top: 10px;">

@@ -4,6 +4,8 @@ require_once("../../../config/config_path.php");
 require_once("../../../includes/connection.php");
 require_once("../../../includes/auth.php");
 
+// Inicializar variables para persistencia (que no se borre el formulario al fallar)
+$nombre = $nif_dni = $poblacion = $direccion = $mail = $telefono = "";
 $errores = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -16,13 +18,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Validaciones
     if (empty($nombre) || empty($nif_dni) || empty($direccion) || empty($mail) || empty($telefono)) {
-        $errores[] = "Nombre, DNI, dirección, correo electrónico y teléfono son obligatorios.";
+        $errores[] = "Todos los campos obligatorios deben rellenarse.";
     }
 
     if (!empty($mail) && !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
         $errores[] = "El correo electrónico no es válido.";
     }
 
+    // Detección de duplicados
+    if (empty($errores)) {
+        $campos_repetidos = [];
+        
+        // Verificamos si ya existe un cliente con ese dni, mail o teléfono
+        $check = $connection->prepare("SELECT nif_dni, mail, telefono FROM proveedores_clientes WHERE nif_dni = ? OR mail = ? OR telefono = ?");
+        $check->bind_param("sss", $nif_dni, $mail, $telefono);
+        $check->execute();
+        $res = $check->get_result();
+
+        while ($fila = $res->fetch_assoc()) {
+            if (strtolower($fila['nif_dni']) === strtolower($nif_dni)) {
+                $campos_repetidos[] = "DNI";
+            }
+            if (strtolower($fila['mail']) === strtolower($mail)) {
+                $campos_repetidos[] = "correo electrónico";
+            }
+            if ($fila['telefono'] === $telefono) {
+                $campos_repetidos[] = "teléfono";
+            }
+        }
+        $check->close();
+
+        if (count($campos_repetidos) > 0) {
+            $unique_errors = array_unique($campos_repetidos);
+            $lista = implode(" y ", $unique_errors);
+            
+            $errores[] = "Los datos que ha introducido ($lista) ya están registrados y por lo tanto no son válidos.";
+        }
+    }
+
+    // Insertar si no hay errores
     if (empty($errores)) {
         $stmt = $connection->prepare("
             INSERT INTO proveedores_clientes (nombre, nif_dni, poblacion, direccion, mail, telefono, tipo)
@@ -34,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=clientes&mensaje=cliente_creado");
             exit;
         } else {
-            $errores[] = "Error al insertar el cliente: " . $connection->error;
+            $errores[] = "Error al insertar en la base de datos: " . $connection->error;
         }
     }
 }
@@ -61,23 +95,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?php endif; ?>
 
         <form method="POST">
-            <label>Nombre</label>
-            <input type="text" name="nombre" required>
+            <label>Nombre *</label>
+            <input type="text" name="nombre" value="<?= htmlspecialchars($nombre) ?>" required>
 
-            <label>DNI</label>
-            <input type="text" name="nif_dni" required>
+            <label>DNI *</label>
+            <input type="text" name="nif_dni" value="<?= htmlspecialchars($nif_dni) ?>" required>
 
             <label>Población</label>
-            <input type="text" name="poblacion">
+            <input type="text" name="poblacion" value="<?= htmlspecialchars($poblacion) ?>">
 
-            <label>Dirección</label>
-            <input type="text" name="direccion" required>
+            <label>Dirección *</label>
+            <input type="text" name="direccion" value="<?= htmlspecialchars($direccion) ?>" required>
 
-            <label>Correo electrónico</label>
-            <input type="email" name="mail" required>
+            <label>Correo electrónico *</label>
+            <input type="email" name="mail" value="<?= htmlspecialchars($mail) ?>" required>
 
-            <label>Teléfono</label>
-            <input type="text" name="telefono" required>
+            <label>Teléfono *</label>
+            <input type="text" name="telefono" value="<?= htmlspecialchars($telefono) ?>" required>
 
             <div class="botones">
                 <button type="submit">Crear cliente</button>

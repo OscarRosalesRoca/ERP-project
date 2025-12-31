@@ -8,6 +8,17 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Configuración de paginación
+$registros_por_pagina = 10;
+$pagina_actual = isset($_GET['pag']) ? (int)$_GET['pag'] : 1;
+if ($pagina_actual < 1) $pagina_actual = 1;
+$offset = ($pagina_actual - 1) * $registros_por_pagina;
+
+function get_url_paginacion($pagina, $params_get) {
+    $params_get['pag'] = $pagina;
+    return '?' . http_build_query($params_get);
+}
+
 $campos_busqueda_config_almacen = [
     'cod_almacen' => ['display' => 'Código', 'column' => 'cod_almacen'],
     'ubicacion'   => ['display' => 'Ubicación', 'column' => 'ubicacion']
@@ -19,8 +30,8 @@ $almacenes = [];
 $busqueda_activa_almacen = false;
 
 
-$sql_base_almacen = "SELECT cod_almacen, ubicacion FROM almacen";
-$sql_final_almacen = "";
+// Condiciones SQL Base
+$sql_where = "";
 $params_almacen = [];
 $types_almacen = "";
 
@@ -33,17 +44,15 @@ if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) 
     $columna_a_buscar_almacen = $campos_busqueda_config_almacen[$campo_seleccionado_key_almacen]['column'];
 
     if ($columna_a_buscar_almacen == 'cod_almacen') { 
-        $sql_final_almacen = $sql_base_almacen . " WHERE " . $columna_a_buscar_almacen . " = ?";
+        $sql_where = " WHERE " . $columna_a_buscar_almacen . " = ?";
         $params_almacen[] = $termino_busqueda_almacen;
         $types_almacen .= "i";
-    } else { // Búsqueda parcial (LIKE) para ubicación
-        $sql_final_almacen = $sql_base_almacen . " WHERE " . $columna_a_buscar_almacen . " LIKE ?";
+    } else { 
+        $sql_where = " WHERE " . $columna_a_buscar_almacen . " LIKE ?";
         $params_almacen[] = "%" . $termino_busqueda_almacen . "%";
         $types_almacen .= "s";
     }
-    $sql_final_almacen .= " ORDER BY " . $columna_a_buscar_almacen . " ASC";
 } else {
-    $sql_final_almacen = $sql_base_almacen . " ORDER BY cod_almacen ASC";
     if (isset($_GET['buscar']) && trim($_GET['termino']) === '') {
         $termino_busqueda_almacen = '';
         $campo_seleccionado_key_almacen = 'cod_almacen';
@@ -53,6 +62,37 @@ if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) 
 if (!isset($connection) || $connection === null) {
     die("<p>Error crítico: La conexión a la base de datos no está disponible en almacenes.php.</p>");
 }
+
+// Consulta de conteo
+$sql_conteo = "SELECT COUNT(*) as total FROM almacen" . $sql_where;
+$stmt_conteo = $connection->prepare($sql_conteo);
+if (!empty($params_almacen)) {
+    $stmt_conteo->bind_param($types_almacen, ...$params_almacen);
+}
+$stmt_conteo->execute();
+$res_conteo = $stmt_conteo->get_result();
+$row_conteo = $res_conteo->fetch_assoc();
+$total_registros = $row_conteo['total'];
+$total_paginas = ceil($total_registros / $registros_por_pagina);
+$stmt_conteo->close();
+
+// Consulta final
+$sql_final_almacen = "SELECT cod_almacen, ubicacion FROM almacen" . $sql_where;
+
+// Ordenamiento
+if ($busqueda_activa_almacen) {
+    $columna_a_buscar_almacen = $campos_busqueda_config_almacen[$campo_seleccionado_key_almacen]['column'];
+    $sql_final_almacen .= " ORDER BY " . $columna_a_buscar_almacen . " ASC";
+} else {
+    $sql_final_almacen .= " ORDER BY cod_almacen ASC";
+}
+
+// Paginación
+$sql_final_almacen .= " LIMIT ? OFFSET ?";
+$params_almacen[] = $registros_por_pagina;
+$params_almacen[] = $offset;
+$types_almacen .= "ii";
+
 $stmt_almacen = $connection->prepare($sql_final_almacen);
 
 if ($stmt_almacen) {
@@ -82,6 +122,7 @@ if ($stmt_almacen) {
         <meta charset="UTF-8">
         <title>Almacenes</title>
         <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
+        <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/paginacion.css">
     </head>
     <body>
         <div class="general_container">
@@ -132,6 +173,30 @@ if ($stmt_almacen) {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+
+                <?php if ($total_paginas > 1): ?>
+                    <div class="paginacion-container">
+                        <div class="info-paginacion">
+                            Página <?php echo $pagina_actual; ?> de <?php echo $total_paginas; ?> (Total: <?php echo $total_registros; ?>)
+                        </div>
+                        <div class="paginacion">
+                            <?php if ($pagina_actual > 1): ?>
+                                <a href="<?php echo get_url_paginacion($pagina_actual - 1, $_GET); ?>">&laquo; Anterior</a>
+                            <?php endif; ?>
+
+                            <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                                <a href="<?php echo get_url_paginacion($i, $_GET); ?>" class="<?php echo ($i == $pagina_actual) ? 'actual' : ''; ?>">
+                                    <?php echo $i; ?>
+                                </a>
+                            <?php endfor; ?>
+
+                            <?php if ($pagina_actual < $total_paginas): ?>
+                                <a href="<?php echo get_url_paginacion($pagina_actual + 1, $_GET); ?>">Siguiente &raquo;</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
             <?php else: ?>
                 <div class="sin_resultados">
                     <?php if ($busqueda_activa_almacen): ?>

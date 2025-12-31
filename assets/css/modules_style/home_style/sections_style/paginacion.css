@@ -1,0 +1,31 @@
+.paginacion {
+    margin-top: 20px; 
+    text-align: center; 
+    display: flex; 
+    justify-content: center; 
+    gap: 5px; 
+}
+
+.paginacion a, .paginacion span { 
+    padding: 8px 12px; 
+    border: 1px solid #ddd; 
+    text-decoration: none; 
+    color: #333; 
+    border-radius: 4px; 
+}
+
+.paginacion .actual { 
+    background-color: #007bff; 
+    color: white; 
+    border-color: #007bff; }
+
+.paginacion a:hover { 
+    background-color: #f0f0f0; 
+}
+
+.info-paginacion { 
+    text-align: right; 
+    font-size: 0.9em; 
+    color: #666; 
+    margin-bottom: 5px; 
+}

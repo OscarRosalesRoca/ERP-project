@@ -26,17 +26,22 @@ if (!$proveedor) {
 
 $errores = [];
 
+// Borrado 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["eliminar_proveedor"])) {
     // Eliminar proveedor
     $stmt = $connection->prepare("DELETE FROM proveedores_clientes WHERE cod_actor = ?");
     $stmt->bind_param("i", $cod_actor);
-    $stmt->execute();
-
-    header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=proveedores");
-    exit;
+    
+    if ($stmt->execute()) {
+        header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=proveedores&mensaje=eliminado");
+        exit;
+    } else {
+        $errores[] = "Error al eliminar: " . $connection->error;
+    }
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+// Edición
+if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST["eliminar_proveedor"])) {
     $nombre = trim($_POST["nombre"]);
     $dni = trim($_POST["nif_dni"]);
     $poblacion = trim($_POST["poblacion"]);
@@ -48,46 +53,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errores[] = "El correo electrónico no es válido.";
     }
 
-    // Si no hay errores procesamos actualizaciones
+    // Validar duplicados en otros registros
+    // IMPORTANTE: AND cod_actor != ? para excluirse a sí mismo
     if (empty($errores)) {
-        if (!empty($nombre) && $nombre !== $proveedor["nombre"]) {
-            $stmt = $connection->prepare("UPDATE proveedores_clientes SET nombre = ? WHERE cod_actor = ?");
-            $stmt->bind_param("si", $nombre, $cod_actor);
-            $stmt->execute();
-        }
+        $campos_repetidos = [];
+        
+        $sql_check = "SELECT nif_dni, mail, telefono FROM proveedores_clientes WHERE (nif_dni = ? OR mail = ? OR telefono = ?) AND cod_actor != ?";
+        $stmt_check = $connection->prepare($sql_check);
+        $stmt_check->bind_param("sssi", $dni, $mail, $telefono, $cod_actor);
+        $stmt_check->execute();
+        $res_check = $stmt_check->get_result();
 
-        if (!empty($dni) && $dni !== $proveedor["nif_dni"]) {
-            $stmt = $connection->prepare("UPDATE proveedores_clientes SET nif_dni = ? WHERE cod_actor = ?");
-            $stmt->bind_param("si", $dni, $cod_actor);
-            $stmt->execute();
+        while ($fila = $res_check->fetch_assoc()) {
+            if (strtolower($fila['nif_dni']) === strtolower($dni)) {
+                $campos_repetidos[] = "DNI";
+            }
+            if (strtolower($fila['mail']) === strtolower($mail)) {
+                $campos_repetidos[] = "correo electrónico";
+            }
+            if ($fila['telefono'] === $telefono) {
+                $campos_repetidos[] = "teléfono";
+            }
         }
+        $stmt_check->close();
 
-        if (!empty($poblacion) && $poblacion !== $proveedor["poblacion"]) {
-            $stmt = $connection->prepare("UPDATE proveedores_clientes SET poblacion = ? WHERE cod_actor = ?");
-            $stmt->bind_param("si", $poblacion, $cod_actor);
-            $stmt->execute();
+        if (count($campos_repetidos) > 0) {
+            $unique_errors = array_unique($campos_repetidos);
+            $lista = implode(" y ", $unique_errors);
+            
+            // Mensaje estandarizado
+            $errores[] = "Los datos que ha introducido ($lista) ya están registrados y por lo tanto no son válidos.";
         }
+    }
 
-        if (!empty($direccion) && $direccion !== $proveedor["direccion"]) {
-            $stmt = $connection->prepare("UPDATE proveedores_clientes SET direccion = ? WHERE cod_actor = ?");
-            $stmt->bind_param("si", $direccion, $cod_actor);
-            $stmt->execute();
+    // Actualizar si no hay errores
+    if (empty($errores)) {
+        $sql_update = "UPDATE proveedores_clientes SET nombre=?, nif_dni=?, poblacion=?, direccion=?, mail=?, telefono=? WHERE cod_actor=?";
+        $stmt_update = $connection->prepare($sql_update);
+        $stmt_update->bind_param("ssssssi", $nombre, $dni, $poblacion, $direccion, $mail, $telefono, $cod_actor);
+        
+        if ($stmt_update->execute()) {
+            header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=proveedores&mensaje=actualizado");
+            exit;
+        } else {
+            $errores[] = "Error al actualizar: " . $connection->error;
         }
-
-        if (!empty($mail) && $mail !== $proveedor["mail"]) {
-            $stmt = $connection->prepare("UPDATE proveedores_clientes SET mail = ? WHERE cod_actor = ?");
-            $stmt->bind_param("si", $mail, $cod_actor);
-            $stmt->execute();
-        }
-
-        if (!empty($telefono) && $telefono !== $proveedor["telefono"]) {
-            $stmt = $connection->prepare("UPDATE proveedores_clientes SET telefono = ? WHERE cod_actor = ?");
-            $stmt->bind_param("si", $telefono, $cod_actor);
-            $stmt->execute();
-        }
-    
-        header("Location: " . BASE_URL . "/modules/home/empleado_home.php?pagina=proveedores");
-        exit;
     }
 }
 ?>
@@ -114,22 +124,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <form method="POST">
             <label>Nombre</label>
-            <input type="text" name="nombre" placeholder="<?= htmlspecialchars($proveedor["nombre"]) ?>" value="<?= htmlspecialchars($_POST["nombre"] ?? $proveedor["nombre"]) ?>">
+            <input type="text" name="nombre" value="<?= htmlspecialchars($_POST["nombre"] ?? $proveedor["nombre"]) ?>" required>
 
-            <label>DNI</label>
-            <input type="text" name="nif_dni" placeholder="<?= htmlspecialchars($proveedor["nif_dni"]) ?>" value="<?= htmlspecialchars($_POST["nif_dni"] ?? $proveedor["nif_dni"]) ?>">
+            <label>NIF</label>
+            <input type="text" name="nif_dni" value="<?= htmlspecialchars($_POST["nif_dni"] ?? $proveedor["nif_dni"]) ?>" required>
 
             <label>Población</label>
-            <input type="text" name="poblacion" placeholder="<?= htmlspecialchars($proveedor["poblacion"]) ?>" value="<?= htmlspecialchars($_POST["poblacion"] ?? $proveedor["poblacion"]) ?>">
+            <input type="text" name="poblacion" value="<?= htmlspecialchars($_POST["poblacion"] ?? $proveedor["poblacion"]) ?>">
 
             <label>Dirección</label>
-            <input type="text" name="direccion" placeholder="<?= htmlspecialchars($proveedor["direccion"]) ?>" value="<?= htmlspecialchars($_POST["direccion"] ?? $proveedor["direccion"]) ?>">
+            <input type="text" name="direccion" value="<?= htmlspecialchars($_POST["direccion"] ?? $proveedor["direccion"]) ?>" required>
 
             <label>Correo electrónico</label>
-            <input type="email" name="mail" placeholder="<?= htmlspecialchars($proveedor["mail"]) ?>" value="<?= htmlspecialchars($_POST["mail"] ?? $proveedor["mail"]) ?>">
+            <input type="email" name="mail" value="<?= htmlspecialchars($_POST["mail"] ?? $proveedor["mail"]) ?>" required>
 
             <label>Teléfono</label>
-            <input type="text" name="telefono" placeholder="<?= htmlspecialchars($proveedor["telefono"]) ?>" value="<?= htmlspecialchars($_POST["telefono"] ?? $proveedor["telefono"]) ?>">
+            <input type="text" name="telefono" value="<?= htmlspecialchars($_POST["telefono"] ?? $proveedor["telefono"]) ?>" required>
 
             <div class="botones">
                 <button type="submit">Guardar cambios</button>

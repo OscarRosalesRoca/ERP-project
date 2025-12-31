@@ -8,10 +8,18 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Configuración de paginación
+$registros_por_pagina = 10; 
+$pagina_actual = isset($_GET['pag']) ? (int)$_GET['pag'] : 1;
+if ($pagina_actual < 1) $pagina_actual = 1;
+
+// Calculamos el OFFSET (Lo que nos saltamos)
+$offset = ($pagina_actual - 1) * $registros_por_pagina;
+
 $campos_busqueda_config_historial = [
     'num_factura'       => ['display' => 'Nº Factura', 'column' => 'f.num_factura', 'type' => 'number'],
     'cod_empleado'      => ['display' => 'Cód. Empleado', 'column' => 'f.cod_empleado', 'type' => 'number'],
-    'nombre_empleado'   => ['display' => 'Nombre Empleado', 'column' => 'e.nombre', 'type' => 'text'], // Necesita JOIN con empleado
+    'nombre_empleado'   => ['display' => 'Nombre Empleado', 'column' => 'e.nombre', 'type' => 'text'],
     'cod_actor'         => ['display' => 'Cód. Actor', 'column' => 'f.cod_actor', 'type' => 'number'],
     'actor_nombre_snapshot' => ['display' => 'Nombre Actor (Factura)', 'column' => 'f.actor_nombre_snapshot', 'type' => 'text'],
     'fecha_creacion'    => ['display' => 'Fecha (YYYY-MM-DD)', 'column' => 'DATE(f.fecha_creacion)', 'type' => 'date'],
@@ -23,18 +31,26 @@ $termino_busqueda_historial = '';
 $facturas = [];
 $busqueda_activa_historial = false;
 
+// Consulta base
 $sql_base_historial = "
     SELECT 
         f.num_factura,
         f.tipo,
         f.cod_empleado,
-        f.empleado_nombre_snapshot, -- Usar snapshot para mostrar
+        f.empleado_nombre_snapshot,
         f.cod_actor,
-        f.actor_nombre_snapshot,    -- Usar snapshot para mostrar
+        f.actor_nombre_snapshot,
         f.total_factura,
         f.fecha_creacion
     FROM facturas f
-    LEFT JOIN empleado e ON f.cod_empleado = e.cod_empleado -- JOIN para buscar por nombre de empleado real
+    LEFT JOIN empleado e ON f.cod_empleado = e.cod_empleado
+";
+
+// Consulta para contar el total de resultados
+$sql_conteo_base = "
+    SELECT COUNT(*) as total 
+    FROM facturas f
+    LEFT JOIN empleado e ON f.cod_empleado = e.cod_empleado
 ";
 
 $sql_conditions_historial = [];
@@ -58,7 +74,7 @@ if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) 
         $sql_conditions_historial[] = $columna_a_buscar . " = ?"; 
         $params_historial[] = $termino_busqueda_historial;
         $types_historial .= "s";
-    } else { // text (LIKE)
+    } else {
         $sql_conditions_historial[] = $columna_a_buscar . " LIKE ?";
         $params_historial[] = "%" . $termino_busqueda_historial . "%";
         $types_historial .= "s";
@@ -72,15 +88,42 @@ if (isset($_GET['buscar']) && isset($_GET['termino']) && trim($_GET['termino']) 
     }
 }
 
+if (!isset($connection) || $connection === null) {
+    die("<p>Error crítico: La conexión a la base de datos no está disponible.</p>");
+}
+
+// Usamos las mismas condiciones WHERE para saber cuántos hay en total con esta búsqueda
+$sql_final_conteo = $sql_conteo_base;
+if (!empty($sql_conditions_historial)) {
+    $sql_final_conteo .= " WHERE " . implode(" AND ", $sql_conditions_historial);
+}
+
+$stmt_conteo = $connection->prepare($sql_final_conteo);
+if (!empty($params_historial)) {
+    $stmt_conteo->bind_param($types_historial, ...$params_historial);
+}
+$stmt_conteo->execute();
+$res_conteo = $stmt_conteo->get_result();
+$fila_conteo = $res_conteo->fetch_assoc();
+$total_registros = $fila_conteo['total'];
+$total_paginas = ceil($total_registros / $registros_por_pagina); // ceil redondea hacia arriba (ej: 11 reg / 10 = 1.1 -> 2 páginas)
+$stmt_conteo->close();
+
+// Consulta
 $sql_final_historial = $sql_base_historial;
 if (!empty($sql_conditions_historial)) {
     $sql_final_historial .= " WHERE " . implode(" AND ", $sql_conditions_historial);
 }
 $sql_final_historial .= $orderByClause;
 
-if (!isset($connection) || $connection === null) {
-    die("<p>Error crítico: La conexión a la base de datos no está disponible en historial.php.</p>");
-}
+// Añadimos limit y offset
+$sql_final_historial .= " LIMIT ? OFFSET ?";
+
+// Añadimos los parámetros de limit y offset al array de parámetros
+$params_historial[] = $registros_por_pagina;
+$params_historial[] = $offset;
+$types_historial .= "ii"; // Dos enteros más
+
 $stmt_historial = $connection->prepare($sql_final_historial);
 
 if ($stmt_historial) {
@@ -92,16 +135,21 @@ if ($stmt_historial) {
         if ($resultado_historial) {
             $facturas = $resultado_historial->fetch_all(MYSQLI_ASSOC);
         } else {
-            die("<p>Error al obtener resultados del historial: " . $connection->error . "</p>");
+            die("<p>Error al obtener resultados: " . $connection->error . "</p>");
         }
         $stmt_historial->close();
     } else {
-        die("<p>Error al ejecutar la consulta del historial: " . $stmt_historial->error . "</p>");
+        die("<p>Error al ejecutar: " . $stmt_historial->error . "</p>");
     }
 } else {
-    die("<p>Error al preparar la consulta del historial: " . $connection->error . "</p>");
+    die("<p>Error al preparar: " . $connection->error . "</p>");
 }
 
+// Función auxiliar para mantener los filtros al cambiar de página
+function get_url_paginacion($pagina, $params_get) {
+    $params_get['pag'] = $pagina;
+    return '?' . http_build_query($params_get);
+}
 ?>
 
 <!DOCTYPE html>
@@ -111,6 +159,7 @@ if ($stmt_historial) {
     <title>Historial de Actividad</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/general_sections_style.css">
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/style_historial.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modules_style/home_style/sections_style/paginacion.css">
 </head>
 <body>
 <div class="general_container historial_container"> 
@@ -120,7 +169,6 @@ if ($stmt_historial) {
         <div class="contenedor_busqueda">
             <form action="<?php echo BASE_URL; ?>/modules/home/empleado_home.php" method="GET" class="formulario_busqueda">
                 <input type="hidden" name="pagina" value="historial">
-                
                 <label for="campo_busqueda_historial">Buscar por:</label>
                 <select name="campo" id="campo_busqueda_historial">
                     <?php foreach ($campos_busqueda_config_historial as $key => $config): ?>
@@ -152,6 +200,10 @@ if ($stmt_historial) {
                 <a href="<?php echo BASE_URL; ?>/modules/home/empleado_home.php?pagina=historial" class="boton_limpiar">Limpiar</a>
             </form>
         </div>
+    </div>
+
+    <div class="info-paginacion">
+        Mostrando <?php echo count($facturas); ?> de <?php echo $total_registros; ?> registros. (Página <?php echo $pagina_actual; ?> de <?php echo $total_paginas; ?>)
     </div>
 
     <?php if (!empty($facturas)): ?>
@@ -187,6 +239,27 @@ if ($stmt_historial) {
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <?php if ($total_paginas > 1): ?>
+            <div class="paginacion">
+                <?php if ($pagina_actual > 1): ?>
+                    <a href="<?php echo get_url_paginacion($pagina_actual - 1, $_GET); ?>">&laquo; Anterior</a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                    <?php if ($i == $pagina_actual): ?>
+                        <span class="actual"><?php echo $i; ?></span>
+                    <?php else: ?>
+                        <a href="<?php echo get_url_paginacion($i, $_GET); ?>"><?php echo $i; ?></a>
+                    <?php endif; ?>
+                <?php endfor; ?>
+
+                <?php if ($pagina_actual < $total_paginas): ?>
+                    <a href="<?php echo get_url_paginacion($pagina_actual + 1, $_GET); ?>">Siguiente &raquo;</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
     <?php else: ?>
         <div class="sin_resultados">
             <?php if ($busqueda_activa_historial): ?>
@@ -203,16 +276,13 @@ if ($stmt_historial) {
         const campoBusquedaSelect = document.getElementById('campo_busqueda_historial');
         // Comprobar si el elemento existe antes de acceder a parentElement
         const terminoBusquedaInput = document.getElementById('termino_busqueda_historial');
-        const terminoBusquedaContainer = terminoBusquedaInput ? terminoBusquedaInput.parentElement : null; 
-        
+        const terminoBusquedaContainer = terminoBusquedaInput ? terminoBusquedaInput.parentElement : null;
         const camposConfigJs = <?php echo json_encode($campos_busqueda_config_historial); ?>;
-
         if (campoBusquedaSelect && terminoBusquedaContainer) {
             campoBusquedaSelect.addEventListener('change', function() {
                 const selectedKey = this.value;
                 const config = camposConfigJs[selectedKey];
                 let nuevoInputHtml = '';
-
                 if (config.type === 'select' && config.options) {
                     nuevoInputHtml = `<select name="termino" id="termino_busqueda_historial">`;
                     nuevoInputHtml += `<option value="">-- Todos --</option>`;
@@ -223,12 +293,11 @@ if ($stmt_historial) {
                 } else {
                     nuevoInputHtml = `<input type="${config.type}" name="termino" id="termino_busqueda_historial" value="" placeholder="Introduce término...">`;
                 }
-                
                 const oldTerminoInput = document.getElementById('termino_busqueda_historial');
                 if (oldTerminoInput) {
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = nuevoInputHtml;
-                    
+
                     // Reemplazar el input/select de término actual
                     oldTerminoInput.parentNode.replaceChild(tempDiv.firstChild, oldTerminoInput);
                 }

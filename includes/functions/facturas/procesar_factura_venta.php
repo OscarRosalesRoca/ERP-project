@@ -1,8 +1,8 @@
 <?php
 
 require_once("../../../config/config_path.php");
-require_once("../../../includes/connection.php"); 
-require_once("../../../includes/auth.php");       
+require_once("../../../includes/connection.php");
+require_once("../../../includes/auth.php");
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -12,7 +12,7 @@ $errores_factura = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta'])) {
 
-    //Recoger datos generales de la factura de venta
+    // Recoger datos generales de la factura de venta
     $cod_empleado_actual = isset($_POST['cod_empleado_actual']) ? intval($_POST['cod_empleado_actual']) : 0;
     $nombre_empleado_snapshot = isset($_POST['nombre_empleado_snapshot']) ? trim($_POST['nombre_empleado_snapshot']) : 'Empleado Desconocido';
     $cliente_cod_actor = isset($_POST['cliente_cod_actor']) ? intval($_POST['cliente_cod_actor']) : 0;
@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
     
     $lineas_factura_venta = isset($_POST['lineas']) && is_array($_POST['lineas']) ? $_POST['lineas'] : [];
 
-    //Validaciones básicas
+    // Validaciones básicas
     if ($cod_empleado_actual <= 0) {
         $errores_factura[] = "No se pudo identificar al empleado.";
     }
@@ -46,10 +46,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['guardar_factura_venta
 
         // Depuración para cod_almacen_origen 
         $valor_cod_almacen_origen = isset($linea['cod_almacen_origen']) ? $linea['cod_almacen_origen'] : 'NO ESTABLECIDO';
-        error_log("Procesando Factura Venta - Línea " . $num_linea_form . ": valor de 'cod_almacen_origen' recibido = '" . $valor_cod_almacen_origen . "', intval = " . intval($valor_cod_almacen_origen));
-
+        
         if (empty($linea['cod_almacen_origen']) || intval($linea['cod_almacen_origen']) <= 0) {
-            $errores_factura[] = "Línea " . htmlspecialchars($num_linea_form) . ": Debe seleccionar un almacén de origen. (Valor recibido: '" . htmlspecialchars($valor_cod_almacen_origen) . "')";
+            $errores_factura[] = "Línea " . htmlspecialchars($num_linea_form) . ": Debe seleccionar un almacén de origen.";
         }
         if (!isset($linea['precio_unitario_sin_iva']) || floatval($linea['precio_unitario_sin_iva']) < 0) {
             $errores_factura[] = "Línea " . htmlspecialchars($num_linea_form) . ": El precio unitario es incorrecto.";
